@@ -51,7 +51,7 @@ PGRST_DB_URI="$DB_URL" PGRST_DB_SCHEMAS=public PGRST_DB_ANON_ROLE=anon \
   PGRST_JWT_SECRET="$JWT_SECRET" PGRST_SERVER_PORT=$REST_PORT PGRST_LOG_LEVEL=crit \
   "$POSTGREST_BIN" >"$WORK/postgrest.log" 2>&1 &
 REST_PID=$!
-python3 "$HERE/fake_supabase.py" $API_PORT "http://127.0.0.1:$REST_PORT" "$DB_URL" "$SERVICE_KEY" &
+python3 "$HERE/fake_supabase.py" $API_PORT "http://127.0.0.1:$REST_PORT" "$DB_URL" "$SERVICE_KEY" "$JWT_SECRET" &
 API_PID=$!
 for _ in $(seq 1 50); do
   curl -sf -o /dev/null "http://127.0.0.1:$REST_PORT/" && break

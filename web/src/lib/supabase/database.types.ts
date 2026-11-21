@@ -850,8 +850,33 @@ export type Database = {
     };
     Functions: {
       can_pick: { Args: never; Returns: boolean };
+      fan_split: {
+        Args: { p_match_id: string };
+        Returns: {
+          away: number;
+          draw: number;
+          home: number;
+        }[];
+      };
       is_admin: { Args: never; Returns: boolean };
+      leaderboard: {
+        Args: { p_id?: string; p_scope: string };
+        Returns: {
+          correct: number;
+          correct_away: number;
+          display_name: string;
+          exact: number;
+          is_ballboy: boolean;
+          joined_at: string;
+          points: number;
+          rank: number;
+          user_id: string;
+        }[];
+      };
+      pick_points: { Args: { p: number }; Returns: number };
       pick_window_open: { Args: { p_match_id: string }; Returns: boolean };
+      rescore_all: { Args: never; Returns: number };
+      score_match: { Args: { p_match_id: string }; Returns: number };
     };
     Enums: {
       email_send_status: "queued" | "sent" | "failed";

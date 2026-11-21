@@ -1,9 +1,12 @@
 import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
+import { Suspense } from "react";
 
 import { Countdown } from "@/components/countdown";
 import { LeagueTable } from "@/components/league-table";
 import { MatchCard } from "@/components/match-card";
+import { MyPicks } from "@/components/picks/my-picks";
+import { MyPoints, PickProgress } from "@/components/picks/progress";
 import { Card, Empty, Section } from "@/components/section";
 import { TeamBadge } from "@/components/team-badge";
 import { Button } from "@/components/ui/button";
@@ -11,6 +14,7 @@ import { CACHE_TAGS } from "@/lib/cache-tags";
 import {
   getFrozenPredictions,
   getLatestPredictions,
+  getLeaderboard,
   getLeagueTable,
   getWalkForward,
 } from "@/lib/data";
@@ -19,7 +23,18 @@ import { renderTime } from "@/lib/time";
 import { currentMatchday, isUpcoming } from "@/lib/football";
 import { pct } from "@/lib/format";
 
-export default async function HomePage() {
+export default function HomePage() {
+  return (
+    <>
+      <HomeContent />
+      <Suspense>
+        <MyPicks />
+      </Suspense>
+    </>
+  );
+}
+
+async function HomeContent() {
   "use cache";
   cacheLife("minutes");
   cacheTag(CACHE_TAGS.matches, CACHE_TAGS.predictions);
@@ -44,6 +59,37 @@ export default async function HomePage() {
     .sort((a, b) => Number(latest[b.id].p_away) - Number(latest[a.id].p_away))
     .slice(0, 2);
   const mini = [...table.slice(0, 5), ...table.slice(-3)];
+  const open = fixtures.filter((m) => isUpcoming(m, now) && latest[m.id]).map((m) => m.id);
+
+  // Beat the Ballboy: the latest matchday with scored picks.
+  const pastDays = [
+    ...new Set(
+      season
+        .filter((m) => m.matchday !== null && m.matchdayId && Date.parse(m.kickoff) < now)
+        .map((m) => m.matchday!),
+    ),
+  ].sort((a, b) => b - a);
+  let strip: {
+    md: number;
+    ids: string[];
+    ballboy: number;
+    average: number;
+    top: { name: string; points: number } | null;
+  } | null = null;
+  for (const d of pastDays.slice(0, 3)) {
+    const dayMatches = season.filter((m) => m.matchday === d);
+    const rows = await getLeaderboard("matchday", dayMatches[0].matchdayId!);
+    const fans = rows.filter((r) => !r.isBallboy);
+    if (!fans.length) continue;
+    strip = {
+      md: d,
+      ids: dayMatches.map((m) => m.id),
+      ballboy: rows.find((r) => r.isBallboy)?.points ?? 0,
+      average: fans.reduce((a, r) => a + r.points, 0) / fans.length,
+      top: { name: fans[0].name, points: fans[0].points },
+    };
+    break;
+  }
 
   return (
     <>
@@ -57,10 +103,11 @@ export default async function HomePage() {
               ) : (
                 "Picks locked"
               )}
+              <PickProgress matchIds={open} />
             </p>
           </div>
           <Button asChild size="lg">
-            <Link href={`/fixtures?md=${md}`}>Make your picks</Link>
+            <Link href={`/pick-all?md=${md}`}>Make your picks</Link>
           </Button>
         </Card>
       )}
@@ -82,6 +129,7 @@ export default async function HomePage() {
                       latest={latest[m.id]}
                       frozen={frozen[m.id]}
                       now={now}
+                      pickable
                     />
                   </li>
                 ))}
@@ -130,10 +178,40 @@ export default async function HomePage() {
           </Section>
 
           <Section title="Beat the Ballboy">
-            <Empty>
-              Scores appear here after the first matchday with fan picks: The Ballboy&apos;s points,
-              the average fan, the top fan and your own.
-            </Empty>
+            {strip ? (
+              <Link
+                href="/leaderboard?tab=matchday"
+                className="block rounded-xl bg-surface p-4 hover:bg-muted"
+              >
+                <p className="mb-3 text-xs text-muted-foreground">Matchday {strip.md} points</p>
+                <dl className="grid grid-cols-4 gap-2 text-center text-xs">
+                  <div>
+                    <dt className="text-muted-foreground">The Ballboy</dt>
+                    <dd className="figure text-2xl text-primary">{strip.ballboy}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground">Average fan</dt>
+                    <dd className="figure text-2xl">{strip.average.toFixed(1)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground">Top fan</dt>
+                    <dd className="figure text-2xl">{strip.top?.points}</dd>
+                    <dd className="truncate text-muted-foreground">{strip.top?.name}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground">You</dt>
+                    <dd>
+                      <MyPoints matchIds={strip.ids} />
+                    </dd>
+                  </div>
+                </dl>
+              </Link>
+            ) : (
+              <Empty>
+                Pick before kick-off and score more for the results the model thought unlikely.
+                Scores appear here after the first matchday with fan picks.
+              </Empty>
+            )}
           </Section>
 
           <Section title="Table" more={{ href: "/table", label: "Full table" }}>

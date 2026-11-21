@@ -33,6 +33,7 @@ export type Match = {
   id: string;
   seasonId: string;
   matchday: number | null;
+  matchdayId: string | null;
   homeId: string;
   awayId: string;
   kickoff: string; // ISO, UTC
@@ -140,6 +141,7 @@ export async function getAllMatches(): Promise<Match[]> {
     id: m.id,
     seasonId: m.season_id,
     matchday: m.matchday_id ? (number.get(m.matchday_id) ?? null) : null,
+    matchdayId: m.matchday_id,
     homeId: m.home_team_id,
     awayId: m.away_team_id,
     kickoff: m.kickoff_at,
@@ -271,4 +273,50 @@ export async function getWalkForward(): Promise<WalkForward | null> {
   if (error) throw new Error(error.message);
   const metrics = data[0]?.metrics as { walk_forward?: WalkForward } | undefined;
   return metrics?.walk_forward ?? null;
+}
+
+export type LeaderRow = {
+  rank: number;
+  userId: string;
+  name: string;
+  isBallboy: boolean;
+  points: number;
+  correct: number;
+  exact: number;
+  correctAway: number;
+};
+export type LeaderScope = "matchday" | "season" | "all";
+
+/** Leaderboard rows for a scope, best first. Scored picks only. */
+export async function getLeaderboard(scope: LeaderScope, id: string | null): Promise<LeaderRow[]> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag(CACHE_TAGS.matches, CACHE_TAGS.picks);
+  const { data, error } = await createPublicClient().rpc("leaderboard", {
+    p_scope: scope,
+    ...(id ? { p_id: id } : {}),
+  });
+  if (error) throw new Error(error.message);
+  return data.map((r) => ({
+    rank: r.rank,
+    userId: r.user_id,
+    name: r.display_name,
+    isBallboy: r.is_ballboy,
+    points: r.points,
+    correct: r.correct,
+    exact: r.exact,
+    correctAway: r.correct_away,
+  }));
+}
+
+/** How many fans picked each outcome. Only filled in after kick-off. */
+export async function getFanSplit(
+  matchId: string,
+): Promise<{ home: number; draw: number; away: number }> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag(CACHE_TAGS.matches, CACHE_TAGS.picks);
+  const { data, error } = await createPublicClient().rpc("fan_split", { p_match_id: matchId });
+  if (error) throw new Error(error.message);
+  return data[0] ?? { home: 0, draw: 0, away: 0 };
 }

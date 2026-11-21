@@ -38,7 +38,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en-NG"
       className={`dark ${inter.variable} ${barlowCondensed.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        {/* Apply the fan's light/dark choice before the first paint. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(localStorage.getItem('theme')==='light'){document.documentElement.classList.replace('dark','light')}}catch(e){}",
+          }}
+        />
+      </head>
       <body className="flex min-h-full flex-col pb-[calc(3.5rem+env(safe-area-inset-bottom))] md:pb-0">
         <a href="#main" className="sr-only focus:not-sr-only focus:p-3">
           Skip to content

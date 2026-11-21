@@ -5,13 +5,15 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { FormDots } from "@/components/form-dots";
+import { MyPicks } from "@/components/picks/my-picks";
+import { PickPanel } from "@/components/picks/pick-panel";
 import { ProbabilityBar } from "@/components/probability-bar";
 import { RightWrong } from "@/components/right-wrong";
 import { Card, Empty, Section } from "@/components/section";
 import { StatusTag } from "@/components/status-tag";
 import { TeamLink } from "@/components/team-badge";
 import { CACHE_TAGS } from "@/lib/cache-tags";
-import { getFrozenPredictions, getLatestPredictions } from "@/lib/data";
+import { getFanSplit, getFrozenPredictions, getLatestPredictions } from "@/lib/data";
 import { getContext } from "@/lib/data/context";
 import { renderTime } from "@/lib/time";
 import {
@@ -51,9 +53,14 @@ async function matchTitle(id: string): Promise<Metadata | null> {
 
 export default function MatchPage({ params }: PageProps<"/match/[id]">) {
   return (
-    <Suspense fallback={<p className="text-muted-foreground">Loading match…</p>}>
-      <MatchFromParams params={params} />
-    </Suspense>
+    <>
+      <Suspense fallback={<p className="text-muted-foreground">Loading match…</p>}>
+        <MatchFromParams params={params} />
+      </Suspense>
+      <Suspense>
+        <MyPicks />
+      </Suspense>
+    </>
   );
 }
 
@@ -91,6 +98,9 @@ async function MatchDetail({ id }: { id: string }) {
       (x.homeId === m.awayId && x.awayId === m.homeId),
   );
   const h2h = record(meetings, home.id);
+  const split = Date.parse(m.kickoff) <= now ? await getFanSplit(m.id) : null;
+  const splitTotal = split ? split.home + split.draw + split.away : 0;
+  const pickable = (upcoming || locked) && latest[m.id];
 
   return (
     <article>
@@ -205,6 +215,24 @@ async function MatchDetail({ id }: { id: string }) {
         </div>
 
         <div>
+          {/* 5. Pick panel */}
+          {pickable && (
+            <Section title="Your pick">
+              <PickPanel
+                target={{
+                  matchId: m.id,
+                  kickoff: m.kickoff,
+                  probs: {
+                    home: Number(latest[m.id].p_home),
+                    draw: Number(latest[m.id].p_draw),
+                    away: Number(latest[m.id].p_away),
+                  },
+                }}
+                labels={{ home: home.name, away: away.name }}
+              />
+            </Section>
+          )}
+
           {/* 6. Form */}
           <Section title="Form">
             <Card className="grid gap-3">
@@ -262,6 +290,36 @@ async function MatchDetail({ id }: { id: string }) {
               <Empty>These teams have not met since 2021/22.</Empty>
             )}
           </Section>
+
+          {/* 8. Fan split, only after kick-off */}
+          {split && splitTotal > 0 && (
+            <Section title="What fans picked">
+              <Card>
+                <p className="text-sm">
+                  {pct(Math.max(split.home, split.draw, split.away) / splitTotal)} of fans picked{" "}
+                  {split.home >= split.draw && split.home >= split.away
+                    ? "Home"
+                    : split.draw >= split.away
+                      ? "Draw"
+                      : "Away"}
+                  .
+                </p>
+                <dl className="mt-3 grid grid-cols-3 text-center text-sm">
+                  {(["home", "draw", "away"] as const).map((o) => (
+                    <div key={o}>
+                      <dt className="text-xs text-muted-foreground">
+                        {o === "home" ? "Home" : o === "draw" ? "Draw" : "Away"}
+                      </dt>
+                      <dd className="figure text-2xl">{pct(split[o] / splitTotal)}</dd>
+                    </div>
+                  ))}
+                </dl>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {splitTotal} fans picked this match.
+                </p>
+              </Card>
+            </Section>
+          )}
         </div>
       </div>
     </article>

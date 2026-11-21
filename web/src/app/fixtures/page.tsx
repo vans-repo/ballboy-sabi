@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import { MatchCard } from "@/components/match-card";
+import { MyPicks } from "@/components/picks/my-picks";
 import { Empty, PageTitle } from "@/components/section";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 import { getFrozenPredictions, getLatestPredictions } from "@/lib/data";
@@ -22,9 +23,14 @@ type Search = { md?: string; team?: string };
 
 export default function FixturesPage({ searchParams }: PageProps<"/fixtures">) {
   return (
-    <Suspense fallback={<PageTitle>Fixtures & Results</PageTitle>}>
-      <FixturesFromSearch searchParams={searchParams as Promise<Search>} />
-    </Suspense>
+    <>
+      <Suspense fallback={<PageTitle>Fixtures & Results</PageTitle>}>
+        <FixturesFromSearch searchParams={searchParams as Promise<Search>} />
+      </Suspense>
+      <Suspense>
+        <MyPicks />
+      </Suspense>
+    </>
   );
 }
 
@@ -152,6 +158,7 @@ async function Fixtures({ md, team }: { md: number | null; team: string | null }
                     latest={latest[m.id]}
                     frozen={frozen[m.id]}
                     now={now}
+                    pickable
                   />
                 </li>
               ))}

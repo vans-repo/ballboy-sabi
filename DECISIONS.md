@@ -323,3 +323,61 @@ what was decided and why. Newest stage at the bottom.
     needs the repository variable `NEXT_PUBLIC_SUPABASE_ANON_KEY` (the
     publishable key, which is not a secret). Until that is set, the build
     step is skipped with a warning, while lint and type checks still run.
+
+## Stage 5 — Accounts and picks
+
+75. **Scoring lives in the database** (migration 0600). `score_match()`
+    scores every pick for a match. A trigger runs it whenever a match's
+    status, score or kick-off changes, so saving, correcting or undoing a
+    result rescores at once, and `rescore_all()` rescores everything. It
+    also stores each pick's `points_if_correct` from the prediction frozen
+    at kick-off. A postponed match uses the prediction frozen at its new
+    kick-off.
+76. **Edge cases.** A correct pick on a match with no prediction published
+    before kick-off earns 1 point (the minimum). Abandoned and cancelled
+    matches leave picks void (null points), and they don't count on the
+    leaderboard. Undoing a result clears the points.
+77. **Points on the buttons** use the same formula on the latest
+    prediction. `round` is half away from zero in Postgres, and half up in
+    JavaScript, which is the same for positive numbers.
+78. **Leaderboard and fan split are database functions** (`leaderboard`,
+    `fan_split`). They return only totals, names and counts, never anyone's
+    pick before kick-off. The fan split leaves out The Ballboy and banned
+    fans, and returns zeros before kick-off. The Ballboy is always included
+    in the leaderboard (with 0 points before its first scored pick), so its
+    row can be pinned. Its rank is its real rank among fans.
+79. **"This Matchday" is the latest matchday that has kicked off.**
+    Leaderboard pages are cached for a minute. The signed-in fan's own row
+    is streamed in separately and pinned at the bottom when it isn't on the
+    page.
+80. **Personal data never enters a cached page.** Public pages stay cached
+    and stream the signed-in fan's picks in a separate `<Suspense>` block,
+    which fills a tiny client store that the pick buttons read. Guests skip
+    the session check entirely: the proxy only touches requests that carry
+    a Supabase session cookie.
+81. **Saving a pick** is a server action. It inserts or updates as the fan,
+    so RLS decides whether the window is open, and the action never upserts,
+    because fans may update only the outcome and score columns. A score must
+    agree with the outcome, as the database also checks.
+82. **Guest taps** go to `/login?next=…&pick=<match>:<outcome>`. The pick is
+    saved after logging in, signing up (including after an email
+    confirmation link) or Google sign-in, if the match is still open.
+83. **The Pick-all sheet is the page `/pick-all`.** It steps through the
+    matchday's open matches one at a time, and the Home page's "Make your
+    picks" button opens it.
+84. **Light mode** is stored on the device (localStorage) and applied
+    before the first paint by a one-line script, so cached pages stay shared
+    between fans. Display name and weekly email are saved to the profile.
+85. **Google accounts get a placeholder name** ("Fan 1a2b3c4d") until the
+    fan picks one. The Me page asks for it.
+86. **End-to-end test** (`supabase/tests/run_e2e.sh`, plus the browser
+    script `web/e2e/picks.e2e.mjs`) runs on a throwaway local stack: fresh
+    Postgres with every migration and the seed, PostgREST, and a production
+    build of the site. Auth is a small test stand-in in `fake_supabase.py`
+    that issues real signed tokens, so RLS is exercised for real, because
+    Supabase's Auth server binary couldn't be run in this sandbox. It has 20
+    checks, including the formula (5 for a correct Home with exact score at
+    65%, 4 for a Draw at 26%), the lock at kick-off and a rescore after a
+    correction. It runs in CI.
+87. **Lighthouse after adding picks** (mobile, median of 3): Home 94,
+    Match detail 98, accessibility 100. First-load JavaScript is 169 KB.

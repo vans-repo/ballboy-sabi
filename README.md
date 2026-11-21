@@ -77,6 +77,15 @@ result is saved, every day at 05:00 UTC, and on demand. It needs the GitHub
 secrets `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` (and, once the site is
 live, `REVALIDATE_URL` and `REVALIDATE_SECRET`).
 
+## End-to-end test
+
+Signs up, picks, locks at kick-off, enters a result as the admin and checks
+the points, on a throwaway local stack (never the real project):
+
+```bash
+supabase/tests/run_e2e.sh postgresql://postgres@localhost:5432/postgres
+```
+
 ## Applying migrations to Supabase
 
 ```bash

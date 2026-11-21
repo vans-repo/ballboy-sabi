@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { PickButtons } from "@/components/picks/pick-buttons";
 import { ProbabilityBar } from "@/components/probability-bar";
 import { RightWrong } from "@/components/right-wrong";
 import { StatusTag } from "@/components/status-tag";
@@ -20,6 +21,7 @@ export function MatchCard({
   latest,
   frozen,
   now,
+  pickable = false,
 }: {
   match: Match;
   home: Team;
@@ -27,6 +29,8 @@ export function MatchCard({
   latest?: Prediction;
   frozen?: Prediction;
   now: number;
+  /** Show pick buttons while the match is open. */
+  pickable?: boolean;
 }) {
   const played = hasResult(match);
   const upcoming = isUpcoming(match, now);
@@ -76,6 +80,21 @@ export function MatchCard({
           </p>
         )}
       </Link>
+      {pickable && upcoming && latest && (
+        <div className="mt-3">
+          <PickButtons
+            target={{
+              matchId: match.id,
+              kickoff: match.kickoff,
+              probs: {
+                home: Number(latest.p_home),
+                draw: Number(latest.p_draw),
+                away: Number(latest.p_away),
+              },
+            }}
+          />
+        </div>
+      )}
     </article>
   );
 }

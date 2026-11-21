@@ -58,6 +58,45 @@ jobs:
       - name: Seed a fresh database through the API and check it
         run: supabase/tests/run_seed_test.sh postgresql://postgres:postgres@localhost:5432/postgres
 
+  e2e:
+    name: End-to-end (sign up, pick, lock, score, rescore)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      POSTGREST_VERSION: v12.2.3
+      POSTGREST_SHA256: 9f71269e61ac3a940281e93ff415760f5957e430e475ba4c3889f3ede7d5527c
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r supabase/seed/requirements.txt
+      - name: Install PostgREST
+        run: |
+          curl -sSLo postgrest.tar.xz "https://github.com/PostgREST/postgrest/releases/download/${POSTGREST_VERSION}/postgrest-${POSTGREST_VERSION}-linux-static-x64.tar.xz"
+          echo "${POSTGREST_SHA256}  postgrest.tar.xz" | sha256sum -c -
+          sudo tar xJf postgrest.tar.xz -C /usr/local/bin postgrest
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+        working-directory: web
+      - name: Install Playwright and Chromium (test only)
+        working-directory: web
+        run: npm install --no-save playwright@1.63.0 && npx playwright install --with-deps chromium
+      - name: Run the end-to-end test on a throwaway local stack
+        run: supabase/tests/run_e2e.sh postgresql://postgres:postgres@localhost:5432/postgres
+
   web:
     name: Web lint, types and build
     runs-on: ubuntu-latest
