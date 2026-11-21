@@ -109,7 +109,7 @@ what was decided and why. Newest stage at the bottom.
     model lint. That's about 3 minutes per push, well inside the free minutes.
 29. **Supabase's SQL seed is disabled** in `supabase/config.toml`. The seed is
     a script in `supabase/seed` (Stage 2).
-30. **Typed Supabase queries come later.** `supabase gen types` needs a
+30. **Typed Supabase queries.** (Done in Stage 2, see 43.) `supabase gen types` needs a
     linked project, so the database types will be generated in Stage 2.
 
 ## Between Stages 1 and 2
@@ -127,3 +127,59 @@ what was decided and why. Newest stage at the bottom.
     reports clearly when the file is missing. From Stage 6 the admin CSV import
     also loads it. Stage 2's "plus 2026/27" check passes once the owner adds
     the file.
+
+## Stage 2 — Data load
+
+33. **The seed is a Python script that writes through Supabase's HTTP API**
+    (`supabase/seed/seed.py`, service role key). It doesn't need a direct
+    database connection, so it runs anywhere with HTTPS. Its tests load a
+    fresh database through a local PostgREST, the same API Supabase runs.
+34. **Team list in `supabase/seed/teams.yaml`**, built from the reference
+    `config.yaml` (names, coordinates) and `helpers.py` (aliases). A test
+    checks it against both files. 31 teams: the 30 reference names, with
+    "Doma United" and "Doma United FC" merged into **Doma United**, plus
+    Dakkada and MFM, which appear only in the 2021/22–2022/23 file. "Inter
+    Lagos FC" is stored as **Inter Lagos**.
+35. **Names resolve by exact alias only, never fuzzy matching.** Every team
+    gets its lowercase name and name + " fc" as aliases, plus the reference
+    spellings. A name with no alias is reported and its match isn't loaded.
+36. **Codes are new** (e.g. ABW, ENY, SHO for Shooting Stars, since "3SC"
+    has a digit). **City and colours are left empty** for every team, and
+    Dakkada and MFM have no coordinates. The seed lists them all.
+37. **Season dates.** Dated seasons run from their first to their last match.
+    2021/22 and 2022/23 have no dates, so they get a nominal 1 August to
+    31 July, and every match in them kicks off at that span's midpoint. The
+    file order is kept in `source_order`. 2026/27 is nominal until the
+    fixtures file is loaded, and dates only ever widen.
+38. **Historical kick-off times are a placeholder 16:00 Lagos time.** The
+    dated file has days, not times. Stage 4 should show only the date for
+    matches before 2026/27.
+39. **Matches only in the undated file are kept.** 2023/24 has 8 and 2024/25
+    has 1 that are missing from the dated file. They're loaded with an
+    estimated date (the season's midpoint), so both seasons have their full
+    380 matches. 2025/26 has 376 of 380, with no other source for the rest.
+40. **2022/23 groups come from who played whom** (two groups of ten). The
+    file has no group names, so the letters A and B are the seed's own.
+41. **season_teams status:** `relegated` if the team isn't in the next
+    season, otherwise `promoted` if it wasn't in the previous one, otherwise
+    `stayed`. 2021/22 has no earlier data, so all its teams are `stayed`.
+    Relegation is only judged once the next season has at least as many
+    teams, so a partial fixtures file doesn't mark anyone. Leaving the league
+    for any reason counts as `relegated`.
+42. **Re-runs never overwrite.** Missing rows are added and existing ones are
+    kept. Differences are reported, and the database wins. Two exceptions:
+    season_teams status always follows the data, and a 2026/27 fixture still
+    `scheduled` takes the file's kick-off, matchday and result.
+43. **Database types** are generated into
+    `web/src/lib/supabase/database.types.ts` and used by all four Supabase
+    clients.
+44. **The Ballboy** is the auth user `the-ballboy@system.invalid`. The
+    `.invalid` domain can never receive mail, and its random password is
+    never stored. **The admin** is promoted with `--admin-email` once the
+    owner has signed up (Stage 5).
+45. **Migrations were applied to the project through the Management API**,
+    because this sandbox can't open a database connection. They're recorded
+    in `supabase_migrations.schema_migrations`, so `supabase db push` treats
+    them as already applied.
+46. **Step 6 of the initial load (run the model once) moves to Stage 3**,
+    where the model is built.

@@ -27,6 +27,37 @@ jobs:
       - name: Apply migrations to a fresh database and run the RLS test
         run: supabase/tests/run_db_tests.sh postgresql://postgres:postgres@localhost:5432/postgres
 
+  seed:
+    name: Seed tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      POSTGREST_VERSION: v12.2.3
+      POSTGREST_SHA256: 9f71269e61ac3a940281e93ff415760f5957e430e475ba4c3889f3ede7d5527c
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r supabase/seed/requirements.txt
+      - name: Lint and unit tests
+        working-directory: supabase/seed
+        run: ruff check . && ruff format --check . && pytest -q
+      - name: Install PostgREST (the API Supabase runs)
+        run: |
+          curl -sSLo postgrest.tar.xz "https://github.com/PostgREST/postgrest/releases/download/${POSTGREST_VERSION}/postgrest-${POSTGREST_VERSION}-linux-static-x64.tar.xz"
+          echo "${POSTGREST_SHA256}  postgrest.tar.xz" | sha256sum -c -
+          sudo tar xJf postgrest.tar.xz -C /usr/local/bin postgrest
+      - name: Seed a fresh database through the API and check it
+        run: supabase/tests/run_seed_test.sh postgresql://postgres:postgres@localhost:5432/postgres
+
   web:
     name: Web lint, types and build
     runs-on: ubuntu-latest
