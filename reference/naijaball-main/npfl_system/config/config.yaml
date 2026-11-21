@@ -1,0 +1,91 @@
+paths:
+  raw:        data/raw/npfl_chronological_data.csv
+  processed:  data/processed/npfl_clean_data.csv
+  features:   data/features/npfl_master_model_data.csv
+  model:      models/npfl_brain.pkl
+  encoder:    models/label_encoder.pkl
+
+model:
+  n_estimators:     300
+  max_depth:        10
+  min_samples_leaf: 2
+  random_state:     42
+  test_size:        0.15
+  min_accuracy:     0.55
+
+features:
+  - Home_Form_Pts
+  - Away_Form_Pts
+  - Home_Rest_Days
+  - Away_Rest_Days
+  - Home_Attack_L5
+  - Away_Defense_L5
+  - Travel_Distance_Km
+  - Home_Quality
+  - Away_Quality
+
+target: Outcome
+
+engineering:
+  form_window:    5
+  quality_window: 10
+  quality_min:    0.60
+  quality_max:    1.30
+  rest_default:   7
+
+travel:
+  road_factor:   1.3
+  flight_factor: 0.8
+  flight_min_km: 500
+
+flying_clubs:
+  - Enyimba
+  - Rivers United
+  - Remo Stars
+  - Kano Pillars
+  - El-Kanemi Warriors
+  - Akwa United
+
+reality_override:
+  Remo Stars:         0.60
+  El-Kanemi Warriors: 0.60
+  Bayelsa United:     0.60
+  Wikki Tourists:     0.60
+  Doma United FC:     0.65
+  Sporting Lagos:     0.60
+  Ranchers Bees:      0.65
+  Inter Lagos FC:     0.65
+
+team_coords:
+  Abia Warriors:      [5.526,  7.489]
+  Akwa United:        [5.033,  7.917]
+  Barau:              [12.002, 8.591]
+  Bayelsa United:     [4.926,  6.262]
+  Bendel Insurance:   [6.335,  5.603]
+  Doma United:        [8.407,  8.974]
+  Doma United FC:     [8.407,  8.974]
+  El-Kanemi Warriors: [11.833, 13.150]
+  Enugu Rangers:      [6.458,  7.546]
+  Enyimba:            [5.112,  7.367]
+  Gombe United:       [10.290, 11.167]
+  Heartland:          [5.480,  7.020]
+  Ikorodu City:       [6.619,  3.501]
+  Inter Lagos FC:     [6.524,  3.379]
+  Kano Pillars:       [12.002, 8.591]
+  Katsina United:     [12.990, 7.600]
+  Kun Khalifat:       [5.483,  7.033]
+  Kwara United:       [8.479,  4.541]
+  Lobi Stars:         [7.733,  8.517]
+  Nasarawa United:    [8.490,  8.520]
+  Niger Tornadoes:    [9.583,  6.546]
+  Plateau United:     [9.896,  8.858]
+  Ranchers Bees:      [9.058,  7.489]
+  Remo Stars:         [6.871,  3.710]
+  Rivers United:      [4.815,  7.049]
+  Shooting Stars:     [7.377,  3.947]
+  Sporting Lagos:     [6.524,  3.379]
+  Sunshine Stars:     [7.250,  5.207]
+  Warri Wolves:       [5.554,  5.793]
+  Wikki Tourists:     [10.310, 9.843]
+
+default_coord: [9.082, 8.675]

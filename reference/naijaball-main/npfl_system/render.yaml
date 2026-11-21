@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: najaball-api
+    runtime: python
+    region: oregon
+    plan: free
+    rootDir: .
+    buildCommand: pip install -r api/requirements.txt
+    startCommand: gunicorn api.app:app --workers 2 --bind 0.0.0.0:$PORT --timeout 120
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
