@@ -1,0 +1,9 @@
+# Pinned in Stage 3.
+pandas
+numpy
+scipy
+scikit-learn
+pyyaml
+supabase
+pytest
+ruff

@@ -1,0 +1,137 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/*
+ * Design tokens.
+ *
+ * Dark mode is the default (<html class="dark">). Light mode swaps the same
+ * tokens (<html class="light">). Spec tokens map to Tailwind colours:
+ *
+ *   spec token       utility                 notes
+ *   background       bg-background           page
+ *   surface          bg-surface / bg-card    cards, tab bar
+ *   accent           bg-primary / bg-home    primary buttons, active tab, Home share
+ *   accent-pressed   bg-primary-pressed      pressed and hover states
+ *   neutral          bg-draw                 Draw share of the probability bar
+ *   away             bg-away                 Away share of the probability bar
+ *   success/danger   text-success / -danger  only for check/cross marks and form dots
+ *   text 100% / 60%  text-foreground / text-muted-foreground
+ *
+ * The spec's "accent" is shadcn's "primary". shadcn's own "accent" token is
+ * its subtle hover background, so it stays separate from the TNB gold.
+ * Secondary text uses text at 60%, not neutral: neutral on the page is only
+ * 4.0:1, below the 4.5:1 minimum (see DECISIONS.md).
+ */
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-card: var(--surface);
+  --color-card-foreground: var(--foreground);
+  --color-popover: var(--surface);
+  --color-popover-foreground: var(--foreground);
+  --color-primary: var(--tnb-accent);
+  --color-primary-foreground: var(--on-accent);
+  --color-primary-pressed: var(--tnb-accent-pressed);
+  --color-secondary: var(--surface-raised);
+  --color-secondary-foreground: var(--foreground);
+  --color-muted: var(--surface-raised);
+  --color-muted-foreground: var(--foreground-secondary);
+  --color-accent: var(--surface-raised);
+  --color-accent-foreground: var(--foreground);
+  --color-destructive: var(--danger);
+  --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--tnb-accent);
+
+  --color-home: var(--tnb-accent);
+  --color-draw: var(--neutral);
+  --color-away: var(--away);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+
+  --color-chart-1: var(--tnb-accent);
+  --color-chart-2: var(--neutral);
+  --color-chart-3: var(--away);
+
+  --font-sans: var(--font-inter);
+  --font-heading: var(--font-barlow-condensed);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+}
+
+/* Dark (default) */
+:root,
+.dark {
+  color-scheme: dark;
+  --background: #000e2e;
+  --surface: #00143c;
+  --surface-raised: rgb(255 255 255 / 0.08);
+  --tnb-accent: #f5c842;
+  --tnb-accent-pressed: #d4a800;
+  --on-accent: #000e2e;
+  --neutral: #64748b;
+  --away: #4a90d9;
+  --success: #22c55e;
+  --danger: #ef4444;
+  --foreground: #ffffff;
+  --foreground-secondary: rgb(255 255 255 / 0.6);
+  --border: rgb(255 255 255 / 0.12);
+  --radius: 0.75rem;
+}
+
+/* Light: same tokens, values chosen to keep 4.5:1 text and 3:1 marks */
+.light {
+  color-scheme: light;
+  --background: #f3f5f9;
+  --surface: #ffffff;
+  --surface-raised: rgb(0 14 46 / 0.06);
+  --tnb-accent: #f5c842;
+  --tnb-accent-pressed: #d4a800;
+  --on-accent: #000e2e;
+  --neutral: #64748b;
+  --away: #4a90d9;
+  --success: #15803d;
+  --danger: #b91c1c;
+  --foreground: #000e2e;
+  --foreground-secondary: rgb(0 14 46 / 0.7);
+  --border: rgb(0 14 46 / 0.12);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-background text-foreground;
+    /* Tabular figures for every number on the site. */
+    font-variant-numeric: tabular-nums;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-heading font-bold tracking-tight;
+  }
+}
+
+@layer utilities {
+  /* Barlow Condensed for scores and percentages. */
+  .figure {
+    font-family: var(--font-barlow-condensed);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+}

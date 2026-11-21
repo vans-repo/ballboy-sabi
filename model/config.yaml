@@ -1,0 +1,25 @@
+# Every tunable number in the prediction engine. Values are from the spec.
+model_version: "blend-1.0.0"
+
+elo:
+  initial_rating: 1500        # every team starts here
+  newcomer_rating: 1450       # a team appearing for the first time (promoted)
+  season_regression: 0.25     # at each season start, move ratings 25% of the way back to 1500
+  k: 20
+  home_advantage: 90          # Elo points
+  estimated_date_k_multiplier: 0.5  # halve K for matches with estimated dates
+
+poisson:
+  time_decay_per_day: 0.0025  # match weight = exp(-decay * days before the prediction date)
+  l2_penalty: 2.0             # on all attack and defence strengths
+  newcomer_attack: -0.15      # team with no matches in the data
+  newcomer_defence: 0.15
+  max_goals: 10               # score grid is 0..max_goals for each side
+
+blend:
+  elo_weight: 0.5             # final = elo_weight * Elo + (1 - elo_weight) * Poisson
+
+upset_alert:
+  away_win_ratio: 1.8         # flag when p_away >= ratio * league average away-win rate
+  lookback_seasons: 2
+  max_per_matchday: 2
