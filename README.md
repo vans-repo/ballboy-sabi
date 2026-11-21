@@ -43,6 +43,13 @@ SUPABASE_URL=https://<project-ref>.supabase.co SUPABASE_SERVICE_ROLE_KEY=<secret
   python supabase/seed/seed.py
 ```
 
+To refresh 2026/27 from a fixture list copied off a results page (one value
+per line), convert it first:
+
+```bash
+python supabase/seed/tools/paste_to_csv.py pasted.txt   # writes data/fixtures_2026_27.csv
+```
+
 After signing up on the site, make your account the admin with
 `--admin-email you@example.com`.
 

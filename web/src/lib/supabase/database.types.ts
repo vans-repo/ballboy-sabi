@@ -162,6 +162,7 @@ export type Database = {
           id: string;
           kickoff_at: string;
           kickoff_estimated: boolean;
+          kickoff_time_confirmed: boolean;
           matchday_id: string | null;
           notes: string | null;
           season_id: string;
@@ -180,6 +181,7 @@ export type Database = {
           id?: string;
           kickoff_at: string;
           kickoff_estimated?: boolean;
+          kickoff_time_confirmed?: boolean;
           matchday_id?: string | null;
           notes?: string | null;
           season_id: string;
@@ -198,6 +200,7 @@ export type Database = {
           id?: string;
           kickoff_at?: string;
           kickoff_estimated?: boolean;
+          kickoff_time_confirmed?: boolean;
           matchday_id?: string | null;
           notes?: string | null;
           season_id?: string;

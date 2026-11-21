@@ -22,17 +22,19 @@ def _section(title: str, lines: list[str], empty: str) -> list[str]:
 def build_report(db: Supabase, result: Result, fixtures: FixturesFile, fixtures_path: str) -> str:
     plan = result.plan
     seasons = {s["id"]: s for s in db.select("seasons", "id,label,start_date,end_date,is_current")}
-    matches = db.select("matches", "season_id,status,kickoff_estimated")
+    matches = db.select("matches", "season_id,status,kickoff_estimated,kickoff_time_confirmed")
     season_teams = db.select("season_teams", "season_id,team_id,status,group_name")
     teams = db.select("teams", "id,name,code,city,lat,lon,primary_colour,secondary_colour")
     team_names = {t["id"]: t["name"] for t in teams}
 
     by_season: dict[str, Counter[str]] = defaultdict(Counter)
     estimated: Counter[str] = Counter()
+    time_tbc: Counter[str] = Counter()
     for m in matches:
         label = seasons[m["season_id"]]["label"]
         by_season[label][m["status"]] += 1
         estimated[label] += m["kickoff_estimated"]
+        time_tbc[label] += m["status"] == "scheduled" and not m["kickoff_time_confirmed"]
     st_by_season: dict[str, list[dict]] = defaultdict(list)
     for st in season_teams:
         st_by_season[seasons[st["season_id"]]["label"]].append(st)
@@ -56,6 +58,11 @@ def build_report(db: Supabase, result: Result, fixtures: FixturesFile, fixtures_
             notes.append("current")
         if estimated[label]:
             notes.append(f"{estimated[label]} with estimated dates")
+        if time_tbc[label]:
+            notes.append(f"{time_tbc[label]} upcoming with time TBC")
+        other = {k: v for k, v in c.items() if k not in ("played", "scheduled")}
+        if other:
+            notes.append(", ".join(f"{v} {k}" for k, v in sorted(other.items())))
         sts = st_by_season.get(label, [])
         groups = Counter(st["group_name"] for st in sts if st["group_name"])
         if groups:

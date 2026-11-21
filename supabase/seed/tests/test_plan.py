@@ -127,3 +127,49 @@ def test_partial_next_season_does_not_mark_relegations(historical, chronological
     f.write_text("date,time,home,away,matchday\n2026-09-05,16:00,Enyimba,Kano Pillars,1\n")
     plan = build_plan(historical, chronological, read_fixtures(f, "2026/27").matches, aliases)
     assert not any(r.status == "relegated" for r in plan.season_teams if r.season == "2025/26")
+
+
+def test_time_tbc_and_abandoned(tmp_path: Path, alias_map):
+    aliases, _ = alias_map
+    f = tmp_path / "fixtures.csv"
+    f.write_text(
+        "date,time,home,away,matchday,home_goals,away_goals,status,notes\n"
+        "2026-12-19,,Enyimba,Kano Pillars,18,,,,\n"
+        "2026-09-18,,Enugu Rangers,Nasarawa United,3,,,abandoned,Abandoned at 2-1\n"
+        "2026-09-05,,Rivers United,Barau FC,1,1,0,,\n"
+    )
+    parsed = read_fixtures(f, "2026/27")
+    assert parsed.errors == []
+    tbc, abandoned, played = build_plan([], [], parsed.matches, aliases).matches
+    assert tbc.status == "scheduled" and not tbc.time_confirmed
+    assert tbc.kickoff_at.isoformat() == "2026-12-19T11:00:00+00:00"  # noon in Lagos: picks lock early
+    assert (abandoned.status, abandoned.home_goals, abandoned.notes) == (
+        "abandoned",
+        None,
+        "Abandoned at 2-1",
+    )
+    assert played.status == "played" and not played.time_confirmed
+
+
+def test_fixture_status_errors(tmp_path: Path):
+    f = tmp_path / "fixtures.csv"
+    f.write_text(
+        "date,time,home,away,matchday,home_goals,away_goals,status\n"
+        "2026-09-05,16:00,Enyimba,Kano Pillars,1,,,finished\n"
+        "2026-09-05,16:00,Enyimba,Kano Pillars,1,2,1,abandoned\n"
+        "2026-09-05,16:00,Enyimba,Kano Pillars,1,,,awarded\n"
+    )
+    assert len(read_fixtures(f, "2026/27").errors) == 3
+
+
+def test_real_2026_27_file(alias_map):
+    aliases, _ = alias_map
+    path = Path(__file__).resolve().parents[3] / "data/fixtures_2026_27.csv"
+    if not path.exists():
+        return
+    parsed = read_fixtures(path, "2026/27")
+    assert parsed.errors == []
+    plan = build_plan([], [], parsed.matches, aliases)
+    assert plan.unresolved == {} and plan.duplicates == []
+    assert len(plan.matches) == 380
+    assert plan.matchdays["2026/27"] == list(range(1, 39))

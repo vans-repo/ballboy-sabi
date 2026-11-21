@@ -23,8 +23,12 @@ ALL_SEASONS = (*UNDATED_SEASONS, *OVERLAP_SEASONS, *DATED_ONLY_SEASONS, CURRENT_
 GROUP_SEASON = "2022/23"
 
 # The historical files have dates but no kick-off times. Matches are stored at
-# this placeholder time (Lagos) so a date never shifts when shown in WAT.
+# this placeholder time (Lagos) so a date never shifts when shown in WAT, with
+# kickoff_time_confirmed = false.
 PLACEHOLDER_KICKOFF = time(16, 0)
+# An upcoming match with no announced time: picks lock at noon on match day
+# (earlier than any likely kick-off) until the real time is entered.
+UNANNOUNCED_KICKOFF = time(12, 0)
 
 
 @dataclass(frozen=True)
@@ -44,11 +48,13 @@ class MatchRow:
     kickoff_at: datetime  # UTC
     kickoff_estimated: bool
     source_order: int | None
-    status: str  # 'played' or 'scheduled'
+    status: str  # played / scheduled, or the file's status
     home_goals: int | None
     away_goals: int | None
     matchday: int | None
     source: str  # "file line N", for reports
+    time_confirmed: bool = False
+    notes: str | None = None
 
     @property
     def key(self) -> tuple[str, str, str]:
@@ -150,7 +156,16 @@ def build_plan(
     plan.seasons = list(season_rows.values())
 
     # --- Matches ------------------------------------------------------------
-    def add(m: SourceMatch, h: str, a: str, *, estimated: bool, kickoff: datetime, order: int | None) -> None:
+    def add(
+        m: SourceMatch,
+        h: str,
+        a: str,
+        *,
+        estimated: bool,
+        kickoff: datetime,
+        order: int | None,
+        time_confirmed: bool = False,
+    ) -> None:
         played = m.home_goals is not None
         plan.matches.append(
             MatchRow(
@@ -160,11 +175,13 @@ def build_plan(
                 kickoff_at=kickoff,
                 kickoff_estimated=estimated,
                 source_order=order,
-                status="played" if played else "scheduled",
+                status=m.status or ("played" if played else "scheduled"),
                 home_goals=m.home_goals,
                 away_goals=m.away_goals,
                 matchday=m.matchday,
                 source=f"{m.source} line {m.line}",
+                time_confirmed=time_confirmed,
+                notes=m.notes,
             )
         )
 
@@ -200,8 +217,14 @@ def build_plan(
                 )
 
     for m, h, a in fixture_rows:
-        assert m.match_date is not None and m.kickoff_time is not None
-        add(m, h, a, estimated=False, kickoff=to_utc(m.match_date, m.kickoff_time), order=None)
+        assert m.match_date is not None
+        if m.kickoff_time is not None:
+            t, confirmed = m.kickoff_time, True
+        elif m.home_goals is None and m.status in (None, "postponed"):
+            t, confirmed = UNANNOUNCED_KICKOFF, False
+        else:
+            t, confirmed = PLACEHOLDER_KICKOFF, False  # already played: only the date matters
+        add(m, h, a, estimated=False, kickoff=to_utc(m.match_date, t), order=None, time_confirmed=confirmed)
     plan.matchdays[CURRENT_SEASON] = sorted({m.matchday for m, _, _ in fixture_rows if m.matchday})
 
     # Each pairing appears once per season; anything else is a file error.

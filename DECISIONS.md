@@ -183,3 +183,30 @@ what was decided and why. Newest stage at the bottom.
     them as already applied.
 46. **Step 6 of the initial load (run the model once) moves to Stage 3**,
     where the model is built.
+
+## Between Stages 2 and 3
+
+47. **The 2026/27 fixtures came from a pasted results page.**
+    `supabase/seed/tools/paste_to_csv.py` turns that paste into
+    `data/fixtures_2026_27.csv`. It refuses to write anything unless the
+    result is a full double round robin (380 matches, every team once per
+    matchday). "abor." means abandoned: the status is `abandoned`, no score
+    is stored, and the score at that point goes in `notes`.
+48. **The fixtures CSV gains optional `status` and `notes` columns.** `time`
+    may be blank when no time has been announced. The admin import
+    (Stage 6) reads the same format.
+49. **`matches.kickoff_time_confirmed` (new column, migration 0500).** It is
+    false when the time is a placeholder: every historical match, and
+    upcoming matches with no announced time. Stage 4 shows only the date for
+    played matches whose time is unconfirmed, and "Time TBC" for upcoming
+    ones.
+50. **An upcoming match with no time is stored at 12:00 Lagos time**, so
+    picks lock on the morning of match day rather than after kick-off.
+    Played matches without a time use 16:00, the usual NPFL kick-off in the
+    pasted list. Only the date of those matters.
+51. **How real times get in, with no scraping:** until Stage 6, paste an
+    updated fixture list, convert it and run the seed again. A fixture still
+    `scheduled` takes the new time, result and status. From Stage 6, the
+    admin edits a fixture's time, which sets `kickoff_time_confirmed`.
+52. **A season's placeholder date span is replaced** by the real first and
+    last match dates once its fixtures are loaded.

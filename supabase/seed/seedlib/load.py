@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
-from .plan import CURRENT_SEASON, MatchRow, Plan, build_plan
+from .plan import CURRENT_SEASON, MatchRow, Plan, build_plan, nominal_span
 from .rest import Supabase
 from .sources import SourceMatch, TeamSpec
 
@@ -106,6 +106,12 @@ def seed(
             cur = existing[s.label]
             start = min(s.start_date.isoformat(), cur["start_date"])
             end = max(s.end_date.isoformat(), cur["end_date"])
+            nominal = tuple(d.isoformat() for d in nominal_span(s.label))
+            if (cur["start_date"], cur["end_date"]) == nominal:
+                start, end = (
+                    s.start_date.isoformat(),
+                    s.end_date.isoformat(),
+                )  # real dates replace the placeholder
             if not s.dates_estimated and (start, end) != (cur["start_date"], cur["end_date"]):
                 db.update("seasons", {"start_date": start, "end_date": end}, id=f"eq.{cur['id']}")
             continue
@@ -157,7 +163,10 @@ def seed(
         matchday_ids[(md["season_id"], md["number"])] = md["id"]
 
     # --- Matches -------------------------------------------------------------
-    cols = "id,season_id,home_team_id,away_team_id,kickoff_at,status,home_goals,away_goals,matchday_id"
+    cols = (
+        "id,season_id,home_team_id,away_team_id,kickoff_at,kickoff_time_confirmed,"
+        "status,home_goals,away_goals,matchday_id,notes"
+    )
     in_db = {(m["season_id"], m["home_team_id"], m["away_team_id"]): m for m in db.select("matches", cols)}
 
     def wanted(row: MatchRow) -> dict[str, Any]:
@@ -168,6 +177,8 @@ def seed(
             "away_team_id": row.away_team_id,
             "kickoff_at": row.kickoff_at.isoformat(),
             "kickoff_estimated": row.kickoff_estimated,
+            "kickoff_time_confirmed": row.time_confirmed,
+            "notes": row.notes,
             "source_order": row.source_order,
             "status": row.status,
             "home_goals": row.home_goals,
@@ -184,6 +195,8 @@ def seed(
             continue
         same = (
             _ts(cur["kickoff_at"]) == row.kickoff_at
+            and cur["kickoff_time_confirmed"] == w["kickoff_time_confirmed"]
+            and cur["notes"] == w["notes"]
             and cur["status"] == w["status"]
             and cur["home_goals"] == w["home_goals"]
             and cur["away_goals"] == w["away_goals"]
@@ -192,7 +205,10 @@ def seed(
         if same:
             continue
         if row.season == CURRENT_SEASON and cur["status"] == "scheduled":
-            fields = ("kickoff_at", "status", "home_goals", "away_goals", "matchday_id")
+            fields = (
+                "kickoff_at", "kickoff_time_confirmed", "status",
+                "home_goals", "away_goals", "matchday_id", "notes",
+            )  # fmt: skip
             db.update("matches", {k: w[k] for k in fields}, id=f"eq.{cur['id']}")
             result.matches_updated += 1
         else:

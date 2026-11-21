@@ -117,8 +117,10 @@ class SourceMatch:
     home_goals: int | None
     away_goals: int | None
     match_date: date | None = None  # None when the file has no dates
-    kickoff_time: time | None = None  # WAT, only the 2026/27 file has times
+    kickoff_time: time | None = None  # WAT; None when not announced (or not in the file)
     matchday: int | None = None
+    status: str | None = None  # only the 2026/27 file: abandoned, postponed, ...
+    notes: str | None = None
     order: int = 0  # position among this file's matches in the same season (1-based)
 
 
@@ -190,7 +192,10 @@ def read_chronological(path: Path) -> list[SourceMatch]:
     return _number_within_season(rows)
 
 
-FIXTURE_COLUMNS = ["date", "time", "home", "away", "matchday", "home_goals", "away_goals"]
+FIXTURE_COLUMNS = ["date", "time", "home", "away", "matchday", "home_goals", "away_goals", "status", "notes"]
+REQUIRED_FIXTURE_COLUMNS = ["date", "time", "home", "away", "matchday"]
+# A status other than these comes from the score: played if it has one, else scheduled.
+FIXTURE_STATUSES = {"postponed", "abandoned", "cancelled", "awarded"}
 
 
 def _parse_date(value: str) -> date:
@@ -205,9 +210,10 @@ def _parse_date(value: str) -> date:
 def read_fixtures(path: Path, season: str) -> FixturesFile:
     """The 2026/27 fixtures file (see data/fixtures_2026_27.template.csv).
 
-    Columns: date, time (24-hour, Lagos time), home, away, matchday, and
-    home_goals / away_goals for matches already played. Every row is checked;
-    any error means none of the file is loaded.
+    Columns: date, time (24-hour, Lagos time; blank if not announced), home,
+    away, matchday, home_goals / away_goals for matches already played, and
+    optional status (postponed, abandoned, cancelled, awarded) and notes.
+    Every row is checked; any error means none of the file is loaded.
     """
     result = FixturesFile()
     if not path.exists():
@@ -216,7 +222,7 @@ def read_fixtures(path: Path, season: str) -> FixturesFile:
     with path.open(newline="", encoding="utf-8-sig") as f:
         reader = csv.DictReader(f)
         header = [h.strip().lower() for h in (reader.fieldnames or [])]
-        missing = [c for c in FIXTURE_COLUMNS[:5] if c not in header]
+        missing = [c for c in REQUIRED_FIXTURE_COLUMNS if c not in header]
         if missing:
             result.errors.append(f"{path.name}: missing columns {', '.join(missing)}")
             return result
@@ -227,12 +233,14 @@ def read_fixtures(path: Path, season: str) -> FixturesFile:
             where = f"{path.name} line {line}"
             try:
                 d = _parse_date(rec["date"])
-                try:
-                    t = datetime.strptime(rec["time"], "%H:%M").time()
-                except ValueError:
-                    raise ValueError(
-                        f"time must be 24-hour HH:MM (Lagos time), got {rec['time']!r}"
-                    ) from None
+                t = None
+                if rec["time"]:
+                    try:
+                        t = datetime.strptime(rec["time"], "%H:%M").time()
+                    except ValueError:
+                        raise ValueError(
+                            f"time must be 24-hour HH:MM (Lagos time) or blank, got {rec['time']!r}"
+                        ) from None
                 if not rec["home"] or not rec["away"]:
                     raise ValueError("home and away are required")
                 if not rec["matchday"].isdigit() or int(rec["matchday"]) < 1:
@@ -240,6 +248,13 @@ def read_fixtures(path: Path, season: str) -> FixturesFile:
                 hg, ag = rec.get("home_goals", ""), rec.get("away_goals", "")
                 if bool(hg) != bool(ag):
                     raise ValueError("give both home_goals and away_goals, or neither")
+                status = rec.get("status", "").lower() or None
+                if status is not None and status not in FIXTURE_STATUSES:
+                    raise ValueError(f"status must be one of {', '.join(sorted(FIXTURE_STATUSES))} or blank")
+                if status == "awarded" and not hg:
+                    raise ValueError("an awarded match needs its awarded score")
+                if status in ("postponed", "abandoned", "cancelled") and hg:
+                    raise ValueError(f"a {status} match has no result: leave the goals blank (use notes)")
                 result.matches.append(
                     SourceMatch(
                         source=path.name,
@@ -252,6 +267,8 @@ def read_fixtures(path: Path, season: str) -> FixturesFile:
                         match_date=d,
                         kickoff_time=t,
                         matchday=int(rec["matchday"]),
+                        status=status,
+                        notes=rec.get("notes") or None,
                     )
                 )
             except ValueError as e:
