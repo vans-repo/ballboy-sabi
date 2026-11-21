@@ -274,3 +274,52 @@ what was decided and why. Newest stage at the bottom.
     (`.github/workflows/model.yml`) needs the GitHub secrets SUPABASE_URL
     and SUPABASE_SERVICE_ROLE_KEY. REVALIDATE_URL and REVALIDATE_SECRET can
     wait until the site is deployed.
+
+## Stage 4 — Public pages
+
+65. **Pages are prerendered and cached.** Data functions use `"use cache"`
+    with tags (`matches`, `predictions`, `team-ratings`). Pages that depend
+    on the current time (which matchday is current, which matches have
+    kicked off) are cached for a minute (`cacheLife("minutes")`). Pages that
+    don't depend on it are cached for an hour. Pages that read the URL
+    (fixtures, table, H2H, match, team) render their shell at build time and
+    stream the rest. The countdown is the only ticking element, and it runs
+    in the browser.
+66. **The current matchday** is the first whose median kick-off is less than
+    a day ago, so a single rescheduled match doesn't hold an old matchday
+    open. Rescheduled matches stay on their own matchday's page.
+67. **Before kick-off a match shows its latest prediction. From kick-off on,
+    it shows the prediction frozen at kick-off,** and every ✓/✗ is scored
+    against that. Matches played before the first model run (21 Nov 2026)
+    have no frozen prediction, so they carry no mark. The site never
+    publishes a backfilled prediction as if it had been made in advance.
+68. **Accuracy page.** The live section (this season, scored against frozen
+    predictions) is empty until results arrive after the first run. Until
+    then the page shows the walk-forward test, clearly labelled, with its
+    calibration chart. Always-home can't be scored by log-loss (it's
+    infinite), so the comparison with it uses accuracy and the Brier score:
+    0.515 for our percentages, 0.718 for always home. Log-loss is compared
+    with league averages.
+69. **The test scores are read with the service role, server-side only.**
+    `model_runs` stays admin-only, and only `metrics.walk_forward` reaches a
+    page.
+70. **Navigation without JavaScript where possible.** The top menu, the
+    matchday dropdown and the team filter are `<details>` elements, and the
+    H2H picker is a plain GET form. The only client components are the tab
+    bar (for the active tab), the countdown and the two lazy-loaded Recharts
+    charts.
+71. **Placeholders the owner confirms:** table zone sizes in
+    `web/src/config/site.ts` (1 champion, places 1–3 continental, bottom 4
+    relegated) and the contact email (`NEXT_PUBLIC_CONTACT_EMAIL`, empty
+    until set). The 2022/23 group table shows no zones.
+72. **Not in Stage 4, by design:** the pick panel, the Pick-all sheet, the
+    fan split, the Beat the Ballboy figures, the Leaderboard and Me arrive
+    with accounts in Stage 5. Their places show plain empty states.
+73. **Lighthouse (mobile, production build, warm cache, median of 3):**
+    Home 96, Match detail 97. Accessibility, best practices and SEO are
+    90–100. First-load JavaScript is about 155 KB gzipped, inside the 200 KB
+    budget.
+74. **CI builds with the live project** (pages prerender with real data). It
+    needs the repository variable `NEXT_PUBLIC_SUPABASE_ANON_KEY` (the
+    publishable key, which is not a secret). Until that is set, the build
+    step is skipped with a warning, while lint and type checks still run.

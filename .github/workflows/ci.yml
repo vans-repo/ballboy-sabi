@@ -66,9 +66,12 @@ jobs:
         working-directory: web
     env:
       NEXT_TELEMETRY_DISABLED: "1"
-      # Placeholders: the build reads no data yet.
-      NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
+      # The build prerenders pages with real data, so it reads the live
+      # project: the public URL and publishable key (repository variables),
+      # plus the service key for the published model scores.
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -80,7 +83,12 @@ jobs:
       - run: npm run format:check
       - run: npm run lint
       - run: npm run typecheck
-      - run: npm run build
+      - name: Build
+        if: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY != '' }}
+        run: npm run build
+      - name: Build skipped
+        if: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY == '' }}
+        run: echo "::warning::Set the repository variable NEXT_PUBLIC_SUPABASE_ANON_KEY to build in CI."
 
   model:
     name: Model lint and tests

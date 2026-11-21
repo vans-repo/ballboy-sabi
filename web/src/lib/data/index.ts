@@ -1,0 +1,274 @@
+import "server-only";
+
+import { cacheLife, cacheTag } from "next/cache";
+
+import { CACHE_TAGS } from "@/lib/cache-tags";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { createPublicClient } from "@/lib/supabase/public";
+import type { Tables } from "@/lib/supabase/database.types";
+
+/*
+ * Every public read goes through here. Results are cached across requests
+ * and tagged, so a model run (predictions, team-ratings) or a saved result
+ * (matches) refreshes exactly the pages that use them.
+ */
+
+export type Season = Pick<
+  Tables<"seasons">,
+  "id" | "label" | "start_date" | "end_date" | "is_current"
+>;
+export type Team = Pick<
+  Tables<"teams">,
+  "id" | "name" | "code" | "slug" | "primary_colour" | "secondary_colour" | "city"
+>;
+export type MatchStatus = Tables<"matches">["status"];
+export type Prediction = Pick<
+  Tables<"predictions">,
+  "p_home" | "p_draw" | "p_away" | "xg_home" | "xg_away" | "upset_alert" | "created_at"
+> & {
+  top_scores: { home: number; away: number; p: number }[];
+  reasons: string[];
+};
+export type Match = {
+  id: string;
+  seasonId: string;
+  matchday: number | null;
+  homeId: string;
+  awayId: string;
+  kickoff: string; // ISO, UTC
+  kickoffEstimated: boolean;
+  timeConfirmed: boolean;
+  sourceOrder: number | null;
+  status: MatchStatus;
+  homeGoals: number | null;
+  awayGoals: number | null;
+  notes: string | null;
+};
+export type TableRow = {
+  position: number;
+  teamId: string;
+  group: string | null;
+  played: number;
+  won: number;
+  drawn: number;
+  lost: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  goalDifference: number;
+  points: number;
+  pointsDeducted: number;
+  deductionNotes: string | null;
+  form: string;
+};
+export type Rating = { matchId: string; ratedAt: string; elo: number };
+export type WalkForward = {
+  model_version: string;
+  seasons: string[];
+  matches: number;
+  blend: { log_loss: number; brier: number; accuracy: number };
+  league_average: { log_loss: number; brier: number; accuracy: number };
+  always_home_accuracy: number;
+  calibration: { bucket: string; matches: number; predicted: number; actual: number }[];
+};
+
+const PAGE = 1000;
+
+/** Supabase returns at most 1000 rows per request: page through the rest. */
+async function all<T>(
+  page: (
+    from: number,
+    to: number,
+  ) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>,
+): Promise<T[]> {
+  const rows: T[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await page(from, from + PAGE - 1);
+    if (error) throw new Error(error.message);
+    rows.push(...(data ?? []));
+    if (!data || data.length < PAGE) return rows;
+  }
+}
+
+export async function getSeasons(): Promise<Season[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(CACHE_TAGS.matches);
+  const { data, error } = await createPublicClient()
+    .from("seasons")
+    .select("id,label,start_date,end_date,is_current")
+    .order("start_date");
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+export async function getTeams(): Promise<Team[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(CACHE_TAGS.matches);
+  const { data, error } = await createPublicClient()
+    .from("teams")
+    .select("id,name,code,slug,primary_colour,secondary_colour,city")
+    .order("name");
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+/** Every match in every season, oldest first. About 2,100 rows. */
+export async function getAllMatches(): Promise<Match[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(CACHE_TAGS.matches);
+  const client = createPublicClient();
+  const [rows, matchdays] = await Promise.all([
+    all((from, to) =>
+      client
+        .from("matches")
+        .select(
+          "id,season_id,matchday_id,home_team_id,away_team_id,kickoff_at,kickoff_estimated," +
+            "kickoff_time_confirmed,source_order,status,home_goals,away_goals,notes",
+        )
+        .order("kickoff_at")
+        .order("source_order", { nullsFirst: false })
+        .order("id")
+        .range(from, to)
+        .returns<Tables<"matches">[]>(),
+    ),
+    all((from, to) => client.from("matchdays").select("id,number").range(from, to)),
+  ]);
+  const number = new Map(matchdays.map((m) => [m.id, m.number]));
+  return rows.map((m) => ({
+    id: m.id,
+    seasonId: m.season_id,
+    matchday: m.matchday_id ? (number.get(m.matchday_id) ?? null) : null,
+    homeId: m.home_team_id,
+    awayId: m.away_team_id,
+    kickoff: m.kickoff_at,
+    kickoffEstimated: m.kickoff_estimated,
+    timeConfirmed: m.kickoff_time_confirmed,
+    sourceOrder: m.source_order,
+    status: m.status,
+    homeGoals: m.home_goals,
+    awayGoals: m.away_goals,
+    notes: m.notes,
+  }));
+}
+
+type PredictionRow = Prediction & { match_id: string };
+const PREDICTION_COLUMNS =
+  "match_id,p_home,p_draw,p_away,xg_home,xg_away,top_scores,reasons,upset_alert,created_at";
+
+/** The newest prediction for every match that has one (what upcoming cards show). */
+export async function getLatestPredictions(): Promise<Record<string, Prediction>> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(CACHE_TAGS.predictions);
+  const client = createPublicClient();
+  const rows = await all((from, to) =>
+    client
+      .from("latest_predictions")
+      .select(PREDICTION_COLUMNS)
+      .order("match_id")
+      .range(from, to)
+      .returns<PredictionRow[]>(),
+  );
+  return Object.fromEntries(rows.map(({ match_id, ...p }) => [match_id, p]));
+}
+
+/** The prediction frozen at kick-off, for matches that have started. Used for every right/wrong mark. */
+export async function getFrozenPredictions(): Promise<Record<string, Prediction>> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(CACHE_TAGS.predictions);
+  const client = createPublicClient();
+  const rows = await all((from, to) =>
+    client
+      .from("frozen_predictions")
+      .select(PREDICTION_COLUMNS)
+      .order("match_id")
+      .range(from, to)
+      .returns<PredictionRow[]>(),
+  );
+  return Object.fromEntries(rows.map(({ match_id, ...p }) => [match_id, p]));
+}
+
+export async function getLeagueTable(seasonId: string): Promise<TableRow[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(CACHE_TAGS.matches);
+  const { data, error } = await createPublicClient()
+    .from("league_table")
+    .select("*")
+    .eq("season_id", seasonId)
+    .order("group_name", { nullsFirst: true })
+    .order("position");
+  if (error) throw new Error(error.message);
+  return data.map((r) => ({
+    position: r.position ?? 0,
+    teamId: r.team_id ?? "",
+    group: r.group_name,
+    played: r.played ?? 0,
+    won: r.won ?? 0,
+    drawn: r.drawn ?? 0,
+    lost: r.lost ?? 0,
+    goalsFor: r.goals_for ?? 0,
+    goalsAgainst: r.goals_against ?? 0,
+    goalDifference: r.goal_difference ?? 0,
+    points: r.points ?? 0,
+    pointsDeducted: r.points_deducted ?? 0,
+    deductionNotes: r.deduction_notes,
+    form: r.form ?? "",
+  }));
+}
+
+/** Elo after every match a team played, oldest first. */
+export async function getTeamRatings(teamId: string): Promise<Rating[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(CACHE_TAGS.teamRatings);
+  const client = createPublicClient();
+  const rows = await all((from, to) =>
+    client
+      .from("team_ratings")
+      .select("match_id,rated_at,elo")
+      .eq("team_id", teamId)
+      .order("rated_at")
+      .range(from, to),
+  );
+  return rows.map((r) => ({ matchId: r.match_id, ratedAt: r.rated_at, elo: Number(r.elo) }));
+}
+
+/** Each team's latest Elo. */
+export async function getCurrentElo(): Promise<Record<string, number>> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(CACHE_TAGS.teamRatings);
+  const client = createPublicClient();
+  const rows = await all((from, to) =>
+    client.from("team_ratings").select("team_id,rated_at,elo").order("rated_at").range(from, to),
+  );
+  const latest: Record<string, number> = {};
+  for (const r of rows) latest[r.team_id] = Number(r.elo); // rows are oldest first
+  return latest;
+}
+
+/**
+ * Walk-forward test scores from the latest successful model run.
+ * model_runs is admin-only (it can hold error text), so this reads with the
+ * service role on the server and returns only the published scores.
+ */
+export async function getWalkForward(): Promise<WalkForward | null> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(CACHE_TAGS.predictions);
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return null; // pages show no test scores
+  const { data, error } = await createAdminClient()
+    .from("model_runs")
+    .select("metrics,finished_at")
+    .eq("status", "done")
+    .not("metrics", "is", null)
+    .order("finished_at", { ascending: false })
+    .limit(1);
+  if (error) throw new Error(error.message);
+  const metrics = data[0]?.metrics as { walk_forward?: WalkForward } | undefined;
+  return metrics?.walk_forward ?? null;
+}
