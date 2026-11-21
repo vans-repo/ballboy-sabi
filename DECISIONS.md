@@ -119,7 +119,8 @@ what was decided and why. Newest stage at the bottom.
     seasons, with log-loss, Brier score, accuracy, the always-home baseline
     and a calibration table. The 0.876 log-loss is a target to aim for,
     not a test that must reproduce within ±0.005, because the original
-    method can't be checked.
+    method can't be checked. (Stage 3: the rebuild scores 0.8741 on the same
+    755 matches, so the ±0.005 test is included after all. See 53.)
 32. **`fixtures_2026_27.csv` is lost**, and it can't be rebuilt without
     inventing or scraping data. The seed creates the 2026/27 season and loads
     `data/fixtures_2026_27.csv` (columns: date, time, home, away, matchday,
@@ -210,3 +211,66 @@ what was decided and why. Newest stage at the bottom.
     admin edits a fixture's time, which sets `kickoff_time_confirmed`.
 52. **A season's placeholder date span is replaced** by the real first and
     last match dates once its fixtures are loaded.
+
+## Stage 3 — Prediction engine
+
+53. **Walk-forward method.** The test matches are the last two completed
+    seasons (2024/25 and 2025/26), leaving out matches with estimated dates.
+    That's 755 matches, the spec's count. Each week (Monday 00:00 Lagos
+    time), both models are refitted on every match played before that week,
+    and Elo ratings are taken as they stood at the week's start. The scores
+    are blend 0.8741, Elo 0.8748, Poisson 0.8848 and league averages 0.8800,
+    against the spec's 0.876 and 0.881. "League averages" means the
+    Home/Draw/Away shares of all matches before the week.
+54. **The Elo → H/D/A step** is scikit-learn's multinomial logistic
+    regression on (home rating + home advantage − away rating) / 400, with
+    default regularisation. A team in the first season of data starts at
+    1500, and any team first seen later starts at 1450.
+55. **Production runs learn from matches before the run time.** Predictions
+    are made only for matches that haven't kicked off. The Poisson model is
+    fitted once per fixture date, with the decay counted back from that
+    date, so a fixture months away leans more on the penalty (closer to
+    average) than this weekend's.
+56. **team_ratings holds attack and defence as of the end of each match
+    day,** next to the Elo after the match. All rows are rebuilt and
+    upserted on every run, so a corrected result flows through. That's
+    3,644 rows, and a run takes about 12 seconds.
+57. **Upset Alert:** away-win chance ≥ 1.8 × the away-win rate of the last
+    two completed seasons (11.4%, so the threshold is 20.5%). The model
+    flags every match that qualifies, and the app shows the top two per
+    matchday (decision 4). The first run flagged 19 of 252.
+58. **The Ballboy's pick** is the outcome the unrounded blend rates most
+    likely, plus the likeliest scoreline within it. Picks are written only
+    for matches that haven't kicked off, so a pick never changes after
+    kick-off. On the first run it picked a home win in all 252, which is
+    expected in a league where the home side wins 64% of the time. The
+    points formula is what lets fans beat it.
+59. **Release rule.** Every run computes the walk-forward scores. Nothing is
+    published unless the blend beats league averages, and a run whose
+    `model_version` differs from the last successful run must also beat
+    that run's log-loss. Otherwise the run is marked `failed`, with the
+    reason, and the last predictions stay up.
+60. **Reasons:** the first line is always the two teams' Elo ranks among
+    this season's teams. Up to two more come from this list, in order:
+    newly promoted (not in last season's data); a home unbeaten or winless
+    run of 4+ this season; an away unbeaten run of 4+ this season, or an
+    away record over the last 12 away games when it's notably poor or good;
+    the last meeting; wins in the last 5 games.
+61. **Tuning isn't applied automatically.** `model.tune` found a setting
+    0.0029 better (K 30, home advantage 60, decay 0.0015, L2 4, Elo weight
+    0.7). Every best value sits at the edge of the grid, and they were
+    chosen on the same matches they're scored on, so launch keeps the spec's
+    values. Adopting new settings means editing `config.yaml` and raising
+    `model_version`, and the release rule then decides.
+62. **`/api/revalidate`** (POST, `Authorization: Bearer REVALIDATE_SECRET`)
+    expires the `predictions` and `team-ratings` cache tags immediately
+    (`expire: 0`), so the next request after a run shows it. Stage 4 pages
+    tag their reads with these.
+63. **Python packages are pinned for 3.11** (numpy 2.3.5, pandas 2.3.3,
+    scipy 1.16.3, scikit-learn 1.7.2). The model talks to Supabase through
+    the REST API with httpx, like the seed, rather than supabase-py.
+64. **CI runs the model tests and prints the walk-forward report** from the
+    source files, so no secrets are needed. The model workflow
+    (`.github/workflows/model.yml`) needs the GitHub secrets SUPABASE_URL
+    and SUPABASE_SERVICE_ROLE_KEY. REVALIDATE_URL and REVALIDATE_SECRET can
+    wait until the site is deployed.

@@ -13,4 +13,7 @@ export const serverEnv = {
   get supabaseServiceRoleKey(): string {
     return required("SUPABASE_SERVICE_ROLE_KEY");
   },
+  get revalidateSecret(): string {
+    return required("REVALIDATE_SECRET");
+  },
 };

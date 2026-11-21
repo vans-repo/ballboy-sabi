@@ -1,9 +1,8 @@
-# Pinned in Stage 3.
-pandas
-numpy
-scipy
-scikit-learn
-pyyaml
-supabase
-pytest
-ruff
+numpy==2.3.5
+pandas==2.3.3
+scipy==1.16.3
+scikit-learn==1.7.2
+PyYAML==6.0.3
+httpx==0.28.1
+pytest==9.1.1
+ruff==0.17.6

@@ -83,15 +83,20 @@ jobs:
       - run: npm run build
 
   model:
-    name: Model lint
+    name: Model lint and tests
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: model
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install ruff
-      - run: ruff check . && ruff format --check .
+          cache: pip
+          cache-dependency-path: model/requirements.txt
+      - run: pip install -r model/requirements.txt
+      - name: Lint
+        working-directory: model
+        run: ruff check . && ruff format --check .
+      - name: Tests (walk-forward on the source files, no secrets needed)
+        run: python -m pytest -q model/tests
+      - name: Walk-forward report
+        run: python -m model.evaluate --source files

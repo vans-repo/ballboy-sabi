@@ -61,6 +61,22 @@ cd supabase/seed && pytest -q && cd ../..
 supabase/tests/run_seed_test.sh postgresql://postgres@localhost:5432/postgres
 ```
 
+## Prediction engine
+
+From the repo root, with `pip install -r model/requirements.txt`:
+
+```bash
+python -m pytest -q model/tests                 # tests, from the source files
+python -m model.evaluate --source files         # walk-forward report (or omit --source for Supabase)
+python -m model.tune --source files             # grid search; never edits config.yaml
+SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... python -m model.run --dry-run
+```
+
+In production, `.github/workflows/model.yml` runs `python -m model.run` when a
+result is saved, every day at 05:00 UTC, and on demand. It needs the GitHub
+secrets `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` (and, once the site is
+live, `REVALIDATE_URL` and `REVALIDATE_SECRET`).
+
 ## Applying migrations to Supabase
 
 ```bash
