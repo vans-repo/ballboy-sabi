@@ -111,3 +111,19 @@ what was decided and why. Newest stage at the bottom.
     a script in `supabase/seed` (Stage 2).
 30. **Typed Supabase queries come later.** `supabase gen types` needs a
     linked project, so the database types will be generated in Stage 2.
+
+## Between Stages 1 and 2
+
+31. **`evaluate_models.py` is lost.** Stage 3 rebuilds the walk-forward
+    evaluation from the spec: weekly refits over the last two completed
+    seasons, with log-loss, Brier score, accuracy, the always-home baseline
+    and a calibration table. The 0.876 log-loss is a target to aim for,
+    not a test that must reproduce within ±0.005, because the original
+    method can't be checked.
+32. **`fixtures_2026_27.csv` is lost**, and it can't be rebuilt without
+    inventing or scraping data. The seed creates the 2026/27 season and loads
+    `data/fixtures_2026_27.csv` (columns: date, time, home, away, matchday,
+    plus home_goals and away_goals for played matches) when it exists. It
+    reports clearly when the file is missing. From Stage 6 the admin CSV import
+    also loads it. Stage 2's "plus 2026/27" check passes once the owner adds
+    the file.
