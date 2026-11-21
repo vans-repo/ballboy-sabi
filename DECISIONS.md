@@ -67,8 +67,7 @@ what was decided and why. Newest stage at the bottom.
 ### League table
 
 17. **Ordering: points, then goal difference, then goals for, then name.**
-    *Please confirm the NPFL's official tie-break* (for example whether head-to-head
-    comes first) and I'll match it. In the 2022/23 group season, positions are
+    Confirmed by the site owner. In the 2022/23 group season, positions are
     ranked within each group.
 18. **Form** is the last five results, oldest first, so the newest is on the
     right (for example `WWDLW`).
