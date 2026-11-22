@@ -57,7 +57,7 @@ export function RunStatus({ runId }: { runId: string }) {
         )}
         {run.status === "done" &&
           run.predictions !== null &&
-          ` (${run.predictions} predictions updated)`}
+          ` (${run.predictions} ${run.predictions === 1 ? "prediction" : "predictions"} updated)`}
       </p>
       {run.error && <p className="mt-1 text-danger">{run.error}</p>}
     </div>

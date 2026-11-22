@@ -164,7 +164,12 @@ try {
   await tracker.getByText("done", { exact: true }).waitFor({ timeout: 15000 });
   check(
     "the status line reaches done",
-    (await tracker.getByText(/[1-9]\d* predictions updated/).count()) >= 1,
+    await tracker
+      .getByText(/[1-9]\d* predictions? updated/)
+      .first()
+      .waitFor({ timeout: 10000 })
+      .then(() => true)
+      .catch(() => false),
   );
   check(
     "the run wrote fresh predictions",

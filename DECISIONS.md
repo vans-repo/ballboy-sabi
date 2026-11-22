@@ -436,3 +436,60 @@ what was decided and why. Newest stage at the bottom.
     status line reaching "done" and the match page showing the result); the
     "Are you sure?" check; the CSV preview and import; the audit log; and a
     ban.
+
+## Stage 7 — Email and sharing
+
+100. **The Matchday Preview** goes through Brevo's transactional API. It
+     has the subject "Matchday 13 picks close Saturday 4pm" (the matchday's
+     first kick-off, or just the day when no time is announced), the
+     deadline, up to two Upset Alerts, the reader's points and rank from the
+     last scored matchday (or "you didn't pick"), a Make your picks button
+     (to the Pick-all sheet), and an unsubscribe link. It's a plain HTML
+     table layout with no images, light by default with a dark-mode style
+     for mail apps that support one, plus a plain-text version.
+101. **"About 36 hours before."** A daily Vercel Cron job (`vercel.json`,
+     03:00 UTC) queues the preview on the first run between 48 and 24 hours
+     before the matchday's first kick-off. With one run a day, that lands
+     about 36 hours ahead. Each run then sends what's queued, up to
+     `EMAIL_DAILY_LIMIT` (280) counted across all of that UTC day's sends,
+     only while picks are open. Fans who picked last matchday go first,
+     then by sign-up date. `email_sends` is unique per fan and matchday, and
+     a row moves from queued to sent or failed once, so nobody gets two.
+     Failed sends are not retried (the admin sees them). Fans who
+     unsubscribe or are banned after queuing are skipped and their row is
+     removed.
+102. **Fail-safe limit.** If the day's count can't be read, the run stops
+     instead of sending. (The test found this when its stand-in couldn't
+     answer a count.)
+103. **Unsubscribe** links are signed per fan (HMAC with
+     `UNSUBSCRIBE_SECRET`) and never expire. The link opens a page with one
+     Unsubscribe button and no login. The page doesn't act on load, because
+     mail scanners open links. Mail apps' own button uses the standard
+     one-click POST (`List-Unsubscribe` and `List-Unsubscribe-Post`
+     headers).
+104. **Test sends:** the admin's "Send a test to me" (Emails screen), and
+     `/api/cron/email?test=1` with the cron secret. The latter sends to
+     `EMAIL_TEST_ADDRESS`, a server setting, never an address from the
+     request.
+105. **Auth emails** (confirm sign-up, reset password) use the branded
+     templates in `supabase/templates`. They go through Brevo once custom
+     SMTP is set in Supabase (owner checklist, Stage 8).
+106. **Share images** are generated with `next/og` at 1200×630 in Barlow
+     Condensed (bundled from @fontsource, OFL). There are three: the match
+     image (teams, score or the three percentages with the bar, matchday
+     and date); the same image with an UPSET ALERT banner when the match
+     has one, so sharing an Upset Alert shares its match page; and "My
+     Matchday" (`/share/<fan>/<matchday>`: points, rank, right and exact,
+     against The Ballboy). The Me page shares it to WhatsApp and X with
+     plain links, so no extra JavaScript. The share page shows only what
+     the public leaderboard already shows.
+107. **`metadataBase`** comes from `NEXT_PUBLIC_SITE_URL`, so share links
+     carry absolute image URLs.
+108. **End-to-end test, email part** (`web/e2e/email.e2e.mjs`), with Brevo
+     replaced by a recording stand-in and a daily limit of 3. It checks: the
+     cron secret; 6 queued and 3 sent on day 1; the fan who picked last
+     matchday first; the subject format and contents; one-click headers;
+     nothing more the same day; unsubscribe without login (and forged links
+     refused); the rest on day 2 with nobody twice and never more than 3 a
+     day; the admin's test send; and both share images (a 1200×630 PNG)
+     plus the share page's og:image.

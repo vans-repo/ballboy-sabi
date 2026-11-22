@@ -339,3 +339,25 @@ export async function setBanned(userId: string, banned: boolean): Promise<Action
   updateTag(CACHE_TAGS.picks); // leaderboards hide banned fans
   return { message: banned ? "Banned. Hidden from leaderboards and can't pick." : "Unbanned." };
 }
+
+// ---------------------------------------------------------------------------
+// Email
+// ---------------------------------------------------------------------------
+/** Send the next Matchday Preview to the admin's own inbox. Not recorded in email_sends. */
+export async function sendTestPreview(): Promise<ActionResult> {
+  await admin();
+  const viewer = await getViewer();
+  if (!viewer?.email) return { error: "Your account has no email address." };
+  const { nextPreview, renderPreview } = await import("@/lib/email/preview");
+  const { sendEmail } = await import("@/lib/email/brevo");
+  const plan = await nextPreview(Date.now());
+  if (!plan) return { error: "There's no upcoming matchday to preview." };
+  const message = renderPreview(plan, { id: viewer.id, name: viewer.displayName });
+  const failure = await sendEmail({
+    to: { email: viewer.email, name: viewer.displayName },
+    ...message,
+  });
+  return failure
+    ? { error: failure }
+    : { message: `Sent "${message.subject}" to ${viewer.email}.` };
+}

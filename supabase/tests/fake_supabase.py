@@ -33,6 +33,7 @@ API_KEYS = set(sys.argv[4].split(","))
 JWT_SECRET = sys.argv[5] if len(sys.argv) > 5 else ""
 PASSWORDS: dict[str, str] = {}  # email -> password
 REFRESH: dict[str, str] = {}  # refresh token -> user id
+BREVO_SENT: list[dict] = []  # emails received at /brevo/v3/smtp/email (stand-in for api.brevo.com)
 GITHUB_CALLS: list[dict] = []  # dispatches received at /github/... (stand-in for api.github.com)
 USER_COLS = "id, email, raw_user_meta_data as user_metadata, created_at"
 
@@ -97,17 +98,24 @@ class Handler(BaseHTTPRequestHandler):
     def log_message(self, *args: object) -> None:  # keep test output quiet
         pass
 
-    def reply(self, status: int, body: bytes, ctype: str = "application/json") -> None:
+    def reply(
+        self, status: int, body: bytes, ctype: str = "application/json", extra: dict | None = None
+    ) -> None:
         self.send_response(status)
         self.send_header("Content-Type", ctype)
+        for k, v in (extra or {}).items():
+            self.send_header(k, v)
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
-        self.wfile.write(body)
+        if self.command != "HEAD":
+            self.wfile.write(body)
 
     def handle_any(self) -> None:
         path = urlparse(self.path).path
         if path.startswith("/github/"):
             return self.github(path)
+        if path.startswith("/brevo/"):
+            return self.brevo(path)
         if self.headers.get("apikey") not in API_KEYS:
             return self.reply(401, b'{"message":"bad apikey"}')
         length = int(self.headers.get("Content-Length") or 0)
@@ -131,7 +139,11 @@ class Handler(BaseHTTPRequestHandler):
         req = urllib.request.Request(url, data=body, method=self.command, headers=headers)
         try:
             with urllib.request.urlopen(req) as r:
-                self.reply(r.status, r.read(), r.headers.get("Content-Type", "application/json"))
+                # Content-Range carries the row count for count requests.
+                extra = (
+                    {"Content-Range": r.headers["Content-Range"]} if r.headers.get("Content-Range") else None
+                )
+                self.reply(r.status, r.read(), r.headers.get("Content-Type", "application/json"), extra)
         except urllib.error.HTTPError as e:
             self.reply(e.code, e.read())
 
@@ -162,6 +174,17 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(204)
         self.end_headers()
         return None
+
+    def brevo(self, path: str) -> None:
+        """Records transactional emails; GET /brevo/_sent lists them."""
+        if self.command == "GET" and path == "/brevo/_sent":
+            return self.send_json(200, BREVO_SENT)
+        if not self.headers.get("api-key"):
+            return self.send_json(401, {"code": "unauthorized", "message": "Key not found"})
+        length = int(self.headers.get("Content-Length") or 0)
+        body = json.loads(self.rfile.read(length) or b"{}")
+        BREVO_SENT.append(body)
+        return self.send_json(201, {"messageId": f"<{secrets.token_hex(8)}@e2e>"})
 
     def send_json(self, status: int, data: object) -> None:
         self.reply(status, json.dumps(data, default=str).encode())
@@ -214,7 +237,7 @@ class Handler(BaseHTTPRequestHandler):
             return None
         return self.send_json(404, {"msg": f"not implemented in the test stand-in: {self.command} {path}"})
 
-    do_GET = do_POST = do_PATCH = do_DELETE = handle_any
+    do_GET = do_HEAD = do_POST = do_PATCH = do_DELETE = handle_any
 
 
 if __name__ == "__main__":

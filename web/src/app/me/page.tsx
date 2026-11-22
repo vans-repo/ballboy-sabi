@@ -12,6 +12,7 @@ import { getViewer } from "@/lib/auth/user";
 import { getLeaderboard } from "@/lib/data";
 import { getContext } from "@/lib/data/context";
 import { formatDay, ordinal } from "@/lib/format";
+import { publicEnv } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Me", robots: { index: false } };
@@ -48,6 +49,14 @@ async function Me() {
     .filter((x) => x.m)
     .sort((a, b) => Date.parse(b.m.kickoff) - Date.parse(a.m.kickoff));
   const placeholderName = /^Fan [0-9a-f]{8}$/.test(viewer.displayName);
+  // "My Matchday": the latest matchday this season where one of my picks was scored.
+  const lastScored = history.find(
+    ({ p, m }) => p.points_awarded !== null && m.seasonId === ctx.current.id && m.matchday !== null,
+  );
+  const shareUrl = lastScored
+    ? `${publicEnv.siteUrl}/share/${viewer.id}/${lastScored.m.matchday}`
+    : null;
+  const shareText = lastScored ? `My Matchday ${lastScored.m.matchday} on Beat the Ballboy` : "";
 
   return (
     <>
@@ -86,6 +95,37 @@ async function Me() {
               </p>
             </Card>
           </Section>
+
+          {shareUrl && lastScored && (
+            <Section title="Share my matchday">
+              <Card className="grid gap-3 text-sm">
+                <p>Matchday {lastScored.m.matchday}: share your score as an image card.</p>
+                <div className="flex flex-wrap gap-2">
+                  <Button asChild>
+                    <a
+                      href={`https://wa.me/?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      WhatsApp
+                    </a>
+                  </Button>
+                  <Button asChild variant="secondary">
+                    <a
+                      href={`https://x.com/intent/post?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      X
+                    </a>
+                  </Button>
+                  <Button asChild variant="secondary">
+                    <Link href={`/share/${viewer.id}/${lastScored.m.matchday}`}>Open the card</Link>
+                  </Button>
+                </div>
+              </Card>
+            </Section>
+          )}
 
           <Section title="Your picks">
             {history.length ? (

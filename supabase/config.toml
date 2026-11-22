@@ -254,6 +254,14 @@ otp_expiry = 3600
 # sender_name = "Admin"
 
 # Uncomment to customize email template
+[auth.email.template.confirmation]
+subject = "Confirm your Ballboy Sabi account"
+content_path = "./supabase/templates/confirm.html"
+
+[auth.email.template.recovery]
+subject = "Reset your Ballboy Sabi password"
+content_path = "./supabase/templates/recovery.html"
+
 # [auth.email.template.invite]
 # subject = "You have been invited"
 # content_path = "./supabase/templates/invite.html"

@@ -14,6 +14,7 @@ import {
   runModelNow,
   saveImport,
   saveSeasonTeams,
+  sendTestPreview,
   setBanned,
   setCurrentSeason,
   updateFixture,
@@ -631,5 +632,21 @@ export function BanButton({ userId, banned }: { userId: string; banned: boolean 
       </Button>
       <Message result={result} />
     </span>
+  );
+}
+
+export function SendTestButton() {
+  const { pending, result, run } = useAct();
+  return (
+    <div className="grid gap-2">
+      <Button
+        disabled={pending}
+        onClick={() => run(sendTestPreview)}
+        className="justify-self-start"
+      >
+        {pending ? "Sending…" : "Send a test to me"}
+      </Button>
+      <Message result={result} />
+    </div>
   );
 }

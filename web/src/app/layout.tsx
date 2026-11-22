@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { BottomTabs } from "@/components/site-nav";
 import { SITE_NAME } from "@/config/site";
+import { publicEnv } from "@/lib/env";
 
 import "./globals.css";
 
@@ -22,6 +23,8 @@ const barlowCondensed = Barlow_Condensed({
 });
 
 export const metadata: Metadata = {
+  // Absolute URLs for share images (WhatsApp and X need them).
+  metadataBase: new URL(publicEnv.siteUrl),
   title: { default: SITE_NAME, template: `%s · ${SITE_NAME}` },
   description:
     "Data-driven NPFL match predictions with Home, Draw and Away percentages, and Beat the Ballboy, a free prediction game.",
