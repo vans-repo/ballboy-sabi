@@ -34,3 +34,6 @@ done
 
 echo "== RLS test"
 psql "$DB_URL" -q -v ON_ERROR_STOP=1 -f "$HERE/rls_test.sql"
+
+echo "== Scoring test"
+psql "$DB_URL" -q -v ON_ERROR_STOP=1 -f "$HERE/scoring_test.sql"

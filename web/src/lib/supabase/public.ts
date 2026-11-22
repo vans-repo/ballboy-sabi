@@ -3,6 +3,7 @@ import "server-only";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 
 import { publicEnv } from "@/lib/env";
+import type { Database } from "./database.types";
 
 /**
  * Anonymous Supabase client with no cookies, for public data (fixtures,
@@ -10,7 +11,7 @@ import { publicEnv } from "@/lib/env";
  * so its results are safe to cache and share between requests.
  */
 export function createPublicClient() {
-  return createSupabaseClient(publicEnv.supabaseUrl, publicEnv.supabaseAnonKey, {
+  return createSupabaseClient<Database>(publicEnv.supabaseUrl, publicEnv.supabaseAnonKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 }

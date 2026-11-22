@@ -14,3 +14,16 @@ export const DISPLAY_TIME_ZONE = "Africa/Lagos";
 
 /** Shown in the footer and on the About page. */
 export const FREE_TO_PLAY_LINE = "Free to play. No money involved, ever.";
+
+/**
+ * League table zones, counted from the top and bottom of the table.
+ * PLACEHOLDERS for the site owner to confirm against the current NPFL rules.
+ */
+export const TABLE_ZONES = {
+  title: 1, // champions
+  continental: 3, // places 1..3 (including the champions) go to CAF competitions
+  relegation: 4, // bottom four go down
+};
+
+/** Contact details for the About page. Empty until the site owner sets them. */
+export const CONTACT_EMAIL: string = process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || "";

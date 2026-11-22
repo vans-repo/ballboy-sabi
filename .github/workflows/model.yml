@@ -1,0 +1,47 @@
+name: Model run
+
+on:
+  # Sent by the app when an admin saves or corrects a result (Stage 6).
+  # client_payload.model_run_id: the queued model_runs row to fill in.
+  repository_dispatch:
+    types: [result_saved]
+  # Daily fallback at 05:00 UTC (06:00 in Lagos).
+  schedule:
+    - cron: "0 5 * * *"
+  # "Run now" from the admin dashboard, or by hand from the Actions tab.
+  workflow_dispatch:
+    inputs:
+      model_run_id:
+        description: Queued model_runs row to fill in (optional)
+        required: false
+
+# Runs never overlap: a new one waits for the current one to finish.
+concurrency:
+  group: model-run
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    name: Rebuild ratings and predictions
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: model/requirements.txt
+      - run: pip install -r model/requirements.txt
+      - name: Run the model
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          REVALIDATE_URL: ${{ secrets.REVALIDATE_URL }}
+          REVALIDATE_SECRET: ${{ secrets.REVALIDATE_SECRET }}
+          MODEL_RUN_ID: ${{ github.event.client_payload.model_run_id || github.event.inputs.model_run_id }}
+          MODEL_TRIGGER: ${{ github.event_name == 'repository_dispatch' && 'result_saved' || github.event_name == 'schedule' && 'scheduled' || 'manual' }}
+        run: python -m model.run
