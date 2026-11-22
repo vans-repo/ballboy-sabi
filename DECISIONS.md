@@ -493,3 +493,30 @@ what was decided and why. Newest stage at the bottom.
      refused); the rest on day 2 with nobody twice and never more than 3 a
      day; the admin's test send; and both share images (a 1200×630 PNG)
      plus the share page's og:image.
+
+## Stage 8 — Launch prep
+
+109. **Keep-awake:** a second daily Vercel Cron job calls `/api/health`,
+     which runs one tiny query. The site still works if it's missed: free
+     Supabase projects pause only after a week without activity, and the
+     daily email job queries the database too.
+110. **Region:** `vercel.json` pins the site's server functions to
+     Frankfurt (`fra1`), next to the Supabase project (`eu-central-1`), so
+     each page load avoids a long database round trip. Vercel Hobby allows
+     one region.
+111. **Search engines:** `robots.txt` keeps out admin, accounts, APIs,
+     sign-in and unsubscribe pages. Share pages are not blocked there
+     (X's preview crawler obeys `robots.txt`), but they carry a "noindex"
+     tag. The sitemap lists the main pages, every team and every match of
+     the current season (419 URLs today), refreshed daily.
+112. **Share metadata:** site-wide Open Graph defaults (site name, `en_NG`,
+     large Twitter/X card) and a default share image. Match and My Matchday
+     pages use their own images.
+113. **Error pages:** the page-level error and not-found pages from Stage 4,
+     plus a plain last-resort `global-error` page for when the root layout
+     itself fails.
+114. **The deploy is the owner's to do.** This session has no Vercel access,
+     and the remaining steps (Vercel project, Google OAuth client, Brevo
+     SMTP in Supabase, the revalidate secret on GitHub, merging to `main`)
+     need the owner's accounts. The README's launch checklist lists each
+     step.

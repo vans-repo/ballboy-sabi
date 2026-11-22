@@ -28,6 +28,9 @@ export const metadata: Metadata = {
   title: { default: SITE_NAME, template: `%s · ${SITE_NAME}` },
   description:
     "Data-driven NPFL match predictions with Home, Draw and Away percentages, and Beat the Ballboy, a free prediction game.",
+  applicationName: SITE_NAME,
+  openGraph: { siteName: SITE_NAME, type: "website", locale: "en_NG" },
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {
