@@ -77,7 +77,7 @@ long random string (32 or more characters) and keep a copy:
 
 | Variable | Value |
 | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | The site's address, e.g. `https://ballboysabi.com` |
+| `NEXT_PUBLIC_SITE_URL` | The site's address, e.g. `https://ballboy-sabi.vercel.app` (your real address, no slash at the end) |
 | `NEXT_PUBLIC_SUPABASE_URL` | `https://<project-ref>.supabase.co` |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase publishable key (`sb_publishable_…`) |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase secret key (`sb_secret_…`) |
