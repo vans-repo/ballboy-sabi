@@ -64,12 +64,16 @@ psql "$DB_URL" -q -c "update public.profiles set role = 'admin' where display_na
 echo "== Site (production build)"
 cd "$ROOT/web"
 export NEXT_PUBLIC_SUPABASE_URL="$API" NEXT_PUBLIC_SUPABASE_ANON_KEY="$ANON_KEY" SUPABASE_SERVICE_ROLE_KEY="$SERVICE_KEY" \
-  REVALIDATE_SECRET="e2e-revalidate" NEXT_PUBLIC_SITE_URL="http://127.0.0.1:$WEB_PORT" NEXT_TELEMETRY_DISABLED=1
+  REVALIDATE_SECRET="e2e-revalidate" NEXT_PUBLIC_SITE_URL="http://127.0.0.1:$WEB_PORT" NEXT_TELEMETRY_DISABLED=1 \
+  GITHUB_API_URL="$API/github" GITHUB_REPOSITORY="test/ballboy" GITHUB_DISPATCH_TOKEN="e2e-github-token"
 node node_modules/next/dist/bin/next build >"$WORK/build.log" 2>&1 || { tail -40 "$WORK/build.log"; exit 1; }
 PORT=$WEB_PORT node node_modules/next/dist/bin/next start >"$WORK/web.log" 2>&1 &
 WEB_PID=$!
 for _ in $(seq 1 60); do curl -sf -o /dev/null "http://127.0.0.1:$WEB_PORT/about" && break; sleep 0.5; done
 
-echo "== Browser test"
-BASE="http://127.0.0.1:$WEB_PORT" API="$API" ANON_KEY="$ANON_KEY" DB_URL="$DB_URL" \
-  node "$ROOT/web/e2e/picks.e2e.mjs" || { echo "--- web log"; tail -30 "$WORK/web.log"; exit 1; }
+export BASE="http://127.0.0.1:$WEB_PORT" API ANON_KEY DB_URL SERVICE_KEY ROOT
+export MODEL_PYTHON="${MODEL_PYTHON:-python3}"
+echo "== Browser test: accounts and picks (Stage 5)"
+node "$ROOT/web/e2e/picks.e2e.mjs" || { echo "--- web log"; tail -30 "$WORK/web.log"; exit 1; }
+echo "== Browser test: admin (Stage 6)"
+node "$ROOT/web/e2e/admin.e2e.mjs" || { echo "--- web log"; tail -30 "$WORK/web.log"; exit 1; }

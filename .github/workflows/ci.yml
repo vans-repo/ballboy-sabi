@@ -59,7 +59,7 @@ jobs:
         run: supabase/tests/run_seed_test.sh postgresql://postgres:postgres@localhost:5432/postgres
 
   e2e:
-    name: End-to-end (sign up, pick, lock, score, rescore)
+    name: End-to-end (picks, scoring, admin, model run)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     services:
@@ -78,7 +78,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install -r supabase/seed/requirements.txt
+      - run: pip install -r supabase/seed/requirements.txt -r model/requirements.txt
       - name: Install PostgREST
         run: |
           curl -sSLo postgrest.tar.xz "https://github.com/PostgREST/postgrest/releases/download/${POSTGREST_VERSION}/postgrest-${POSTGREST_VERSION}-linux-static-x64.tar.xz"

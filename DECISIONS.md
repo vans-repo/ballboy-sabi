@@ -381,3 +381,58 @@ what was decided and why. Newest stage at the bottom.
     correction. It runs in CI.
 87. **Lighthouse after adding picks** (mobile, median of 3): Home 94,
     Match detail 98, accessibility 100. First-load JavaScript is 169 KB.
+
+## Stage 6 — Admin
+
+88. **/admin is a 404 for everyone but admins,** with a real 404 status.
+    The proxy checks the session and the profile's role before anything
+    renders, each page checks again on the server, and RLS checks every
+    write. `/api/admin/*` is covered the same way.
+89. **Saving a result:** score steppers plus a status (Played, Postponed,
+    Abandoned, Awarded), then a confirmation summary, plus "Are you sure?"
+    for any score above 6. Postponed needs the new date and kick-off time,
+    and the picks carry over. Awarded needs the awarded score, and the
+    database sets `exclude_from_model`. Abandoned makes picks void. The save
+    runs as the admin (RLS, audit log), the scoring trigger updates points
+    at once, the public pages refresh (`updateTag`), and a model run is
+    dispatched.
+90. **Model runs from the site.** The site creates the `model_runs` row
+    (`queued`, with the service role, since admins only read that table) and
+    passes its id to GitHub. A saved result uses `repository_dispatch`
+    (`result_saved`), and "Run now" uses `workflow_dispatch` of `model.yml`
+    on `main`. If GitHub can't be reached, or the token isn't set, the run
+    is marked `failed` with the reason, and the result itself stays saved.
+91. **The run status line** (queued → running → done, or failed with its
+    error) polls `/api/admin/runs/<id>` every 3 seconds. It sits in a
+    tracker at the top of the admin area, so it stays visible after the
+    saved match leaves "Needs results".
+92. **Fixture CSV import** uses the seed's format: date (YYYY-MM-DD or
+    DD/MM/YYYY), time (24-hour Lagos time, blank = TBC), home, away,
+    matchday. Names resolve through `team_aliases` only. The preview shows
+    every error before saving, and nothing is saved while any row has one.
+    Pairings already in the season are skipped, never overwritten.
+93. **Editing a fixture** changes its date, time (blank = TBC) and matchday.
+    A new matchday number creates the matchday.
+94. **Teams & Seasons:** create a season, make it current (only one at a
+    time), choose its teams with their status, edit each team's code, city
+    and colours (with a badge preview), add or remove aliases, and record or
+    remove point deductions.
+95. **Users:** search by display name or email. Emails live in
+    `auth.users`, so they're read server-side with the service role. The
+    page also shows each fan's picks and lets the admin ban or unban
+    (never The Ballboy). Banned fans can't pick and disappear from the
+    leaderboard.
+96. **The Emails screen** shows this matchday's queued, sent and failed
+    counts. "Send a test to me" comes with Brevo in Stage 7.
+97. **The audit log** shows the latest 100 admin changes, filterable by
+    table, with each change shown field by field.
+98. **Bug found and fixed:** the model job couldn't read kick-off times
+    with fractions of a second, as pandas guessed one date format. It now
+    reads them as ISO 8601, with a test.
+99. **End-to-end test, admin part** (`web/e2e/admin.e2e.mjs`, run by
+    `run_e2e.sh` after the picks test). It covers: 404s for guests and fans;
+    the admin saving a result (points at once, a `result_saved` dispatch to
+    a GitHub stand-in, then the real model job run with that run id, the
+    status line reaching "done" and the match page showing the result); the
+    "Are you sure?" check; the CSV preview and import; the audit log; and a
+    ban.

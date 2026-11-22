@@ -207,3 +207,17 @@ def test_release_rule():
     assert release_check(_metrics("v2", 0.870), prod) is None
     assert "production" in release_check(_metrics("v2", 0.876), prod)
     assert release_check(_metrics("v1", 0.877), prod) is None  # same version: only the league check
+
+
+def test_kickoffs_with_and_without_fractions_of_a_second(data):
+    """Supabase returns "…:00+00:00" for whole seconds and "…:24.367965+00:00" otherwise."""
+    from model.data import _finish
+
+    m = data.matches.head(3).copy()
+    m["kickoff"] = [
+        "2026-09-05T15:00:00+00:00",
+        "2026-11-21T22:56:24.367965+00:00",
+        "2026-11-22T15:00:00+00:00",
+    ]
+    out = _finish(m, data.teams, data.seasons).matches
+    assert str(out.kickoff.iloc[1]) == "2026-11-21 22:56:24.367965+00:00"

@@ -1,0 +1,341 @@
+"use server";
+
+import { updateTag } from "next/cache";
+
+import { lagosToUtc, normaliseName, parseDate, parseTime, UNANNOUNCED_TIME } from "@/lib/admin/csv";
+import { dispatchModelRun } from "@/lib/admin/dispatch";
+import { matchdayId, previewFixtures, type PreviewRow } from "@/lib/admin/fixtures";
+import { getViewer } from "@/lib/auth/user";
+import { CACHE_TAGS } from "@/lib/cache-tags";
+import type { TablesUpdate } from "@/lib/supabase/database.types";
+import { createClient } from "@/lib/supabase/server";
+
+export type ActionResult = { error?: string; message?: string; runId?: string };
+
+/** Every admin action starts here. RLS checks again in the database. */
+async function admin() {
+  const viewer = await getViewer();
+  if (!viewer || viewer.role !== "admin" || viewer.banned) throw new Error("Not allowed");
+  return createClient();
+}
+
+function refreshPublicPages() {
+  updateTag(CACHE_TAGS.matches);
+  updateTag(CACHE_TAGS.picks);
+}
+
+// ---------------------------------------------------------------------------
+// Results
+// ---------------------------------------------------------------------------
+export type ResultInput = {
+  matchId: string;
+  status: "played" | "postponed" | "abandoned" | "awarded" | "cancelled";
+  homeGoals: number | null;
+  awayGoals: number | null;
+  newDate?: string; // postponed: YYYY-MM-DD
+  newTime?: string; // postponed: HH:MM Lagos
+  notes?: string;
+};
+
+/**
+ * Save or correct a result. The database scores every pick for the match at
+ * once (trigger), the public pages refresh, and a model run is dispatched.
+ */
+export async function saveResult(input: ResultInput): Promise<ActionResult> {
+  const supabase = await admin();
+  const values: TablesUpdate<"matches"> = {
+    status: input.status,
+    notes: input.notes?.trim() || null,
+  };
+  if (input.status === "played" || input.status === "awarded") {
+    const ok = [input.homeGoals, input.awayGoals].every(
+      (g) => Number.isInteger(g) && g! >= 0 && g! <= 99,
+    );
+    if (!ok) return { error: "Enter both scores (whole numbers)." };
+    values.home_goals = input.homeGoals;
+    values.away_goals = input.awayGoals;
+  } else {
+    values.home_goals = null;
+    values.away_goals = null;
+  }
+  if (input.status === "postponed") {
+    const date = parseDate(input.newDate ?? "");
+    const time = parseTime(input.newTime ?? "");
+    if (!date || !time) return { error: "A postponed match needs its new date and kick-off time." };
+    values.kickoff_at = lagosToUtc(date, time);
+    values.kickoff_time_confirmed = true;
+  }
+  const { data, error } = await supabase
+    .from("matches")
+    .update(values)
+    .eq("id", input.matchId)
+    .select("id");
+  if (error) return { error: error.message };
+  if (!data?.length) return { error: "That match wasn't found." };
+  refreshPublicPages();
+  const runId = await dispatchModelRun("result_saved");
+  return { message: "Saved. Points are updated.", runId };
+}
+
+// ---------------------------------------------------------------------------
+// Fixtures
+// ---------------------------------------------------------------------------
+export async function updateFixture(input: {
+  matchId: string;
+  seasonId: string;
+  date: string;
+  time: string;
+  matchday: number;
+}): Promise<ActionResult> {
+  const supabase = await admin();
+  const date = parseDate(input.date);
+  const time = input.time ? parseTime(input.time) : null;
+  if (!date) return { error: "Choose a date." };
+  if (input.time && !time) return { error: "Time must be HH:MM, or blank if not announced." };
+  if (!Number.isInteger(input.matchday) || input.matchday < 1)
+    return { error: "Matchday must be a whole number from 1." };
+  const { error } = await supabase
+    .from("matches")
+    .update({
+      kickoff_at: lagosToUtc(date, time ?? UNANNOUNCED_TIME),
+      kickoff_time_confirmed: time !== null,
+      matchday_id: await matchdayId(input.seasonId, input.matchday),
+    })
+    .eq("id", input.matchId);
+  if (error) return { error: error.message };
+  refreshPublicPages();
+  return { message: "Fixture updated." };
+}
+
+export async function addFixture(input: {
+  seasonId: string;
+  homeId: string;
+  awayId: string;
+  date: string;
+  time: string;
+  matchday: number;
+}): Promise<ActionResult> {
+  const supabase = await admin();
+  const date = parseDate(input.date);
+  const time = input.time ? parseTime(input.time) : null;
+  if (!date) return { error: "Choose a date." };
+  if (input.time && !time) return { error: "Time must be HH:MM, or blank if not announced." };
+  if (!input.homeId || !input.awayId || input.homeId === input.awayId)
+    return { error: "Choose two different teams." };
+  if (!Number.isInteger(input.matchday) || input.matchday < 1)
+    return { error: "Matchday must be a whole number from 1." };
+  const { error } = await supabase.from("matches").insert({
+    season_id: input.seasonId,
+    home_team_id: input.homeId,
+    away_team_id: input.awayId,
+    kickoff_at: lagosToUtc(date, time ?? UNANNOUNCED_TIME),
+    kickoff_time_confirmed: time !== null,
+    matchday_id: await matchdayId(input.seasonId, input.matchday),
+  });
+  if (error) return { error: error.message };
+  refreshPublicPages();
+  return { message: "Fixture added." };
+}
+
+export async function previewImport(
+  seasonId: string,
+  csv: string,
+): Promise<{ rows: PreviewRow[]; fileErrors: string[] }> {
+  await admin();
+  return previewFixtures(seasonId, csv);
+}
+
+/** Save an import only when every row is valid. Pairings already in the season are skipped. */
+export async function saveImport(seasonId: string, csv: string): Promise<ActionResult> {
+  const supabase = await admin();
+  const { rows, fileErrors } = await previewFixtures(seasonId, csv);
+  if (fileErrors.length || rows.some((r) => r.errors.length))
+    return { error: "Fix the errors first. Nothing was saved." };
+  const fresh = rows.filter((r) => !r.existing);
+  const days = new Map<number, string>();
+  for (const r of fresh)
+    if (!days.has(+r.matchday)) days.set(+r.matchday, await matchdayId(seasonId, +r.matchday));
+  const { error } = await supabase.from("matches").insert(
+    fresh.map((r) => ({
+      season_id: seasonId,
+      home_team_id: r.homeId!,
+      away_team_id: r.awayId!,
+      kickoff_at: r.kickoff!,
+      kickoff_time_confirmed: r.timeConfirmed!,
+      matchday_id: days.get(+r.matchday)!,
+    })),
+  );
+  if (error) return { error: error.message };
+  refreshPublicPages();
+  return {
+    message: `Imported ${fresh.length} fixtures${rows.length > fresh.length ? `, skipped ${rows.length - fresh.length} already in the season` : ""}.`,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Seasons and teams
+// ---------------------------------------------------------------------------
+export async function createSeason(input: {
+  label: string;
+  start: string;
+  end: string;
+  note: string;
+}): Promise<ActionResult> {
+  const supabase = await admin();
+  if (!/^\d{4}\/\d{2}$/.test(input.label)) return { error: 'Season label looks like "2027/28".' };
+  if (!parseDate(input.start) || !parseDate(input.end) || input.end <= input.start)
+    return { error: "Choose a start date before the end date." };
+  const { error } = await supabase.from("seasons").insert({
+    label: input.label,
+    start_date: input.start,
+    end_date: input.end,
+    format_note: input.note.trim() || null,
+  });
+  if (error)
+    return { error: error.code === "23505" ? "That season already exists." : error.message };
+  refreshPublicPages();
+  return { message: `Created ${input.label}.` };
+}
+
+export async function setCurrentSeason(seasonId: string): Promise<ActionResult> {
+  const supabase = await admin();
+  // Only one season may be current: clear the old one first.
+  const cleared = await supabase
+    .from("seasons")
+    .update({ is_current: false })
+    .eq("is_current", true)
+    .neq("id", seasonId);
+  if (cleared.error) return { error: cleared.error.message };
+  const { error } = await supabase.from("seasons").update({ is_current: true }).eq("id", seasonId);
+  if (error) return { error: error.message };
+  refreshPublicPages();
+  return { message: "Current season changed." };
+}
+
+export async function saveSeasonTeams(
+  seasonId: string,
+  entries: { teamId: string; status: "stayed" | "promoted" | "relegated" }[],
+): Promise<ActionResult> {
+  const supabase = await admin();
+  const { data: current, error: readError } = await supabase
+    .from("season_teams")
+    .select("id,team_id,status")
+    .eq("season_id", seasonId);
+  if (readError) return { error: readError.message };
+  const wanted = new Map(entries.map((e) => [e.teamId, e.status]));
+  const toDelete = (current ?? []).filter((c) => !wanted.has(c.team_id)).map((c) => c.id);
+  if (toDelete.length) {
+    const { error } = await supabase.from("season_teams").delete().in("id", toDelete);
+    if (error) return { error: error.message };
+  }
+  for (const [teamId, status] of wanted) {
+    const row = (current ?? []).find((c) => c.team_id === teamId);
+    const { error } = row
+      ? row.status === status
+        ? { error: null }
+        : await supabase.from("season_teams").update({ status }).eq("id", row.id)
+      : await supabase
+          .from("season_teams")
+          .insert({ season_id: seasonId, team_id: teamId, status });
+    if (error) return { error: error.message };
+  }
+  refreshPublicPages();
+  return { message: `Saved ${wanted.size} teams for the season.` };
+}
+
+export async function updateTeam(input: {
+  teamId: string;
+  code: string;
+  city: string;
+  primary: string;
+  secondary: string;
+}): Promise<ActionResult> {
+  const supabase = await admin();
+  const code = input.code.trim().toUpperCase();
+  if (!/^[A-Z]{3}$/.test(code)) return { error: "Code must be 3 letters." };
+  if (![input.primary, input.secondary].every((c) => /^#[0-9a-fA-F]{6}$/.test(c)))
+    return { error: "Colours look like #1A2B3C." };
+  const { error } = await supabase
+    .from("teams")
+    .update({
+      code,
+      city: input.city.trim() || null,
+      primary_colour: input.primary,
+      secondary_colour: input.secondary,
+    })
+    .eq("id", input.teamId);
+  if (error)
+    return {
+      error: error.code === "23505" ? "Another team already uses that code." : error.message,
+    };
+  refreshPublicPages();
+  return { message: "Team saved." };
+}
+
+export async function addAlias(teamId: string, alias: string): Promise<ActionResult> {
+  const supabase = await admin();
+  const a = normaliseName(alias);
+  if (!a) return { error: "Type the name as it appears in fixture lists." };
+  const { error } = await supabase.from("team_aliases").insert({ team_id: teamId, alias: a });
+  if (error)
+    return { error: error.code === "23505" ? `"${a}" already belongs to a team.` : error.message };
+  return { message: `Added "${a}".` };
+}
+
+export async function deleteAlias(aliasId: string): Promise<ActionResult> {
+  const supabase = await admin();
+  const { error } = await supabase.from("team_aliases").delete().eq("id", aliasId);
+  return error ? { error: error.message } : { message: "Alias removed." };
+}
+
+export async function addDeduction(input: {
+  seasonId: string;
+  teamId: string;
+  points: number;
+  reason: string;
+}): Promise<ActionResult> {
+  const supabase = await admin();
+  if (!Number.isInteger(input.points) || input.points < 1)
+    return { error: "Points must be a whole number from 1." };
+  if (!input.reason.trim()) return { error: "Give the reason, as it will appear under the table." };
+  const { error } = await supabase.from("point_deductions").insert({
+    season_id: input.seasonId,
+    team_id: input.teamId,
+    points: input.points,
+    reason: input.reason.trim(),
+  });
+  if (error) return { error: error.message };
+  refreshPublicPages();
+  return { message: "Deduction recorded." };
+}
+
+export async function deleteDeduction(id: string): Promise<ActionResult> {
+  const supabase = await admin();
+  const { error } = await supabase.from("point_deductions").delete().eq("id", id);
+  if (error) return { error: error.message };
+  refreshPublicPages();
+  return { message: "Deduction removed." };
+}
+
+// ---------------------------------------------------------------------------
+// Model and users
+// ---------------------------------------------------------------------------
+export async function runModelNow(): Promise<ActionResult> {
+  await admin();
+  const runId = await dispatchModelRun("manual");
+  return { message: "Model run requested.", runId };
+}
+
+export async function setBanned(userId: string, banned: boolean): Promise<ActionResult> {
+  const supabase = await admin();
+  const { data, error } = await supabase
+    .from("profiles")
+    .update({ banned })
+    .eq("id", userId)
+    .neq("role", "system")
+    .select("id");
+  if (error) return { error: error.message };
+  if (!data?.length) return { error: "That account can't be changed." };
+  updateTag(CACHE_TAGS.picks); // leaderboards hide banned fans
+  return { message: banned ? "Banned. Hidden from leaderboards and can't pick." : "Unbanned." };
+}

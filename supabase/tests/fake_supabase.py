@@ -33,6 +33,7 @@ API_KEYS = set(sys.argv[4].split(","))
 JWT_SECRET = sys.argv[5] if len(sys.argv) > 5 else ""
 PASSWORDS: dict[str, str] = {}  # email -> password
 REFRESH: dict[str, str] = {}  # refresh token -> user id
+GITHUB_CALLS: list[dict] = []  # dispatches received at /github/... (stand-in for api.github.com)
 USER_COLS = "id, email, raw_user_meta_data as user_metadata, created_at"
 
 
@@ -104,6 +105,9 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def handle_any(self) -> None:
+        path = urlparse(self.path).path
+        if path.startswith("/github/"):
+            return self.github(path)
         if self.headers.get("apikey") not in API_KEYS:
             return self.reply(401, b'{"message":"bad apikey"}')
         length = int(self.headers.get("Content-Length") or 0)
@@ -145,6 +149,19 @@ class Handler(BaseHTTPRequestHandler):
             data["email"], meta,
         )[0]  # fmt: skip
         self.reply(200, json.dumps(row).encode())
+
+    def github(self, path: str) -> None:
+        """Records model-run dispatches; GET /github/_calls lists them."""
+        if self.command == "GET" and path == "/github/_calls":
+            return self.send_json(200, GITHUB_CALLS)
+        if not (self.headers.get("Authorization") or "").startswith("Bearer "):
+            return self.send_json(401, {"message": "Requires authentication"})
+        length = int(self.headers.get("Content-Length") or 0)
+        body = json.loads(self.rfile.read(length) or b"{}")
+        GITHUB_CALLS.append({"path": path, "body": body})
+        self.send_response(204)
+        self.end_headers()
+        return None
 
     def send_json(self, status: int, data: object) -> None:
         self.reply(status, json.dumps(data, default=str).encode())

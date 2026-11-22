@@ -50,7 +50,8 @@ class Dataset:
 
 def _finish(df: pd.DataFrame, teams: dict[str, str], season_order: list[str]) -> Dataset:
     df = df[COLUMNS].copy()
-    df["kickoff"] = pd.to_datetime(df["kickoff"], utc=True)
+    # ISO 8601 with or without fractions of a second ("…:00+00:00", "…:24.367965+00:00").
+    df["kickoff"] = pd.to_datetime(df["kickoff"], utc=True, format="ISO8601")
     df["season_index"] = df["season"].map({s: i for i, s in enumerate(season_order)})
     df["source_order"] = df["source_order"].astype("Float64")
     df = df.sort_values(["kickoff", "season_index", "source_order", "id"], na_position="last")
