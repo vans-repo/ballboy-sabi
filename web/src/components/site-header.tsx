@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { TopTabs } from "@/components/site-nav";
-import { SITE_NAME } from "@/config/site";
+import { SITE_NAME, SUBSTACK_URL } from "@/config/site";
 
 export const MENU = [
   { href: "/teams", label: "Teams" },
@@ -24,7 +24,7 @@ export function SiteHeader() {
             <summary className="inline-flex h-11 cursor-pointer list-none items-center rounded-lg px-3 text-sm font-medium hover:bg-muted [&::-webkit-details-marker]:hidden">
               Menu
             </summary>
-            <ul className="absolute right-0 mt-1 w-48 rounded-xl border bg-surface p-1 shadow-lg">
+            <ul className="absolute right-0 mt-1 w-56 rounded-xl border bg-surface p-1 shadow-lg">
               {MENU.map((m) => (
                 <li key={m.href}>
                   <Link
@@ -35,6 +35,16 @@ export function SiteHeader() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <a
+                  href={SUBSTACK_URL}
+                  target="_blank"
+                  rel="noopener"
+                  className="flex h-11 items-center rounded-lg px-3 text-sm hover:bg-muted"
+                >
+                  Read on Substack <span aria-hidden="true">&nbsp;↗</span>
+                </a>
+              </li>
             </ul>
           </details>
         </nav>

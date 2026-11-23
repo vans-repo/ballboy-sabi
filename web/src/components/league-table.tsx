@@ -6,30 +6,43 @@ import { TABLE_ZONES } from "@/config/site";
 import type { TableRow, Team } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
-type Zone = "title" | "continental" | "relegation" | null;
+type Zone = "title" | "championsLeague" | "confederationCup" | "relegation" | null;
 
 export function zoneFor(position: number, size: number, grouped: boolean): Zone {
   if (grouped) return null;
   if (position <= TABLE_ZONES.title) return "title";
-  if (position <= TABLE_ZONES.continental) return "continental";
+  if (position <= TABLE_ZONES.championsLeague) return "championsLeague";
+  if (position <= TABLE_ZONES.confederationCup) return "confederationCup";
   if (position > size - TABLE_ZONES.relegation) return "relegation";
   return null;
 }
 
 const ZONE_BAR = {
   title: "bg-primary",
-  continental: "bg-away",
+  championsLeague: "bg-away",
+  confederationCup: "bg-draw",
   relegation: "bg-danger",
+} as const;
+
+const ZONE_NAME = {
+  title: "champions, CAF Champions League",
+  championsLeague: "CAF Champions League",
+  confederationCup: "CAF Confederation Cup",
+  relegation: "relegation",
 } as const;
 
 export function ZoneKey() {
   return (
     <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
       <li className="flex items-center gap-1.5">
-        <span className="h-3 w-1 rounded bg-primary" aria-hidden="true" /> Champions
+        <span className="h-3 w-1 rounded bg-primary" aria-hidden="true" /> Champions (and CAF
+        Champions League)
       </li>
       <li className="flex items-center gap-1.5">
-        <span className="h-3 w-1 rounded bg-away" aria-hidden="true" /> Continental places
+        <span className="h-3 w-1 rounded bg-away" aria-hidden="true" /> CAF Champions League
+      </li>
+      <li className="flex items-center gap-1.5">
+        <span className="h-3 w-1 rounded bg-draw" aria-hidden="true" /> CAF Confederation Cup
       </li>
       <li className="flex items-center gap-1.5">
         <span className="h-3 w-1 rounded bg-danger" aria-hidden="true" /> Relegation
@@ -114,22 +127,15 @@ export function LeagueTable({
                     />
                   )}
                   <span className="figure">{r.position}</span>
-                  {zone && (
-                    <span className="sr-only">
-                      ,{" "}
-                      {zone === "title"
-                        ? "champions"
-                        : zone === "continental"
-                          ? "continental place"
-                          : "relegation"}
-                    </span>
-                  )}
+                  {zone && <span className="sr-only">, {ZONE_NAME[zone]}</span>}
                 </td>
-                <td className="py-1">
+                {/* w-full + max-w-0: the team column takes the space left and long names shorten with "…". */}
+                <td className="w-full max-w-0 py-1">
                   {team && (
                     <Link
                       href={`/team/${team.slug}`}
-                      className="flex min-h-11 items-center gap-2 font-medium hover:underline"
+                      title={team.name}
+                      className="flex min-h-11 min-w-0 items-center gap-2 font-medium hover:underline"
                     >
                       <TeamBadge team={team} size="sm" />
                       <span className="truncate">{team.name}</span>
@@ -175,7 +181,7 @@ function Th({ children, title, wide }: { children: string; title: string; wide?:
   return (
     <th
       scope="col"
-      className={cn("px-1.5 py-2 text-right font-medium", wide && "hidden sm:table-cell")}
+      className={cn("px-1 py-2 text-right font-medium sm:px-1.5", wide && "hidden sm:table-cell")}
     >
       <abbr title={title} className="no-underline">
         {children}
@@ -186,6 +192,8 @@ function Th({ children, title, wide }: { children: string; title: string; wide?:
 
 function Td({ children, wide }: { children: React.ReactNode; wide?: boolean }) {
   return (
-    <td className={cn("px-1.5 py-2 text-right", wide && "hidden sm:table-cell")}>{children}</td>
+    <td className={cn("px-1 py-2 text-right sm:px-1.5", wide && "hidden sm:table-cell")}>
+      {children}
+    </td>
   );
 }

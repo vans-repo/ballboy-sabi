@@ -13,6 +13,7 @@ const ITEMS = [
   { href: "/admin/model", label: "Model" },
   { href: "/admin/users", label: "Users" },
   { href: "/admin/emails", label: "Emails" },
+  { href: "/admin/recap", label: "Weekly recap" },
   { href: "/admin/audit", label: "Audit log" },
 ];
 

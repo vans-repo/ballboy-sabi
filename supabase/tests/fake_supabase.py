@@ -125,6 +125,13 @@ class Handler(BaseHTTPRequestHandler):
             return self.proxy(body)
         if path == "/auth/v1/admin/users":
             return self.users(body)
+        if path.startswith("/auth/v1/admin/users/") and self.command == "GET":
+            rows = sql(f"select {USER_COLS} from auth.users where id::text = :'p0'", path.rsplit("/", 1)[1])
+            return (
+                self.send_json(200, user_json(rows[0]))
+                if rows
+                else self.send_json(404, {"msg": "User not found"})
+            )
         if path.startswith("/auth/v1/"):
             return self.auth(path, body)
         self.reply(404, b'{"message":"not found"}')

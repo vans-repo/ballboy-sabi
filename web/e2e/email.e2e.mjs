@@ -44,6 +44,10 @@ sql(`with s as (select id from public.seasons where is_current),
      select s.id, md.id, (select id from public.teams where name = 'Rivers United'),
             (select id from public.teams where name = 'Kwara United'), now() + interval '36 hours', true
      from s, md`);
+// The admin test left Gombe United v Dakkada without a result: make it overdue (3+ hours after kick-off).
+sql(`update public.matches set kickoff_at = now() - interval '5 hours'
+     where status = 'scheduled' and home_team_id = (select id from public.teams where name = 'Gombe United')
+       and away_team_id = (select id from public.teams where name = 'Dakkada')`);
 await fetch(`${BASE}/api/revalidate`, {
   method: "POST",
   headers: { Authorization: "Bearer e2e-revalidate", "Content-Type": "application/json" },
@@ -91,6 +95,23 @@ try {
     "one-click unsubscribe header",
     first.headers?.["List-Unsubscribe-Post"] === "List-Unsubscribe=One-Click" &&
       first.headers?.["List-Unsubscribe"]?.includes("/api/unsubscribe?u="),
+  );
+
+  // Admin reminder: Gombe United v Dakkada kicked off hours ago with no result.
+  const reminders = (await (await fetch(`${API}/brevo/_sent`)).json()).filter((e) =>
+    /results? needs? entering$/.test(e.subject ?? ""),
+  );
+  check(
+    "admins are reminded about missing results",
+    reminders.some(
+      (e) =>
+        e.to[0].email === "admin@e2e.invalid" && e.textContent.includes("Gombe United v Dakkada"),
+    ),
+    JSON.stringify({ subjects: reminders.map((e) => e.subject), report: day1.body.reminder }),
+  );
+  check(
+    "fans don't get the reminder",
+    reminders.every((e) => e.to[0].email === "admin@e2e.invalid"),
   );
 
   // --- 3. Same day again: nothing more -----------------------------------------------

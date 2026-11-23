@@ -520,3 +520,39 @@ what was decided and why. Newest stage at the bottom.
      SMTP in Supabase, the revalidate secret on GitHub, merging to `main`)
      need the owner's accounts. The README's launch checklist lists each
      step.
+
+## After launch
+
+115. **Missing-result reminder.** The daily email job also emails every
+     admin when any match kicked off more than 3 hours ago without a
+     result, listing the matches with a link to Needs results. It repeats
+     daily until they're entered, and records nothing. It's the owner's
+     backup while running the site alone. Automatic results from a licensed
+     feed (option 3) wait on confirming a provider that covers the NPFL.
+116. **Substack and X.** The site is the base. "Read on Substack" sits in
+     the menu, and Substack and @NaijaBallboy links in the footer. Home
+     shows the three latest Substack articles from its public RSS feed
+     (text only, cached for an hour, hidden if the feed can't be read). The
+     Matchday Preview stays the short picks reminder, and Substack carries
+     the longer weekly articles.
+117. **Weekly recap (/admin/recap).** For any matchday with results, it
+     builds article notes and X post drafts from published data only: the
+     model's record against always picking home, the biggest upsets (the
+     results the frozen prediction gave 30% or less), Upset Alert hits, Beat
+     the Ballboy (The Ballboy's points, the average fan, how many fans beat
+     it, the top score), table movers (positions before and after,
+     deductions left out) and the next matchday's Upset Alerts. Drafts are
+     280 characters or fewer and link to match pages, so X shows their share
+     images. Posting stays manual: copy, check, post. The end-to-end test
+     checks the lengths and that no betting words appear.
+118. **Table zones confirmed by the owner:** 1st are champions (and go to
+     the CAF Champions League), 2nd also goes to the CAF Champions League,
+     3rd to the CAF Confederation Cup (its other place goes to the President
+     Federation Cup winners, which the league table doesn't show), and the
+     bottom 4 are relegated. They show as gold, blue, grey and red bars, and
+     each is named for screen readers. The 2022/23 group letters A and B are
+     confirmed too (decision 40).
+119. **Table at 360 px:** the Pts column was being pushed off the right
+     edge by long team names. The team column now takes the space left and
+     long names shorten with "…" (the full name is in the link's title), so
+     every column fits on a phone.

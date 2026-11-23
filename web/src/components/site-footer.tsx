@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { MENU } from "@/components/site-header";
-import { BRAND, FREE_TO_PLAY_LINE, SITE_NAME } from "@/config/site";
+import { BRAND, FREE_TO_PLAY_LINE, SITE_NAME, SUBSTACK_URL, X_HANDLE, X_URL } from "@/config/site";
 
 export function SiteFooter() {
   return (
@@ -16,6 +16,26 @@ export function SiteFooter() {
               </Link>
             </li>
           ))}
+          <li>
+            <a
+              href={SUBSTACK_URL}
+              target="_blank"
+              rel="noopener"
+              className="inline-flex min-h-11 items-center hover:underline"
+            >
+              Substack
+            </a>
+          </li>
+          <li>
+            <a
+              href={X_URL}
+              target="_blank"
+              rel="noopener"
+              className="inline-flex min-h-11 items-center hover:underline"
+            >
+              {X_HANDLE} on X
+            </a>
+          </li>
         </ul>
         <p className="mt-2">
           {SITE_NAME} by {BRAND}. Times are West Africa Time (WAT).

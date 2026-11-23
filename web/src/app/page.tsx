@@ -10,6 +10,7 @@ import { MyPoints, PickProgress } from "@/components/picks/progress";
 import { Card, Empty, Section } from "@/components/section";
 import { TeamBadge } from "@/components/team-badge";
 import { Button } from "@/components/ui/button";
+import { SUBSTACK_URL } from "@/config/site";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 import {
   getFrozenPredictions,
@@ -19,9 +20,10 @@ import {
   getWalkForward,
 } from "@/lib/data";
 import { getContext } from "@/lib/data/context";
+import { getLatestPosts } from "@/lib/substack";
 import { renderTime } from "@/lib/time";
 import { currentMatchday, isUpcoming } from "@/lib/football";
-import { pct } from "@/lib/format";
+import { formatShortDate, pct } from "@/lib/format";
 
 export default function HomePage() {
   return (
@@ -41,11 +43,12 @@ async function HomeContent() {
   const now = renderTime();
 
   const ctx = await getContext();
-  const [latest, frozen, table, walk] = await Promise.all([
+  const [latest, frozen, table, walk, posts] = await Promise.all([
     getLatestPredictions(),
     getFrozenPredictions(),
     getLeagueTable(ctx.current.id),
     getWalkForward(),
+    getLatestPosts(3),
   ]);
   const season = ctx.matches.filter((m) => m.seasonId === ctx.current.id);
   const md = currentMatchday(season, now);
@@ -227,6 +230,29 @@ async function HomeContent() {
               <Empty>The table fills in after the first result.</Empty>
             )}
           </Section>
+
+          {posts.length > 0 && (
+            <Section title="From the Substack" more={{ href: SUBSTACK_URL, label: "All articles" }}>
+              <ul className="grid gap-2">
+                {posts.map((p) => (
+                  <li key={p.url}>
+                    <a
+                      href={p.url}
+                      target="_blank"
+                      rel="noopener"
+                      className="block rounded-xl bg-surface p-4 hover:bg-muted"
+                    >
+                      <span className="block font-medium">{p.title}</span>
+                      <span className="mt-1 block text-sm text-muted-foreground">{p.excerpt}</span>
+                      <span className="mt-1 block text-xs text-muted-foreground">
+                        {formatShortDate(p.date)}
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </Section>
+          )}
 
           {walk && (
             <p className="mb-8 text-sm text-muted-foreground">
