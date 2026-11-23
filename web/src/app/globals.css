@@ -20,8 +20,9 @@
  *
  * The spec's "accent" is shadcn's "primary". shadcn's own "accent" token is
  * its subtle hover background, so it stays separate from the TNB gold.
- * Secondary text uses text at 60%, not neutral: neutral on the page is only
- * 4.0:1, below the 4.5:1 minimum (see DECISIONS.md).
+ * Secondary text uses text at 60%, not neutral: neutral is for bars and
+ * marks (3:1 minimum), not text (see DECISIONS.md). Colours match the TNB
+ * logo: yellow #FED700 on navy #001F55.
  */
 
 @custom-variant dark (&:is(.dark *));
@@ -72,13 +73,13 @@
 :root,
 .dark {
   color-scheme: dark;
-  --background: #000e2e;
-  --surface: #00143c;
+  --background: #001f55;
+  --surface: #062664;
   --surface-raised: rgb(255 255 255 / 0.08);
-  --tnb-accent: #f5c842;
-  --tnb-accent-pressed: #d4a800;
-  --on-accent: #000e2e;
-  --neutral: #64748b;
+  --tnb-accent: #fed700;
+  --tnb-accent-pressed: #e0be00;
+  --on-accent: #001f55;
+  --neutral: #7c8aa0;
   --away: #4a90d9;
   --success: #22c55e;
   --danger: #ef4444;
@@ -93,17 +94,17 @@
   color-scheme: light;
   --background: #f3f5f9;
   --surface: #ffffff;
-  --surface-raised: rgb(0 14 46 / 0.06);
-  --tnb-accent: #f5c842;
-  --tnb-accent-pressed: #d4a800;
-  --on-accent: #000e2e;
+  --surface-raised: rgb(0 31 85 / 0.06);
+  --tnb-accent: #fed700;
+  --tnb-accent-pressed: #e0be00;
+  --on-accent: #001f55;
   --neutral: #64748b;
   --away: #4a90d9;
   --success: #15803d;
   --danger: #b91c1c;
-  --foreground: #000e2e;
-  --foreground-secondary: rgb(0 14 46 / 0.7);
-  --border: rgb(0 14 46 / 0.12);
+  --foreground: #001f55;
+  --foreground-secondary: rgb(0 31 85 / 0.7);
+  --border: rgb(0 31 85 / 0.12);
 }
 
 @layer base {

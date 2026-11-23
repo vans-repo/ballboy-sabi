@@ -150,23 +150,23 @@ export function renderPreview(plan: PreviewPlan, user: { id: string; name: strin
 <title>${esc(previewSubject(plan))}</title>
 <style>
   @media (prefers-color-scheme: dark) {
-    body, .card { background:#000e2e !important; color:#ffffff !important; }
+    body, .card { background:#001f55 !important; color:#ffffff !important; }
     .muted { color:#c9ced8 !important; }
     .rule td { border-color:#24304f !important; }
   }
 </style></head>
-<body style="margin:0;padding:0;background:#f3f5f9;color:#000e2e;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.5">
+<body style="margin:0;padding:0;background:#f3f5f9;color:#001f55;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.5">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:16px">
 <table role="presentation" class="card" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:12px">
-  <tr><td style="background:#000e2e;border-radius:12px 12px 0 0;padding:16px 20px;color:#f5c842;font-weight:700;font-size:18px;letter-spacing:0.5px">${esc(SITE_NAME.toUpperCase())}</td></tr>
+  <tr><td style="background:#001f55;border-radius:12px 12px 0 0;padding:16px 20px;color:#fed700;font-weight:700;font-size:18px;letter-spacing:0.5px">${esc(SITE_NAME.toUpperCase())}</td></tr>
   <tr><td style="padding:20px">
     <p style="margin:0 0 4px">Hi ${esc(user.name)},</p>
     <h1 style="margin:0 0 8px;font-size:24px;line-height:1.2">Matchday ${plan.md} picks close ${esc(deadline)}</h1>
     <p class="muted" style="margin:0 0 16px;color:#4b5567">${esc(deadlineLine)}</p>
     ${lastLine ? `<p style="margin:0 0 16px">${esc(lastLine)}</p>` : ""}
     ${plan.upsets.length ? `<h2 style="margin:16px 0 0;font-size:18px">Upset Alert</h2><table role="presentation" class="rule" width="100%" cellpadding="0" cellspacing="0">${upsetHtml}</table>` : ""}
-    <table role="presentation" cellpadding="0" cellspacing="0" style="margin:20px 0"><tr><td style="background:#f5c842;border-radius:8px">
-      <a href="${esc(picksUrl)}" style="display:inline-block;padding:14px 24px;color:#000e2e;font-weight:700;text-decoration:none">Make your picks</a>
+    <table role="presentation" cellpadding="0" cellspacing="0" style="margin:20px 0"><tr><td style="background:#fed700;border-radius:8px">
+      <a href="${esc(picksUrl)}" style="display:inline-block;padding:14px 24px;color:#001f55;font-weight:700;text-decoration:none">Make your picks</a>
     </td></tr></table>
     <p class="muted" style="margin:0;color:#4b5567;font-size:14px">${esc(FREE_TO_PLAY_LINE)} ${esc(SITE_NAME)} by ${esc(BRAND)}.</p>
     <p class="muted" style="margin:8px 0 0;color:#4b5567;font-size:14px">You get this because you asked for the weekly preview. <a href="${esc(unsub)}" style="color:#1d63b0">Unsubscribe</a> with one click.</p>

@@ -16,9 +16,16 @@ approves the mock-ups.
 
 ## 2. Match of the Week
 
-- Auto-pick: the Upset Alert match in the current matchday with the highest
-  away-win chance. If no match has an Upset Alert, the closest match
-  (smallest gap between home and away chances).
+- Auto-pick, in this order (there is always something to share):
+  1. The Upset Alert match in the current matchday with the highest
+     away-win chance.
+  2. No Upset Alert: the closest match (smallest gap between home and away
+     chances), labelled "Closest call".
+  3. No matches this week (break or between rounds): "The Ballboy's week"
+     poster with the last matchday's record (e.g. 5 of 10 called right)
+     and the top two in the table.
+  4. No data at all (pre-season): a plain "Beat the Ballboy" poster.
+  It is not on the live site yet; the Upset Alert badges are.
 - Admin override: pick any match in the matchday, or clear the override.
 - Images (next/og):
   - Portrait poster 1080×1350 for "Save image" (Instagram, WhatsApp, X).
@@ -50,7 +57,7 @@ approves the mock-ups.
   and `web/public/brand/tnb-logo-navy.jpg` (on navy).
 - Header (phone and desktop sidebar), footer, share images, and the
   favicon / app icon (from the navy version).
-- Logo colours: yellow #FED700, navy #001F55. The site's palette is
-  gold #F5C842 on navy #000E2E. Owner to decide whether the site
-  should switch to the logo's colours.
-- A vector (SVG) version would be sharper on large images; ask the owner.
+- Site colours now match the logo: yellow #FED700, navy #001F55 (done,
+  decision 120).
+- SVG versions traced from the PNG: `tnb-logo.svg` (transparent) and
+  `tnb-logo-navy.svg` (square, navy). Use the SVG wherever possible.

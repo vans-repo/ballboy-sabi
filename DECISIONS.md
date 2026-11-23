@@ -556,3 +556,10 @@ what was decided and why. Newest stage at the bottom.
      edge by long team names. The team column now takes the space left and
      long names shorten with "…" (the full name is in the link's title), so
      every column fits on a phone.
+120. **Colours match the TNB logo:** the owner's logo is yellow #FED700 on
+     navy #001F55, so the site, share images and emails use those in place
+     of gold #F5C842 and navy #000E2E. Cards are #062664. The dark-mode
+     neutral (Draw bar) is lighter, #7C8AA0, to stay above 3:1 on the
+     lighter navy (4.5:1 on the page). Navy text on yellow is 11.3:1.
+     The Supabase auth email templates changed too: paste them into the
+     Supabase dashboard again.
