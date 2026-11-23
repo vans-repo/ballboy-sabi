@@ -50,7 +50,7 @@ async function matchTitle(id: string): Promise<Metadata | null> {
   const away = ctx.teams.get(m.awayId)!.name;
   return {
     title: `${home} v ${away}`,
-    description: `${home} v ${away}, ${ctx.seasonLabel(m.seasonId)}: Home, Draw and Away percentages, expected goals and likely scores.`,
+    description: `${home} v ${away}, ${ctx.seasonLabel(m.seasonId)}: Home, Draw and Away percentages and likely scores. Pick a result and try to beat the Ballboy.`,
   };
 }
 
@@ -147,7 +147,7 @@ async function MatchDetail({ id }: { id: string }) {
           <p className="mt-3 flex justify-center">
             <a
               href={xIntentUrl(
-                `${home.name} v ${away.name}: ${pct(p.p_home)} home, ${pct(p.p_draw)} draw, ${pct(p.p_away)} away.${p.upset_alert ? " Upset Alert." : ""} Can you beat the Ballboy?`,
+                `${home.name} v ${away.name}${p.upset_alert ? ": One To Watch 🔥" : ""}. I've made my pick. Can you beat the Ballboy?`,
                 `${publicEnv.siteUrl}/match/${m.id}`,
               )}
               target="_blank"
@@ -176,12 +176,6 @@ async function MatchDetail({ id }: { id: string }) {
             {p ? (
               <Card>
                 <ProbabilityBar p={p} size="lg" />
-                <p className="mt-4 text-center text-sm text-muted-foreground">
-                  Expected goals{" "}
-                  <span className="figure text-lg text-foreground">
-                    {Number(p.xg_home).toFixed(1)} – {Number(p.xg_away).toFixed(1)}
-                  </span>
-                </p>
                 {played && outcome && (
                   <p className="mt-3 flex items-center justify-center gap-2 text-sm">
                     <RightWrong right={likeliest(p) === outcome} />
@@ -217,18 +211,6 @@ async function MatchDetail({ id }: { id: string }) {
                   </li>
                 ))}
               </ol>
-            </Section>
-          )}
-
-          {p && p.reasons.length > 0 && (
-            <Section title="Why">
-              <ul className="grid gap-2">
-                {p.reasons.map((r) => (
-                  <li key={r} className="rounded-xl bg-surface p-3 text-sm">
-                    {r}
-                  </li>
-                ))}
-              </ul>
             </Section>
           )}
         </div>

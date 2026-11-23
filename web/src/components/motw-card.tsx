@@ -2,23 +2,32 @@ import Link from "next/link";
 
 import { ProbabilityBar } from "@/components/probability-bar";
 import { publicEnv } from "@/lib/env";
-import { formatDay, formatKickoffTime, pct } from "@/lib/format";
+import { formatDay, formatKickoffTime } from "@/lib/format";
 import { type Motw, motwPostText, xIntentUrl } from "@/lib/motw";
 import { teamBands } from "@/lib/team-colours";
 import { cn } from "@/lib/utils";
 
 /** "Post on X" (one click, text and link filled in) and "Save image" (the portrait poster). */
-export function MotwShareButtons({ w, className }: { w: Motw; className?: string }) {
+export function MotwShareButtons({
+  w,
+  className,
+  withRead = false,
+}: {
+  w: Motw;
+  className?: string;
+  /** Admin only: the post hints at how the Ballboy reads the match. */
+  withRead?: boolean;
+}) {
   const link = `${publicEnv.siteUrl}/motw/${w.key}`;
   return (
     <div className={cn("flex flex-wrap gap-2", className)}>
       <a
-        href={xIntentUrl(motwPostText(w), link)}
+        href={xIntentUrl(motwPostText(w, withRead), link)}
         target="_blank"
         rel="noopener"
         className="inline-flex h-11 items-center gap-2 rounded-lg bg-foreground px-4 text-sm font-bold text-background hover:opacity-90"
       >
-        <XIcon /> Post on X
+        <XIcon /> {withRead ? "Post on X with the Ballboy's read" : "Post on X"}
       </a>
       <a
         href={`/motw/${w.key}/poster`}
@@ -66,7 +75,7 @@ export function TeamCodes({
   );
 }
 
-const LABEL = { upset: "Upset Alert", closest: "Closest call" } as const;
+const LABEL = { upset: "One To Watch 🔥", closest: "Closest call" } as const;
 
 /** The Match of the Week on Home: the match, or the week's fallback. */
 export function MotwCard({ w }: { w: Motw }) {
@@ -93,7 +102,6 @@ export function MotwCard({ w }: { w: Motw }) {
             </h2>
             <p className="text-sm text-muted-foreground">
               Matchday {w.md} · {formatDay(w.match.kickoff)} · {formatKickoffTime(w.match)}
-              {w.label === "upset" && ` · ${pct(w.p.p_away)} chance of an away win`}
             </p>
             <div className="mt-3">
               <ProbabilityBar p={w.p} />

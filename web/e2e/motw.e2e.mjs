@@ -91,12 +91,13 @@ try {
   const href = (await post.getAttribute("href")) ?? "";
   const intent = new URL(href);
   check(
-    "Post on X: X's post intent with the link and via @NaijaBallboy",
+    "Post on X (fans): X's post intent with the link, via @NaijaBallboy, no numbers",
     intent.host === "x.com" &&
       intent.pathname === "/intent/post" &&
       intent.searchParams.get("url")?.endsWith(`/motw/md${md}`) &&
       intent.searchParams.get("via") === "NaijaBallboy" &&
-      /Upset Alert: 30% chance of an away win/.test(intent.searchParams.get("text") ?? ""),
+      /One To Watch 🔥/.test(intent.searchParams.get("text") ?? "") &&
+      !/%/.test(intent.searchParams.get("text") ?? ""),
     href,
   );
   const text = intent.searchParams.get("text") ?? "";
@@ -130,6 +131,17 @@ try {
   // --- 2. The admin chooses another match ------------------------------------
   await logIn(page, "admin@e2e.invalid", "admin-password-1");
   await page.goto(`${BASE}/admin/motw`);
+  const read = await page
+    .getByRole("link", { name: "Post on X with the Ballboy's read" })
+    .first()
+    .getAttribute("href");
+  check(
+    "Admin: Post on X with the Ballboy's read gives its percentages",
+    /30% chance away from home/.test(
+      new URL(read ?? "https://x.com").searchParams.get("text") ?? "",
+    ),
+    read ?? "",
+  );
   const select = page.getByLabel("Match", { exact: true });
   const close = await select
     .locator("option", { hasText: "Sunshine Stars v MFM" })

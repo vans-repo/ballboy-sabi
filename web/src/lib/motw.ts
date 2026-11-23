@@ -17,7 +17,8 @@ import { pct } from "@/lib/format";
 /*
  * Match of the Week: there is always something to share.
  *
- *   1. The Upset Alert match with the highest away-win chance.
+ *   1. The Upset Alert match (fans see "One To Watch") with the highest
+ *      away-win chance.
  *   2. No Upset Alert: the closest match (smallest home/away gap).
  *   3. No matches this week: "The Ballboy's week", the last matchday's
  *      record and the top two in the table.
@@ -165,17 +166,27 @@ async function recap(d: Data, md: number | null): Promise<MotwRecap | null> {
   };
 }
 
-/** Text for the "Post on X" button. Plain English, no betting words. */
-export function motwPostText(w: Motw): string {
+/**
+ * Text for the "Post on X" button. Plain English, no betting words.
+ * Fans' version has no numbers: it invites people to play. The admin
+ * version (`withRead`) hints at how the Ballboy reads the match: its
+ * percentages and its main reason, for the owner's own posts.
+ */
+export function motwPostText(w: Motw, withRead = false): string {
   if (w.kind === "match") {
     const teams = `${w.home.name} v ${w.away.name}`;
+    if (!withRead) {
+      const tag = w.label === "upset" ? " One To Watch 🔥" : "";
+      return `Match of the Week: ${teams}.${tag} Make your pick and see if you can beat the Ballboy.`;
+    }
     const line =
       w.label === "upset"
-        ? `Upset Alert: ${pct(w.p.p_away)} chance of an away win.`
+        ? `The Ballboy gives ${w.away.name} a ${pct(w.p.p_away)} chance away from home.`
         : w.label === "closest"
           ? `Closest call of Matchday ${w.md}: ${pct(w.p.p_home)} home, ${pct(w.p.p_draw)} draw, ${pct(w.p.p_away)} away.`
           : `${pct(w.p.p_home)} home, ${pct(w.p.p_draw)} draw, ${pct(w.p.p_away)} away.`;
-    return `Match of the Week: ${teams}. ${line} Can you beat the Ballboy?`;
+    const why = w.p.reasons[0] ? ` ${w.p.reasons[0]}.` : "";
+    return `Match of the Week: ${teams}. ${line}${why} Can you beat the Ballboy?`;
   }
   if (w.kind === "recap")
     return `The Ballboy's week: ${w.right} of ${w.total} Matchday ${w.md} results called right. Can you do better?`;

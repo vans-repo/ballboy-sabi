@@ -18,7 +18,6 @@ import {
   getLatestPredictions,
   getLeaderboard,
   getLeagueTable,
-  getWalkForward,
 } from "@/lib/data";
 import { getContext } from "@/lib/data/context";
 import { getLeagueNews } from "@/lib/news";
@@ -47,12 +46,11 @@ async function HomeContent() {
   const now = renderTime();
 
   const ctx = await getContext();
-  const [motw, latest, frozen, table, walk, posts, news, week] = await Promise.all([
+  const [motw, latest, frozen, table, posts, news, week] = await Promise.all([
     currentMotw(now),
     getLatestPredictions(),
     getFrozenPredictions(),
     getLeagueTable(ctx.current.id),
-    getWalkForward(),
     getLatestPosts(3),
     getLeagueNews(),
     weekNumbers(),
@@ -174,7 +172,7 @@ async function HomeContent() {
         </div>
 
         <div>
-          <Section title={motwId ? "More Upset Alerts" : "Upset Alert"}>
+          <Section title={motwId ? "More Ones To Watch 🔥" : "Ones To Watch 🔥"}>
             {upsets.length ? (
               <ul className="grid gap-3">
                 {upsets.map((m) => {
@@ -197,18 +195,13 @@ async function HomeContent() {
                             chance of an away win
                           </span>
                         </p>
-                        {p.reasons[0] && (
-                          <p className="mt-1 text-sm text-muted-foreground">{p.reasons[0]}</p>
-                        )}
                       </Link>
                     </li>
                   );
                 })}
               </ul>
             ) : (
-              <Empty>
-                {motwId ? "No other Upset Alerts this matchday." : "No Upset Alerts this matchday."}
-              </Empty>
+              <Empty>{motwId ? "No others this matchday." : "None this matchday."}</Empty>
             )}
           </Section>
 
@@ -364,18 +357,6 @@ async function HomeContent() {
                 ))}
               </ul>
             </Section>
-          )}
-
-          {walk && (
-            <p className="mb-8 text-sm text-muted-foreground">
-              Tested on {walk.matches} past matches, our percentages scored{" "}
-              {walk.blend.brier.toFixed(2)} against{" "}
-              {(2 * (1 - walk.always_home_accuracy)).toFixed(2)} for always picking home (lower is
-              better).{" "}
-              <Link href="/accuracy" className="text-ink underline underline-offset-2">
-                See how accurate we are
-              </Link>
-            </p>
           )}
         </div>
       </div>

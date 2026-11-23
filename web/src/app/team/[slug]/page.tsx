@@ -4,20 +4,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
-import { LazyRatingChart } from "@/components/charts/lazy-charts";
 import { FormDots } from "@/components/form-dots";
 import { MatchCard } from "@/components/match-card";
 import { Card, Empty, Section } from "@/components/section";
 import { TeamBadge } from "@/components/team-badge";
 import { CACHE_TAGS } from "@/lib/cache-tags";
-import {
-  getCurrentElo,
-  getFrozenPredictions,
-  getLatestPredictions,
-  getLeagueTable,
-  getTeamRatings,
-  type Match,
-} from "@/lib/data";
+import { getFrozenPredictions, getLatestPredictions, getLeagueTable, type Match } from "@/lib/data";
 import { getContext } from "@/lib/data/context";
 import { renderTime } from "@/lib/time";
 import {
@@ -75,9 +67,7 @@ async function TeamProfile({ slug }: { slug: string }) {
   const team = ctx.bySlug.get(slug);
   if (!team) notFound();
 
-  const [ratings, elo, latest, frozen, table] = await Promise.all([
-    getTeamRatings(team.id),
-    getCurrentElo(),
+  const [latest, frozen, table] = await Promise.all([
     getLatestPredictions(),
     getFrozenPredictions(),
     getLeagueTable(ctx.current.id),
@@ -88,16 +78,6 @@ async function TeamProfile({ slug }: { slug: string }) {
   const seasonPlayed = thisSeason.filter(hasResult);
   const next = thisSeason.find((m) => isUpcoming(m, now));
   const row = table.find((r) => r.teamId === team.id);
-
-  // Strength (Elo) rank among this season's teams.
-  const rivals = new Set(
-    ctx.matches.filter((m) => m.seasonId === ctx.current.id).flatMap((m) => [m.homeId, m.awayId]),
-  );
-  const ranked = [...rivals].filter((t) => elo[t] !== undefined).sort((a, b) => elo[b] - elo[a]);
-  const rank = ranked.indexOf(team.id) + 1;
-
-  const seasonOf = new Map(mine.map((m) => [m.id, ctx.seasonLabel(m.seasonId)]));
-  const points = ratings.map((r, i) => ({ i, elo: r.elo, season: seasonOf.get(r.matchId) ?? "" }));
 
   // Past seasons: finish and points.
   const pastSeasons = ctx.seasons.filter(
@@ -123,7 +103,7 @@ async function TeamProfile({ slug }: { slug: string }) {
         <div>
           <h1 className="text-3xl uppercase">{team.name}</h1>
           <p className="text-sm text-muted-foreground">
-            {[team.city, rank > 0 ? `${ordinal(rank)} strongest of ${ranked.length}` : null]
+            {[team.city, row ? `${ordinal(row.position)} in the table` : null]
               .filter(Boolean)
               .join(" · ")}
           </p>
@@ -132,22 +112,6 @@ async function TeamProfile({ slug }: { slug: string }) {
 
       <div className="grid gap-x-8 md:grid-cols-2">
         <div>
-          <Section title="Strength since 2021/22">
-            {points.length > 1 ? (
-              <Card>
-                <LazyRatingChart points={points} />
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Team strength after each match, worked out from results alone (an Elo rating, the
-                  system chess uses). 1500 is an average NPFL side. Beating a stronger team lifts it
-                  more than beating a weaker one. It eases 25% back towards 1500 at the start of
-                  each season.
-                </p>
-              </Card>
-            ) : (
-              <Empty>No rated matches yet.</Empty>
-            )}
-          </Section>
-
           <Section title={`This season (${ctx.current.label})`}>
             {seasonPlayed.length ? (
               <Card className="grid gap-2 text-sm">

@@ -191,7 +191,7 @@ function headline(w: Motw): string[] {
 
 function labelText(w: Motw): string | null {
   if (w.kind !== "match") return null;
-  return w.label === "upset" ? "UPSET ALERT" : w.label === "closest" ? "CLOSEST CALL" : null;
+  return w.label === "upset" ? "ONE TO WATCH" : w.label === "closest" ? "CLOSEST CALL" : null;
 }
 
 function whenText(w: Extract<Motw, { kind: "match" }>) {

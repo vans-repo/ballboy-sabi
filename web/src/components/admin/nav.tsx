@@ -11,6 +11,7 @@ const ITEMS = [
   { href: "/admin/results", label: "Results history" },
   { href: "/admin/teams", label: "Teams & Seasons" },
   { href: "/admin/model", label: "Model" },
+  { href: "/admin/accuracy", label: "Accuracy" },
   { href: "/admin/users", label: "Users" },
   { href: "/admin/emails", label: "Emails" },
   { href: "/admin/recap", label: "Weekly recap" },

@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 
 import { LazyCalibrationChart } from "@/components/charts/lazy-charts";
@@ -9,13 +8,8 @@ import { getContext } from "@/lib/data/context";
 import { hasResult, likeliest, outcomeOf } from "@/lib/football";
 import { pct } from "@/lib/format";
 
-export const metadata: Metadata = {
-  title: "Accuracy",
-  description:
-    "How good our NPFL percentages are, compared with always picking the home team. Every prediction is scored.",
-};
-
-export default async function AccuracyPage() {
+/** How good the Ballboy is: admin only (fans just play). */
+export async function AccuracyReport() {
   "use cache";
   cacheLife("hours");
   cacheTag(CACHE_TAGS.matches, CACHE_TAGS.predictions);

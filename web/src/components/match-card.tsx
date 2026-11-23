@@ -75,7 +75,7 @@ export function MatchCard({
             ))}
             {upcoming && latest?.upset_alert && (
               <span className="rounded-md bg-away px-2 py-0.5 text-[0.7rem] font-extrabold tracking-wide text-[#001F55] uppercase">
-                Upset Alert
+                One To Watch 🔥
               </span>
             )}
             <StatusTag status={match.status} />

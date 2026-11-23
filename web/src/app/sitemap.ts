@@ -12,20 +12,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   cacheTag(CACHE_TAGS.matches);
   const base = publicEnv.siteUrl;
   const ctx = await getContext();
-  const pages = [
-    "",
-    "/fixtures",
-    "/table",
-    "/leaderboard",
-    "/teams",
-    "/h2h",
-    "/accuracy",
-    "/about",
-  ].map((p) => ({
-    url: `${base}${p}`,
-    changeFrequency: "daily" as const,
-    priority: p === "" ? 1 : 0.7,
-  }));
+  const pages = ["", "/fixtures", "/table", "/leaderboard", "/teams", "/h2h", "/about"].map(
+    (p) => ({
+      url: `${base}${p}`,
+      changeFrequency: "daily" as const,
+      priority: p === "" ? 1 : 0.7,
+    }),
+  );
   const playing = new Set(ctx.matches.flatMap((m) => [m.homeId, m.awayId]));
   const teams = [...ctx.teams.values()]
     .filter((t) => playing.has(t.id))

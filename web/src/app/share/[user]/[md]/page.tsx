@@ -63,7 +63,7 @@ async function Share({ params }: { params: Promise<Params> }) {
       </Card>
       <p className="mt-6">
         Think you can beat The Ballboy? Pick NPFL results before kick-off and score more for the
-        upsets.
+        surprises.
       </p>
       <p className="mt-1 text-sm text-muted-foreground">{FREE_TO_PLAY_LINE}</p>
       <Button asChild size="lg" className="mt-4">

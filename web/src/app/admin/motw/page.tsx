@@ -71,7 +71,7 @@ export default async function AdminMotwPage() {
               </p>
             )}
             <p className="text-muted-foreground">{motwPostText(w)}</p>
-            <MotwShareButtons w={w} />
+            <MotwShareButtons w={w} withRead />
             <p>
               <Link href={`/motw/${w.key}`} className="text-ink underline">
                 Open the share page
@@ -97,6 +97,12 @@ export default async function AdminMotwPage() {
                   {labels.join(" · ")} · {formatDay(m.kickoff)} · {pct(latest[m.id].p_home)} /{" "}
                   {pct(latest[m.id].p_draw)} / {pct(latest[m.id].p_away)}
                 </p>
+                {latest[m.id].reasons.length > 0 && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    The Ballboy&apos;s read (for your posts, not shown to fans):{" "}
+                    {latest[m.id].reasons.join("; ")}
+                  </p>
+                )}
               </li>
             ))}
           </ul>
