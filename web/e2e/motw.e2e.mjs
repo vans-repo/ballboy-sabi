@@ -51,10 +51,10 @@ sql(`
   insert into public.predictions (match_id, model_run_id, p_home, p_draw, p_away, xg_home, xg_away, top_scores, reasons, upset_alert)
   select m.id, run.id, fx.ph, fx.pd, fx.pa, 1.2, 1.0, '[]', '[]', fx.up
   from m join public.teams t on t.id = m.home_team_id join fx on fx.h = t.name, run`);
-// Earlier tests' matchdays are past or locked by now, except any still open:
-// push those past so this matchday is the current one.
-sql(`update public.matches set kickoff_at = now() - interval '3 days'
-     where matchday_id <> (select id from public.matchdays where number = ${md}) and kickoff_at > now()`);
+// Earlier tests' matchdays stay "current" for a day after kick-off: move
+// them all three days back so this matchday is the current one.
+sql(`update public.matches set kickoff_at = least(kickoff_at, now() - interval '3 days')
+     where matchday_id is distinct from (select id from public.matchdays where number = ${md})`);
 await revalidate(["matches", "predictions", "settings"]);
 
 const browser = await chromium.launch();
