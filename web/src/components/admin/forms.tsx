@@ -770,7 +770,12 @@ export function MotwChooser({
     <div className="grid gap-2">
       <label className="grid gap-1 text-xs">
         Match
-        <select value={id} onChange={(e) => setId(e.target.value)} className={input}>
+        <select
+          aria-label="Match"
+          value={id}
+          onChange={(e) => setId(e.target.value)}
+          className={input}
+        >
           <option value="">Automatic pick</option>
           {matches.map((m) => (
             <option key={m.id} value={m.id}>
