@@ -1,19 +1,16 @@
 import Link from "next/link";
 
-import { Logo } from "@/components/logo";
+import { Wordmark } from "@/components/logo";
 import { MENU } from "@/config/nav";
-import { SITE_NAME, SUBSTACK_URL } from "@/config/site";
+import { BRAND, SITE_NAME, SUBSTACK_URL } from "@/config/site";
 
 /** Phones: logo, site name and the menu (desktop has the sidebar instead). No JavaScript needed. */
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-20 border-b bg-background/95 backdrop-blur md:hidden">
       <div className="flex h-14 items-center justify-between gap-2 px-4">
-        <Link href="/" className="flex items-center gap-2 text-primary">
-          <Logo className="h-6 w-auto" />
-          <span className="font-heading text-xl font-extrabold tracking-tight text-foreground uppercase">
-            {SITE_NAME}
-          </span>
+        <Link href="/" aria-label={`${SITE_NAME} by ${BRAND}, home`}>
+          <Wordmark />
         </Link>
         <nav aria-label="Site">
           <details className="group relative">

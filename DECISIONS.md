@@ -597,3 +597,6 @@ what was decided and why. Newest stage at the bottom.
      a left sidebar with the logo; phones keep the top bar and the bottom
      tabs, which now have icons and a clearer active state (bold, a bar on
      top) that also works in light mode.
+127. **Header lockup:** the logo next to the site name clashed, so the
+     header and sidebar show "Ballboy Sabi" in text with "by TNB." small
+     underneath (the logo mark). Share images keep the logo beside the name.

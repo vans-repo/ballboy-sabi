@@ -4,9 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
 
-import { Logo } from "@/components/logo";
+import { Wordmark } from "@/components/logo";
 import { MENU } from "@/config/nav";
-import { SITE_NAME } from "@/config/site";
+import { BRAND, SITE_NAME } from "@/config/site";
 import { cn } from "@/lib/utils";
 
 const icon = (d: ReactNode) => (
@@ -163,11 +163,8 @@ export function BottomTabs() {
 export function SideNav({ footer }: { footer: ReactNode }) {
   return (
     <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col gap-6 overflow-y-auto border-r px-3 py-6 md:flex">
-      <Link href="/" className="flex items-center gap-2 px-2 text-primary">
-        <Logo className="h-7 w-auto" />
-        <span className="font-heading text-xl font-extrabold tracking-tight text-foreground uppercase">
-          {SITE_NAME}
-        </span>
+      <Link href="/" className="px-3" aria-label={`${SITE_NAME} by ${BRAND}, home`}>
+        <Wordmark size="lg" />
       </Link>
       <Suspense fallback={<SideNavView path={null} footer={footer} />}>
         <SideNavWithPath footer={footer} />
