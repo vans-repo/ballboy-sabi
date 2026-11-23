@@ -16,12 +16,16 @@ export const DISPLAY_TIME_ZONE = "Africa/Lagos";
 export const FREE_TO_PLAY_LINE = "Free to play. No money involved, ever.";
 
 /**
- * League table zones, counted from the top and bottom of the table.
- * PLACEHOLDERS for the site owner to confirm against the current NPFL rules.
+ * League table zones (confirmed by the site owner). Counted from the top and
+ * bottom of the table. The champions (1st) also go to the CAF Champions
+ * League with the runners-up; 3rd goes to the CAF Confederation Cup. The
+ * second Confederation Cup place goes to the President Federation Cup
+ * winners, which the league table doesn't show.
  */
 export const TABLE_ZONES = {
-  title: 1, // champions
-  continental: 3, // places 1..3 (including the champions) go to CAF competitions
+  title: 1, // champions (and CAF Champions League)
+  championsLeague: 2, // places 1-2: CAF Champions League
+  confederationCup: 3, // place 3: CAF Confederation Cup
   relegation: 4, // bottom four go down
 };
 

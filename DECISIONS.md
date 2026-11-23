@@ -545,3 +545,14 @@ what was decided and why. Newest stage at the bottom.
      280 characters or fewer and link to match pages, so X shows their share
      images. Posting stays manual: copy, check, post. The end-to-end test
      checks the lengths and that no betting words appear.
+118. **Table zones confirmed by the owner:** 1st are champions (and go to
+     the CAF Champions League), 2nd also goes to the CAF Champions League,
+     3rd to the CAF Confederation Cup (its other place goes to the President
+     Federation Cup winners, which the league table doesn't show), and the
+     bottom 4 are relegated. They show as gold, blue, grey and red bars, and
+     each is named for screen readers. The 2022/23 group letters A and B are
+     confirmed too (decision 40).
+119. **Table at 360 px:** the Pts column was being pushed off the right
+     edge by long team names. The team column now takes the space left and
+     long names shorten with "…" (the full name is in the link's title), so
+     every column fits on a phone.
