@@ -253,7 +253,7 @@ export async function updateTeam(input: {
 }): Promise<ActionResult> {
   const supabase = await admin();
   const code = input.code.trim().toUpperCase();
-  if (!/^[A-Z]{3}$/.test(code)) return { error: "Code must be 3 letters." };
+  if (!/^[A-Z0-9]{3}$/.test(code)) return { error: "Code must be 3 letters or digits." };
   if (![input.primary, input.secondary].every((c) => /^#[0-9a-fA-F]{6}$/.test(c)))
     return { error: "Colours look like #1A2B3C." };
   const { error } = await supabase
@@ -428,4 +428,15 @@ export async function removeCrest(teamId: string): Promise<ActionResult> {
   if (error) return { error: error.message };
   refreshPublicPages();
   return { message: "Crest removed." };
+}
+
+/** After changing data straight in Supabase (SQL Editor): show it on the site now. */
+export async function refreshSite(): Promise<ActionResult> {
+  await admin();
+  updateTag(CACHE_TAGS.matches);
+  updateTag(CACHE_TAGS.predictions);
+  updateTag(CACHE_TAGS.teamRatings);
+  updateTag(CACHE_TAGS.picks);
+  updateTag(CACHE_TAGS.settings);
+  return { message: "Done. Every page now shows the latest data." };
 }

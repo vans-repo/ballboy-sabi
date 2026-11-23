@@ -11,6 +11,7 @@ import {
   deleteAlias,
   deleteDeduction,
   previewImport,
+  refreshSite,
   removeCrest,
   runModelNow,
   saveImport,
@@ -787,6 +788,21 @@ export function MotwChooser({
       <div>
         <Button disabled={pending} onClick={() => run(() => setMotwOverride(id || null))}>
           Save
+        </Button>
+      </div>
+      <Message result={result} />
+    </div>
+  );
+}
+
+/** Shows data changed in the Supabase SQL Editor on the site straight away. */
+export function RefreshSiteButton() {
+  const { pending, result, run } = useAct();
+  return (
+    <div className="grid gap-2">
+      <div>
+        <Button variant="secondary" disabled={pending} onClick={() => run(refreshSite)}>
+          Refresh the site
         </Button>
       </div>
       <Message result={result} />

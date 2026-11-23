@@ -7,7 +7,7 @@ import { MatchCard } from "@/components/match-card";
 import { MyPicks } from "@/components/picks/my-picks";
 import { Empty, PageTitle } from "@/components/section";
 import { CACHE_TAGS } from "@/lib/cache-tags";
-import { getFrozenPredictions, getLatestPredictions } from "@/lib/data";
+import { getFrozenPredictions, getLatestPredictions, getLeagueTable } from "@/lib/data";
 import { getContext } from "@/lib/data/context";
 import { renderTime } from "@/lib/time";
 import { currentMatchday } from "@/lib/football";
@@ -49,7 +49,11 @@ async function Fixtures({ md, team }: { md: number | null; team: string | null }
   cacheTag(CACHE_TAGS.matches, CACHE_TAGS.predictions);
   const now = renderTime();
   const ctx = await getContext();
-  const [latest, frozen] = await Promise.all([getLatestPredictions(), getFrozenPredictions()]);
+  const [latest, frozen, table] = await Promise.all([
+    getLatestPredictions(),
+    getFrozenPredictions(),
+    getLeagueTable(ctx.current.id),
+  ]);
   const season = ctx.matches.filter((m) => m.seasonId === ctx.current.id);
   const days = [
     ...new Set(season.map((m) => m.matchday).filter((d): d is number => d !== null)),
@@ -159,6 +163,7 @@ async function Fixtures({ md, team }: { md: number | null; team: string | null }
                     frozen={frozen[m.id]}
                     now={now}
                     pickable
+                    table={table}
                   />
                 </li>
               ))}

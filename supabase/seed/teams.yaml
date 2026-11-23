@@ -7,7 +7,9 @@
 #   - Dakkada and MFM appear only in reference/npfl_historical_data.csv and have
 #     no coordinates in the reference, so lat and lon are left empty.
 #
-# Codes are new (3 capital letters, chosen for this site; edit freely).
+# Codes follow the owner's rule: first three letters of the name; where two
+# clubs share them, first letter of the first word + first two of the second.
+# Exceptions: Shooting Stars 3SC, Abia Warriors AWA, Enugu Rangers RAN.
 # Left empty on purpose, for the site owner to fill in (never guessed):
 #   city, primary_colour, secondary_colour  (empty colours use neutral placeholders)
 #
@@ -19,10 +21,10 @@
 # are kept.
 
 teams:
-  - {name: Abia Warriors, code: ABW, lat: 5.526, lon: 7.489}
+  - {name: Abia Warriors, code: AWA, lat: 5.526, lon: 7.489}
   - {name: Akwa United, code: AKW, lat: 5.033, lon: 7.917}
   - {name: Barau, code: BAR, lat: 12.002, lon: 8.591}
-  - {name: Bayelsa United, code: BYU, lat: 4.926, lon: 6.262}
+  - {name: Bayelsa United, code: BAY, lat: 4.926, lon: 6.262}
   - {name: Bendel Insurance, code: BEN, lat: 6.335, lon: 5.603}
   - {name: Dakkada, code: DAK}
   - name: Doma United
@@ -31,11 +33,11 @@ teams:
     lon: 8.974
     aliases: [doma fc]
   - name: El-Kanemi Warriors
-    code: EKW
+    code: ELK
     lat: 11.833
     lon: 13.150
     aliases: [el kanemi warriors]
-  - {name: Enugu Rangers, code: ENR, lat: 6.458, lon: 7.546}
+  - {name: Enugu Rangers, code: RAN, lat: 6.458, lon: 7.546}
   - name: Enyimba
     code: ENY
     lat: 5.112
@@ -43,8 +45,8 @@ teams:
     aliases: [enyimba aba]
   - {name: Gombe United, code: GOM, lat: 10.290, lon: 11.167}
   - {name: Heartland, code: HEA, lat: 5.480, lon: 7.020}
-  - {name: Ikorodu City, code: IKC, lat: 6.619, lon: 3.501}
-  - {name: Inter Lagos, code: INL, lat: 6.524, lon: 3.379}
+  - {name: Ikorodu City, code: IKO, lat: 6.619, lon: 3.501}
+  - {name: Inter Lagos, code: INT, lat: 6.524, lon: 3.379}
   - {name: Kano Pillars, code: KAN, lat: 12.002, lon: 8.591}
   - {name: Katsina United, code: KAT, lat: 12.990, lon: 7.600}
   - {name: Kun Khalifat, code: KUN, lat: 5.483, lon: 7.033}
@@ -58,15 +60,15 @@ teams:
   - {name: Nasarawa United, code: NAS, lat: 8.490, lon: 8.520}
   - {name: Niger Tornadoes, code: NIG, lat: 9.583, lon: 6.546}
   - {name: Plateau United, code: PLA, lat: 9.896, lon: 8.858}
-  - {name: Ranchers Bees, code: RAN, lat: 9.058, lon: 7.489}
+  - {name: Ranchers Bees, code: RBE, lat: 9.058, lon: 7.489}
   - {name: Remo Stars, code: REM, lat: 6.871, lon: 3.710}
   - {name: Rivers United, code: RIV, lat: 4.815, lon: 7.049}
   - name: Shooting Stars
-    code: SHO
+    code: 3SC
     lat: 7.377
     lon: 3.947
     aliases: [3sc, 3sc ibadan, shooting stars sc]
-  - {name: Sporting Lagos, code: SPL, lat: 6.524, lon: 3.379}
+  - {name: Sporting Lagos, code: SPO, lat: 6.524, lon: 3.379}
   - {name: Sunshine Stars, code: SUN, lat: 7.250, lon: 5.207}
   - {name: Warri Wolves, code: WAR, lat: 5.554, lon: 5.793}
   - {name: Wikki Tourists, code: WIK, lat: 10.310, lon: 9.843}

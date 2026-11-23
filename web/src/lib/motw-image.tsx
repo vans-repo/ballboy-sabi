@@ -6,8 +6,10 @@ import { LOGO_PATH, LOGO_VIEWBOX } from "@/components/logo";
 import { FREE_TO_PLAY_LINE, SITE_NAME, X_HANDLE } from "@/config/site";
 import { publicEnv } from "@/lib/env";
 import { formatDay, formatKickoffTime } from "@/lib/format";
+import type { Team } from "@/lib/data";
 import type { Motw } from "@/lib/motw";
 import { AWAY, GOLD, GREY, NAVY, ogFonts, SURFACE } from "@/lib/og";
+import { teamBands } from "@/lib/team-colours";
 
 /*
  * Match of the Week images. Team colours and three-letter codes only, never
@@ -60,20 +62,18 @@ function Codes({
   h,
   font,
   shift,
-  homeBg,
-  awayBg,
-  homeCode,
-  awayCode,
+  home,
+  away,
 }: {
   w: number;
   h: number;
   font: number;
   shift: number;
-  homeBg: string;
-  awayBg: string;
-  homeCode: string;
-  awayCode: string;
+  home: Team;
+  away: Team;
 }) {
+  const bands = teamBands(home, away);
+  const [homeCode, awayCode] = [home.code, away.code];
   const code = {
     display: "flex",
     fontSize: font,
@@ -84,8 +84,8 @@ function Codes({
   const stroke = Math.max(3, Math.round(font / 60));
   return (
     <div style={{ display: "flex", position: "relative", width: w, height: h }}>
-      <div style={{ display: "flex", flex: 1, background: homeBg }} />
-      <div style={{ display: "flex", flex: 1, background: awayBg }} />
+      <div style={{ display: "flex", flex: 1, background: bands.home.bg }} />
+      <div style={{ display: "flex", flex: 1, background: bands.away.bg }} />
       <div
         style={{
           position: "absolute",
@@ -99,7 +99,7 @@ function Codes({
           justifyContent: "center",
         }}
       >
-        <div style={{ ...code, color: "white", marginLeft: -shift * 2 }}>{homeCode}</div>
+        <div style={{ ...code, color: bands.home.fg, marginLeft: -shift * 2 }}>{homeCode}</div>
         {/* The image renderer has no text outline: stack white copies behind a band-coloured fill. */}
         <div style={{ display: "flex", position: "relative", marginLeft: shift * 2 }}>
           {OUTLINE.map(([dx, dy]) => (
@@ -110,13 +110,13 @@ function Codes({
                 position: "absolute",
                 top: dy * stroke,
                 left: dx * stroke,
-                color: "white",
+                color: bands.away.fg,
               }}
             >
               {awayCode}
             </div>
           ))}
-          <div style={{ ...code, color: awayBg }}>{awayCode}</div>
+          <div style={{ ...code, color: bands.away.bg }}>{awayCode}</div>
         </div>
       </div>
     </div>
@@ -254,16 +254,7 @@ function Poster({ w }: { w: Motw }) {
       {w.kind === "match" && (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "stretch" }}>
           <div style={{ display: "flex", position: "relative" }}>
-            <Codes
-              w={1080}
-              h={430}
-              font={270}
-              shift={55}
-              homeBg={w.home.primary_colour}
-              awayBg={w.away.primary_colour}
-              homeCode={w.home.code}
-              awayCode={w.away.code}
-            />
+            <Codes w={1080} h={430} font={270} shift={55} home={w.home} away={w.away} />
             {labelText(w) && (
               <div style={{ display: "flex", position: "absolute", top: -30, right: pad }}>
                 <Pill text={labelText(w)!} size={40} />
@@ -428,16 +419,7 @@ function Card({ w }: { w: Motw }) {
   return (
     <div style={{ ...frame, flexDirection: "row" }}>
       {w.kind === "match" ? (
-        <Codes
-          w={560}
-          h={630}
-          font={220}
-          shift={30}
-          homeBg={w.home.primary_colour}
-          awayBg={w.away.primary_colour}
-          homeCode={w.home.code}
-          awayCode={w.away.code}
-        />
+        <Codes w={560} h={630} font={220} shift={30} home={w.home} away={w.away} />
       ) : (
         <div
           style={{

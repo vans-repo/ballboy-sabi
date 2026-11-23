@@ -89,7 +89,7 @@ async function TeamProfile({ slug }: { slug: string }) {
   const next = thisSeason.find((m) => isUpcoming(m, now));
   const row = table.find((r) => r.teamId === team.id);
 
-  // Elo rank among this season's teams.
+  // Strength (Elo) rank among this season's teams.
   const rivals = new Set(
     ctx.matches.filter((m) => m.seasonId === ctx.current.id).flatMap((m) => [m.homeId, m.awayId]),
   );
@@ -123,7 +123,7 @@ async function TeamProfile({ slug }: { slug: string }) {
         <div>
           <h1 className="text-3xl uppercase">{team.name}</h1>
           <p className="text-sm text-muted-foreground">
-            {[team.city, rank > 0 ? `Rated ${ordinal(rank)} of ${ranked.length}` : null]
+            {[team.city, rank > 0 ? `${ordinal(rank)} strongest of ${ranked.length}` : null]
               .filter(Boolean)
               .join(" · ")}
           </p>
@@ -132,13 +132,15 @@ async function TeamProfile({ slug }: { slug: string }) {
 
       <div className="grid gap-x-8 md:grid-cols-2">
         <div>
-          <Section title="Rating since 2021/22">
+          <Section title="Strength since 2021/22">
             {points.length > 1 ? (
               <Card>
                 <LazyRatingChart points={points} />
                 <p className="mt-2 text-xs text-muted-foreground">
-                  Elo rating after each match. 1500 is average. Ratings move 25% back towards 1500
-                  at the start of each season.
+                  Team strength after each match, worked out from results alone (an Elo rating, the
+                  system chess uses). 1500 is an average NPFL side. Beating a stronger team lifts it
+                  more than beating a weaker one. It eases 25% back towards 1500 at the start of
+                  each season.
                 </p>
               </Card>
             ) : (

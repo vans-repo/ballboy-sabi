@@ -44,7 +44,7 @@ export default function RatingChart({ points }: { points: RatingPoint[] }) {
           labelFormatter={(_, payload) =>
             (payload?.[0]?.payload as RatingPoint | undefined)?.season ?? ""
           }
-          formatter={(v) => [Math.round(Number(v)), "Rating"]}
+          formatter={(v) => [Math.round(Number(v)), "Strength"]}
         />
         <Line
           type="monotone"

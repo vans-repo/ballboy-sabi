@@ -14,7 +14,7 @@ update public.teams set primary_colour = '#C8102E', secondary_colour = '#FFFFFF'
 update public.teams set primary_colour = '#1B3A8C', secondary_colour = '#FFFFFF', city = 'Kano',
   crest_url = 'https://ballboy-sabi.vercel.app/crests/barau.png'
   where slug = 'barau';
-update public.teams set primary_colour = '#E4B321', secondary_colour = '#14361F', city = 'Benin City',
+update public.teams set primary_colour = '#F4C430', secondary_colour = '#14612F', city = 'Benin City',
   crest_url = 'https://ballboy-sabi.vercel.app/crests/bendel-insurance.png'
   where slug = 'bendel-insurance';
 update public.teams set primary_colour = '#2B4C9B', secondary_colour = '#FFFFFF', city = 'Gombe',
@@ -26,28 +26,28 @@ update public.teams set primary_colour = '#C8102E', secondary_colour = '#FFFFFF'
 update public.teams set primary_colour = '#1F45C2', secondary_colour = '#FFFFFF', city = 'Aba',
   crest_url = 'https://ballboy-sabi.vercel.app/crests/enyimba.png'
   where slug = 'enyimba';
-update public.teams set primary_colour = '#A3262A', secondary_colour = '#FFFFFF', city = 'Lagos',
+update public.teams set primary_colour = '#9C1B1B', secondary_colour = '#F2C230', city = 'Lagos',
   crest_url = 'https://ballboy-sabi.vercel.app/crests/ikorodu-city.png'
   where slug = 'ikorodu-city';
-update public.teams set primary_colour = '#2C1745', secondary_colour = '#F06AAE', city = 'Lagos',
+update public.teams set primary_colour = '#E4479C', secondary_colour = '#0E1640', city = 'Lagos',
   crest_url = 'https://ballboy-sabi.vercel.app/crests/inter-lagos.png'
   where slug = 'inter-lagos';
-update public.teams set primary_colour = '#0F7A3A', secondary_colour = '#FFFFFF', city = 'Kano',
+update public.teams set primary_colour = '#F2D21B', secondary_colour = '#0B5A2A', city = 'Kano',
   crest_url = 'https://ballboy-sabi.vercel.app/crests/kano-pillars.png'
   where slug = 'kano-pillars';
-update public.teams set primary_colour = '#1F6F2B', secondary_colour = '#FFFFFF', city = 'Katsina',
+update public.teams set primary_colour = '#F2D21B', secondary_colour = '#17602A', city = 'Katsina',
   crest_url = 'https://ballboy-sabi.vercel.app/crests/katsina-united.png'
   where slug = 'katsina-united';
 update public.teams set primary_colour = '#A4121C', secondary_colour = '#FFFFFF', city = 'Owerri',
   crest_url = 'https://ballboy-sabi.vercel.app/crests/kun-khalifat.png'
   where slug = 'kun-khalifat';
-update public.teams set primary_colour = '#E8A21F', secondary_colour = '#102F17', city = 'Ilorin',
+update public.teams set primary_colour = '#F2C21E', secondary_colour = '#1E5A2B', city = 'Ilorin',
   crest_url = 'https://ballboy-sabi.vercel.app/crests/kwara-united.png'
   where slug = 'kwara-united';
-update public.teams set primary_colour = '#2E7D4F', secondary_colour = '#FFFFFF', city = 'Lafia',
+update public.teams set primary_colour = '#E6DFA3', secondary_colour = '#2E6B2A', city = 'Lafia',
   crest_url = 'https://ballboy-sabi.vercel.app/crests/nasarawa-united.png'
   where slug = 'nasarawa-united';
-update public.teams set primary_colour = '#C0101A', secondary_colour = '#FFFFFF', city = 'Minna',
+update public.teams set primary_colour = '#2F6DB8', secondary_colour = '#FFFFFF', city = 'Minna',
   crest_url = 'https://ballboy-sabi.vercel.app/crests/niger-tornadoes.png'
   where slug = 'niger-tornadoes';
 update public.teams set primary_colour = '#F3D21A', secondary_colour = '#1B5E2E', city = 'Jos',
@@ -62,7 +62,7 @@ update public.teams set primary_colour = '#12309A', secondary_colour = '#FFFFFF'
 update public.teams set primary_colour = '#0A4BD0', secondary_colour = '#FFFFFF', city = 'Ibadan',
   crest_url = 'https://ballboy-sabi.vercel.app/crests/shooting-stars.png'
   where slug = 'shooting-stars';
-update public.teams set primary_colour = '#0E2263', secondary_colour = '#8CC2F0', city = 'Lagos',
+update public.teams set primary_colour = '#2B47C4', secondary_colour = '#FFFFFF', city = 'Lagos',
   crest_url = 'https://ballboy-sabi.vercel.app/crests/sporting-lagos.png'
   where slug = 'sporting-lagos';
 update public.teams set primary_colour = '#F2D22A', secondary_colour = '#1C3F94', city = 'Warri',

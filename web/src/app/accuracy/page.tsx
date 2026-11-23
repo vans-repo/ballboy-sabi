@@ -185,10 +185,10 @@ export default async function AccuracyPage() {
       <Section title="How the model works">
         <Card className="grid gap-2 text-sm">
           <p>
-            We average two simple models. The first is an Elo rating: every team has a number that
-            goes up when it beats a stronger side and down when it loses. The second counts goals:
-            it learns how many each team scores and lets in, home and away, with recent games
-            counting most.
+            We average two simple models. The first is a strength rating (an Elo rating, the system
+            chess uses): every team has a number that goes up when it beats a stronger side and down
+            when it loses. The second counts goals: it learns how many each team scores and lets in,
+            home and away, with recent games counting most.
           </p>
           <p>
             Both learn from every NPFL match since 2021/22, and only from games played before the

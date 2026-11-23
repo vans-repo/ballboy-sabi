@@ -4,6 +4,7 @@ import { ProbabilityBar } from "@/components/probability-bar";
 import { publicEnv } from "@/lib/env";
 import { formatDay, formatKickoffTime, pct } from "@/lib/format";
 import { type Motw, motwPostText, xIntentUrl } from "@/lib/motw";
+import { teamBands } from "@/lib/team-colours";
 import { cn } from "@/lib/utils";
 
 /** "Post on X" (one click, text and link filled in) and "Save image" (the portrait poster). */
@@ -30,26 +31,33 @@ export function MotwShareButtons({ w, className }: { w: Motw; className?: string
   );
 }
 
-/** Two team-colour bands with the codes overlapping, the away code in outline. */
+/**
+ * Two team-colour bands with the codes overlapping: the home code in the
+ * home text colour, the away code outlined. Clashing colours switch the away
+ * side to its second colour (lib/team-colours).
+ */
 export function TeamCodes({
   home,
   away,
   className,
 }: {
-  home: { code: string; primary_colour: string };
-  away: { code: string; primary_colour: string };
+  home: { code: string; primary_colour: string; secondary_colour: string };
+  away: { code: string; primary_colour: string; secondary_colour: string };
   className?: string;
 }) {
+  const bands = teamBands(home, away);
   return (
     <div className={cn("relative flex h-44 overflow-hidden", className)} aria-hidden="true">
-      <div className="flex-1" style={{ background: home.primary_colour }} />
-      <div className="flex-1" style={{ background: away.primary_colour }} />
+      <div className="flex-1" style={{ background: bands.home.bg }} />
+      <div className="flex-1" style={{ background: bands.away.bg }} />
       <div className="absolute inset-0 flex flex-col items-center justify-center font-heading text-[5.5rem] leading-[0.82] font-extrabold tracking-tighter">
-        <span className="-translate-x-8 text-white">{home.code}</span>
-        {/* Filled with the away colour, so the home code doesn't show through the outline. */}
+        <span className="-translate-x-8" style={{ color: bands.home.fg }}>
+          {home.code}
+        </span>
+        {/* Filled with the band colour, so the home code doesn't show through the outline. */}
         <span
-          className="translate-x-8 [-webkit-text-stroke:3px_white] [paint-order:stroke_fill]"
-          style={{ color: away.primary_colour }}
+          className="translate-x-8 [paint-order:stroke_fill]"
+          style={{ color: bands.away.bg, WebkitTextStroke: `3px ${bands.away.fg}` }}
         >
           {away.code}
         </span>

@@ -609,3 +609,33 @@ what was decided and why. Newest stage at the bottom.
      `web/public/crests`; sharper uploads through admin replace them. The
      kit photos are only a colour reference and never go on the site: they
      carry sponsors' logos, including betting brands.
+129. **Short names:** the first three letters of the club's name; where two
+     clubs share them, the first letter of the first word and the first two
+     of the second. Exceptions: Shooting Stars 3SC, Abia Warriors AWA, Enugu
+     Rangers RAN (so Ranchers Bees are RBE). Codes may contain digits.
+130. **Owner's colour corrections:** Inter Lagos pink with navy-blue; Ikorodu
+     City maroon and gold; Nasarawa United a pale (desaturated) yellow with
+     green; Niger Tornadoes blue; Sporting Lagos blue and white. The
+     green-and-yellow clubs (Kano Pillars, Katsina United, Plateau United,
+     Kwara United) use yellow as the main colour and green as the second,
+     like their yellow home and green away kits.
+131. **Colour clashes:** on posters and match headers, when the two clubs'
+     main colours look alike (redmean distance under 120), the away side
+     switches to its second colour, like an away kit. Codes sit in each
+     team's text colour, which passes 4.5:1 on its band.
+132. **Big match tags:** derbies come from a short list of pairings
+     confirmed by news reports (`web/src/config/rivalries.ts`, sources in
+     `docs/club-research.md`). Table tags come from the site's own table,
+     only before kick-off and once both clubs have played five games:
+     Top-two clash (1st v 2nd), Top-of-table clash (both top three), Top v
+     bottom (top three v bottom four), Relegation battle (both bottom five).
+     They show on fixture cards, and /admin → Match of the Week lists the
+     matchday's big matches for planning articles and posts.
+133. **"Strength", not "Elo", on the site:** the Elo rating is shown as the
+     club's strength ("6th strongest of 20", "Strength since 2021/22"),
+     with one plain sentence saying it's an Elo rating worked out from
+     results. Bendel Insurance's colours corrected to yellow first, green
+     second (owner).
+134. **"Refresh the site" button** (/admin → Teams & Seasons): after data is
+     changed straight in Supabase, it marks every cached page stale so the
+     change shows at once instead of within a few hours.

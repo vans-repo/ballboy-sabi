@@ -6,6 +6,7 @@ import {
   RemoveDeductionButton,
   SeasonForm,
   SeasonTeamsEditor,
+  RefreshSiteButton,
   ShowCrestsSwitch,
   TeamEditor,
 } from "@/components/admin/forms";
@@ -43,6 +44,16 @@ export default async function AdminTeamsPage({ searchParams }: PageProps<"/admin
   return (
     <>
       <PageTitle>Teams & Seasons</PageTitle>
+
+      <Section title="Changed data in Supabase?">
+        <Card className="grid gap-2">
+          <p className="text-sm text-muted-foreground">
+            The site keeps team and match data for a few hours. After running SQL in Supabase, press
+            this to show the changes everywhere now.
+          </p>
+          <RefreshSiteButton />
+        </Card>
+      </Section>
 
       <Section title="Seasons">
         <Card className="grid gap-4">
