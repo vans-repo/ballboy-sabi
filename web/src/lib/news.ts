@@ -11,6 +11,7 @@ export type Headline = { title: string; url: string; date: string; source: strin
 export type FeedStatus = { name: string; ok: boolean; items: number; matched: number };
 
 const WEEK_MS = 7 * 86_400_000;
+const MAX_PER_SOURCE = 2;
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 /**
@@ -68,7 +69,10 @@ export async function getLeagueNews(): Promise<{ headlines: Headline[]; feeds: F
     }),
   );
 
+  // Newest first, no repeated stories, and at most two from any one outlet,
+  // so one busy feed can't fill the card.
   const seen = new Set<string>();
+  const perSource = new Map<string, number>();
   const headlines = results
     .flatMap((r) => r.items)
     .sort((a, b) => b.date.localeCompare(a.date))
@@ -77,8 +81,10 @@ export async function getLeagueNews(): Promise<{ headlines: Headline[]; feeds: F
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, " ")
         .trim();
-      if (seen.has(key)) return false;
+      const n = perSource.get(h.source) ?? 0;
+      if (seen.has(key) || n >= MAX_PER_SOURCE) return false;
       seen.add(key);
+      perSource.set(h.source, n + 1);
       return true;
     });
   return {
