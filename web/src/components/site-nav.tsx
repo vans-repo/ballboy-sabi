@@ -65,8 +65,8 @@ export const TABS = [
  * browser has checked (a moment after load) it shows the way in, since most
  * first-time visitors aren't logged in.
  */
-function useTabs(long: boolean) {
-  const signedIn = useSignedIn();
+function useTabs(long: boolean, path: string | null) {
+  const signedIn = useSignedIn(path);
   return TABS.map((t) =>
     t.href === "/me" && signedIn !== true
       ? { ...t, href: "/login", label: long ? "Sign up / Log in" : "Log in" }
@@ -81,7 +81,7 @@ function isActive(path: string | null, href: string) {
 }
 
 function BottomTabsView({ path }: { path: string | null }) {
-  const tabs = useTabs(false);
+  const tabs = useTabs(false, path);
   return (
     <nav
       aria-label="Main"
@@ -118,7 +118,7 @@ function BottomTabsView({ path }: { path: string | null }) {
 }
 
 function SideNavView({ path }: { path: string | null }) {
-  const tabs = useTabs(true);
+  const tabs = useTabs(true, path);
   const item = (active: boolean) =>
     cn(
       "flex h-11 items-center gap-3 rounded-lg px-3 text-sm",

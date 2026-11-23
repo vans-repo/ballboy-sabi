@@ -2,19 +2,25 @@
 
 import { useEffect, useState } from "react";
 
-import { createClient } from "@/lib/supabase/client";
+/** The same test the proxy uses: is there a Supabase session cookie? */
+const hasSessionCookie = () =>
+  document.cookie.split(";").some((c) => {
+    const name = c.trim().split("=")[0];
+    return name.startsWith("sb-") && name.includes("auth-token");
+  });
 
 /**
- * Whether someone is logged in, read in the browser from the session cookie
- * (no network call). null until known. Updates on log in and log out.
+ * Whether someone is logged in, from the session cookie (no network call).
+ * null until checked; checked again on every page change, so logging in or
+ * out shows straight away.
  */
-export function useSignedIn(): boolean | null {
+/** `path` is the current URL path (or null while unknown): a change re-checks the cookie. */
+export function useSignedIn(path: string | null): boolean | null {
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
   useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getSession().then(({ data }) => setSignedIn(!!data.session));
-    const { data } = supabase.auth.onAuthStateChange((_e, session) => setSignedIn(!!session));
-    return () => data.subscription.unsubscribe();
-  }, []);
+    // Reading a browser-only value after mount is the point here.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSignedIn(hasSessionCookie());
+  }, [path]);
   return signedIn;
 }
