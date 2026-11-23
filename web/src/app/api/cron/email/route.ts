@@ -3,10 +3,12 @@ import { timingSafeEqual } from "node:crypto";
 import { sendEmail } from "@/lib/email/brevo";
 import { nextPreview, renderPreview } from "@/lib/email/preview";
 import { runPreviewQueue } from "@/lib/email/queue";
+import { remindAdmins } from "@/lib/email/reminder";
 
 /**
  * Daily Vercel Cron job: queues the Matchday Preview when it's due and sends
- * up to EMAIL_DAILY_LIMIT. Auth: `Authorization: Bearer <CRON_SECRET>`, which
+ * up to EMAIL_DAILY_LIMIT, then reminds the admins about any results still
+ * missing more than 3 hours after kick-off. Auth: `Authorization: Bearer <CRON_SECRET>`, which
  * Vercel Cron sends automatically.
  *
  * `?test=1` instead sends the next preview once to EMAIL_TEST_ADDRESS (a
@@ -37,7 +39,8 @@ export async function GET(request: Request) {
   const limit = Number.parseInt(process.env.EMAIL_DAILY_LIMIT ?? "280", 10) || 280;
   try {
     const report = await runPreviewQueue(Date.now(), limit);
-    return Response.json(report);
+    const reminder = await remindAdmins(Date.now());
+    return Response.json({ ...report, reminder });
   } catch (e) {
     return Response.json({ error: (e as Error).message }, { status: 500 });
   }

@@ -520,3 +520,12 @@ what was decided and why. Newest stage at the bottom.
      SMTP in Supabase, the revalidate secret on GitHub, merging to `main`)
      need the owner's accounts. The README's launch checklist lists each
      step.
+
+## After launch
+
+115. **Missing-result reminder.** The daily email job also emails every
+     admin when any match kicked off more than 3 hours ago without a
+     result, listing the matches with a link to Needs results. It repeats
+     daily until they're entered, and records nothing. It's the owner's
+     backup while running the site alone. Automatic results from a licensed
+     feed (option 3) wait on confirming a provider that covers the NPFL.
