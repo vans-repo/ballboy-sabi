@@ -63,7 +63,7 @@ async function Me() {
       <PageTitle sub={viewer.email ?? undefined}>{viewer.displayName}</PageTitle>
 
       {placeholderName && (
-        <Card className="mb-6 border border-primary/50 text-sm">
+        <Card className="mb-6 border border-ink/50 text-sm">
           Choose a display name for the leaderboard in Settings below.
         </Card>
       )}
@@ -89,7 +89,7 @@ async function Me() {
                 {me
                   ? `${me.correct} correct results, ${me.exact} exact scores.`
                   : "Your points appear after your first pick is scored."}{" "}
-                <Link href="/leaderboard" className="text-primary underline underline-offset-2">
+                <Link href="/leaderboard" className="text-ink underline underline-offset-2">
                   Leaderboard
                 </Link>
               </p>
@@ -166,7 +166,7 @@ async function Me() {
             ) : (
               <Empty>
                 No picks yet.{" "}
-                <Link href="/pick-all" className="text-primary underline underline-offset-2">
+                <Link href="/pick-all" className="text-ink underline underline-offset-2">
                   Make your picks
                 </Link>
               </Empty>

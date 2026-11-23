@@ -67,7 +67,7 @@ export function MatchCard({
                 className={
                   t.kind === "derby"
                     ? "rounded-md bg-primary px-2 py-0.5 text-[0.7rem] font-extrabold tracking-wide text-primary-foreground uppercase"
-                    : "rounded-md border border-primary px-2 py-0.5 text-[0.7rem] font-extrabold tracking-wide text-foreground uppercase"
+                    : "rounded-md border border-ink px-2 py-0.5 text-[0.7rem] font-extrabold tracking-wide text-foreground uppercase"
                 }
               >
                 {t.label}

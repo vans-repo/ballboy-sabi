@@ -89,7 +89,7 @@ export function PickButtons({
                 "flex flex-col items-center justify-center rounded-lg border px-1 text-sm font-medium transition-colors disabled:opacity-60",
                 size === "lg" ? "min-h-16" : "min-h-12",
                 chosen
-                  ? "border-primary bg-primary text-primary-foreground"
+                  ? "border-ink bg-primary text-primary-foreground"
                   : "bg-background hover:bg-muted",
               )}
             >

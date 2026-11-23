@@ -59,7 +59,7 @@ export default async function RecapPage({ searchParams }: PageProps<"/admin/reca
                   href={`${SUBSTACK_URL}/publish/post`}
                   target="_blank"
                   rel="noopener"
-                  className="text-primary underline underline-offset-2"
+                  className="text-ink underline underline-offset-2"
                 >
                   new Substack post
                 </a>{" "}
@@ -75,7 +75,7 @@ export default async function RecapPage({ searchParams }: PageProps<"/admin/reca
                 href={X_URL}
                 target="_blank"
                 rel="noopener"
-                className="text-primary underline underline-offset-2"
+                className="text-ink underline underline-offset-2"
               >
                 @NaijaBallboy
               </a>

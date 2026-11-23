@@ -104,7 +104,7 @@ async function Fixtures({ md, team }: { md: number | null; team: string | null }
                         "flex h-11 items-center justify-center rounded-lg text-sm hover:bg-muted",
                         d === shown &&
                           "bg-primary text-primary-foreground hover:bg-primary-pressed",
-                        d === current && d !== shown && "ring-1 ring-primary",
+                        d === current && d !== shown && "ring-1 ring-ink",
                       )}
                     >
                       {d}
@@ -121,7 +121,7 @@ async function Fixtures({ md, team }: { md: number | null; team: string | null }
           </nav>
 
           <details className="mb-4">
-            <summary className="inline-flex min-h-11 cursor-pointer items-center text-sm text-primary">
+            <summary className="inline-flex min-h-11 cursor-pointer items-center text-sm text-ink">
               {teamFilter ? `Showing ${teamFilter.name} only` : "Filter by team"}
             </summary>
             <ul className="mt-2 flex flex-wrap gap-2">
@@ -141,7 +141,7 @@ async function Fixtures({ md, team }: { md: number | null; team: string | null }
                     href={href(shown, t.slug)}
                     className={cn(
                       "inline-flex h-11 items-center rounded-lg bg-surface px-3 text-sm hover:bg-muted",
-                      t.slug === team && "ring-1 ring-primary",
+                      t.slug === team && "ring-1 ring-ink",
                     )}
                   >
                     {t.name}

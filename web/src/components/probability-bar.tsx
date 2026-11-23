@@ -7,7 +7,7 @@ type Probs = Pick<Prediction, "p_home" | "p_draw" | "p_away">;
 /** Home / Draw / Away as numbers and as a bar. All three are always shown. */
 export function ProbabilityBar({ p, size = "md" }: { p: Probs; size?: "md" | "lg" }) {
   const parts = [
-    { label: "Home", value: p.p_home, bar: "bg-home", text: "text-primary" },
+    { label: "Home", value: p.p_home, bar: "bg-home", text: "text-ink" },
     { label: "Draw", value: p.p_draw, bar: "bg-draw", text: "" },
     { label: "Away", value: p.p_away, bar: "bg-away", text: "text-away" },
   ];

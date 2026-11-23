@@ -71,7 +71,7 @@ export default async function AdminMotwPage() {
             <p className="text-muted-foreground">{motwPostText(w)}</p>
             <MotwShareButtons w={w} />
             <p>
-              <Link href={`/motw/${w.key}`} className="text-primary underline">
+              <Link href={`/motw/${w.key}`} className="text-ink underline">
                 Open the share page
               </Link>
             </p>

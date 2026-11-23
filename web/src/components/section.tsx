@@ -30,7 +30,7 @@ export function Section({
         {more && (
           <Link
             href={more.href}
-            className="inline-flex min-h-11 items-center text-sm text-primary hover:underline"
+            className="inline-flex min-h-11 items-center text-sm text-ink hover:underline"
           >
             {more.label}
           </Link>

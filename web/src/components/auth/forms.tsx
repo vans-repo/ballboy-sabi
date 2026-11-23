@@ -87,11 +87,11 @@ export function LogInForm({ next, pick }: { next: string; pick: string | null })
       <GoogleButton next={next} pick={pick} />
       <p className="text-sm">
         New here?{" "}
-        <Link href={`/signup?${qs}`} className="text-primary underline underline-offset-2">
+        <Link href={`/signup?${qs}`} className="text-ink underline underline-offset-2">
           Create an account
         </Link>
         {" · "}
-        <Link href="/reset-password" className="text-primary underline underline-offset-2">
+        <Link href="/reset-password" className="text-ink underline underline-offset-2">
           Forgot your password?
         </Link>
       </p>
@@ -139,7 +139,7 @@ export function SignUpForm({ next, pick }: { next: string; pick: string | null }
       <GoogleButton next={next} pick={pick} />
       <p className="text-sm">
         Already have an account?{" "}
-        <Link href={`/login?${qs}`} className="text-primary underline underline-offset-2">
+        <Link href={`/login?${qs}`} className="text-ink underline underline-offset-2">
           Log in
         </Link>
       </p>

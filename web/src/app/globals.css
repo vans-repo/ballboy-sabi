@@ -11,7 +11,9 @@
  *   spec token       utility                 notes
  *   background       bg-background           page
  *   surface          bg-surface / bg-card    cards, tab bar
- *   accent           bg-primary / bg-home    primary buttons, active tab, Home share
+ *   accent           bg-primary / bg-home    fills: buttons, active tab, banners, Home share
+ *   accent ink       text-ink / border-ink   accent as text, borders and focus rings
+ *                                            (yellow in dark mode, navy in light)
  *   accent-pressed   bg-primary-pressed      pressed and hover states
  *   neutral          bg-draw                 Draw share of the probability bar
  *   away             bg-away                 Away share of the probability bar
@@ -47,7 +49,8 @@
   --color-destructive: var(--danger);
   --color-border: var(--border);
   --color-input: var(--border);
-  --color-ring: var(--tnb-accent);
+  --color-ring: var(--accent-ink);
+  --color-ink: var(--accent-ink);
 
   --color-home: var(--tnb-accent);
   --color-draw: var(--neutral);
@@ -79,6 +82,7 @@
   --tnb-accent: #fed700;
   --tnb-accent-pressed: #e0be00;
   --on-accent: #001f55;
+  --accent-ink: #fed700;
   --neutral: #7c8aa0;
   --away: #4a90d9;
   --success: #22c55e;
@@ -95,9 +99,12 @@
   --background: #f3f5f9;
   --surface: #ffffff;
   --surface-raised: rgb(0 31 85 / 0.06);
-  --tnb-accent: #001f55; /* navy: yellow fails contrast on light backgrounds */
-  --tnb-accent-pressed: #0b2e70;
-  --on-accent: #fed700;
+  --tnb-accent: #fed700;
+  --tnb-accent-pressed: #e0be00;
+  --on-accent: #001f55;
+  /* Yellow is too faint as text or a thin line on the light background
+     (about 1.4:1), so text, borders and focus rings use navy here. */
+  --accent-ink: #001f55;
   --neutral: #64748b;
   --away: #4a90d9;
   --success: #15803d;

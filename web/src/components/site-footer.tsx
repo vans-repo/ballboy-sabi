@@ -46,7 +46,7 @@ export function SiteFooter() {
           </li>
         </ul>
         <p className="mt-3 flex flex-wrap items-center gap-2">
-          <Logo className="h-4 w-auto text-primary" title={BRAND} />
+          <Logo className="h-4 w-auto text-ink" title={BRAND} />
           <span>
             {SITE_NAME} by {BRAND}. Times are West Africa Time (WAT).
           </span>

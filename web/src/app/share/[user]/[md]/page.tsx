@@ -51,7 +51,7 @@ async function Share({ params }: { params: Promise<Params> }) {
       </PageTitle>
       <Card className="grid gap-2">
         <p>
-          <span className="figure text-6xl text-primary">{card.me.points}</span> points
+          <span className="figure text-6xl text-ink">{card.me.points}</span> points
         </p>
         <p>
           {ordinal(card.me.rank)} of {card.fans + 1} · {card.me.correct} right · {card.me.exact}{" "}

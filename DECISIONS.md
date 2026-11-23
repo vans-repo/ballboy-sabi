@@ -639,3 +639,13 @@ what was decided and why. Newest stage at the bottom.
 134. **"Refresh the site" button** (/admin → Teams & Seasons): after data is
      changed straight in Supabase, it marks every cached page stale so the
      change shows at once instead of within a few hours.
+135. **Yellow is back in light mode (replaces part of 121):** the owner
+     wanted yellow kept wherever it works. Light mode now uses yellow for
+     fills, exactly as dark mode does: buttons, the active sidebar item,
+     the Matchday banner, chosen picks, derby tags, the Home share of the
+     probability bars, the champions' zone bar and the active-tab marker,
+     all with navy text on yellow (11.3:1). Navy replaces yellow only where
+     yellow would be text, a thin border or a focus ring on the light
+     background (about 1.4:1). Two tokens: `bg-primary` (fill, yellow in
+     both modes) and `text-ink` / `border-ink` / `ring` (yellow in dark
+     mode, navy in light).

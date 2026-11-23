@@ -12,7 +12,7 @@ export function UnsubscribeForm({ u, t }: { u: string; t: string }) {
     return (
       <p role="status" className="rounded-xl bg-surface p-4">
         Done. You won&apos;t get the weekly preview any more. You can turn it back on in{" "}
-        <Link href="/me" className="text-primary underline underline-offset-2">
+        <Link href="/me" className="text-ink underline underline-offset-2">
           Me
         </Link>
         .

@@ -13,7 +13,7 @@ export function RunTracker() {
   return (
     <ul className="mb-5 grid gap-2">
       {runs.map((r) => (
-        <li key={r.runId} className="rounded-xl border border-primary/40 bg-surface p-3">
+        <li key={r.runId} className="rounded-xl border border-ink/40 bg-surface p-3">
           <p className="text-xs text-muted-foreground">{r.label}</p>
           <RunStatus runId={r.runId} />
         </li>

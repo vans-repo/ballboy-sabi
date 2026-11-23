@@ -62,7 +62,7 @@ export default async function AdminTeamsPage({ searchParams }: PageProps<"/admin
               <li key={x.id} className="flex min-h-11 flex-wrap items-center justify-between gap-2">
                 <Link
                   href={`/admin/teams?season=${encodeURIComponent(x.label)}`}
-                  className={cn("font-medium", x.id === s.id && "text-primary underline")}
+                  className={cn("font-medium", x.id === s.id && "text-ink underline")}
                 >
                   {x.label}
                 </Link>
@@ -70,7 +70,7 @@ export default async function AdminTeamsPage({ searchParams }: PageProps<"/admin
                   {x.start_date} to {x.end_date}
                 </span>
                 {x.is_current ? (
-                  <span className="text-xs font-medium text-primary">Current season</span>
+                  <span className="text-xs font-medium text-ink">Current season</span>
                 ) : (
                   <MakeCurrentButton seasonId={x.id} />
                 )}
@@ -78,7 +78,7 @@ export default async function AdminTeamsPage({ searchParams }: PageProps<"/admin
             ))}
           </ul>
           <details>
-            <summary className="inline-flex min-h-11 cursor-pointer items-center text-sm text-primary">
+            <summary className="inline-flex min-h-11 cursor-pointer items-center text-sm text-ink">
               Create a season
             </summary>
             <div className="mt-2">

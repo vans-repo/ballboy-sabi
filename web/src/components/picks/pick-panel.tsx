@@ -67,7 +67,7 @@ export function PickPanel({
         size="lg"
       />
       <details className="mt-3">
-        <summary className="inline-flex min-h-11 cursor-pointer items-center text-sm text-primary">
+        <summary className="inline-flex min-h-11 cursor-pointer items-center text-sm text-ink">
           Add an exact score (+3 points)
         </summary>
         <div className="mt-2 flex items-end gap-2">
@@ -109,7 +109,7 @@ export function PickPanel({
           </>
         ) : ready && !viewer ? (
           <>
-            <Link href="/login" className="text-primary underline underline-offset-2">
+            <Link href="/login" className="text-ink underline underline-offset-2">
               Log in
             </Link>{" "}
             to play Beat the Ballboy. Free, no money involved.

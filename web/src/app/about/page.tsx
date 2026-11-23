@@ -24,7 +24,7 @@ export default function AboutPage() {
           <p>
             The numbers come from The Ballboy, our model. It learns from every NPFL result since
             2021/22 and updates after each new result. See{" "}
-            <Link href="/accuracy" className="text-primary underline underline-offset-2">
+            <Link href="/accuracy" className="text-ink underline underline-offset-2">
               Accuracy
             </Link>{" "}
             for how well it does.
@@ -73,10 +73,7 @@ export default function AboutPage() {
         {CONTACT_EMAIL ? (
           <p>
             Email{" "}
-            <a
-              href={`mailto:${CONTACT_EMAIL}`}
-              className="text-primary underline underline-offset-2"
-            >
+            <a href={`mailto:${CONTACT_EMAIL}`} className="text-ink underline underline-offset-2">
               {CONTACT_EMAIL}
             </a>
             .

@@ -81,7 +81,7 @@ function BottomTabsView({ path }: { path: string | null }) {
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "relative flex h-14 flex-col items-center justify-center gap-0.5 text-[0.7rem]",
-                  active ? "font-bold text-primary" : "font-medium text-muted-foreground",
+                  active ? "font-bold text-ink" : "font-medium text-muted-foreground",
                 )}
               >
                 {active && (
