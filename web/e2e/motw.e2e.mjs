@@ -43,7 +43,8 @@ sql(`
   fx(h, a, ph, pd, pa, up) as (values
     ('Lobi Stars', 'Heartland', 0.44, 0.26, 0.30, true),
     ('Gombe United', 'Akwa United', 0.47, 0.28, 0.25, true),
-    ('Sunshine Stars', 'MFM', 0.36, 0.30, 0.34, false)),
+    ('Sunshine Stars', 'MFM', 0.36, 0.30, 0.34, false),
+    ('Enyimba', 'Enugu Rangers', 0.55, 0.27, 0.18, false)),
   m as (insert into public.matches (season_id, matchday_id, home_team_id, away_team_id, kickoff_at, kickoff_time_confirmed)
         select s.id, d.id, (select id from public.teams where name = fx.h), (select id from public.teams where name = fx.a),
                now() + interval '2 days', true
@@ -116,6 +117,11 @@ try {
     share.includes(`/motw/md${md}/opengraph-image`) && share.includes("summary_large_image"),
   );
 
+  check(
+    "Derby tag: Enyimba v Enugu Rangers is the Oriental derby",
+    (await page.locator("article", { hasText: "Enyimba" }).getByText("Oriental derby").count()) > 0,
+  );
+
   // --- 2. The admin chooses another match ------------------------------------
   await logIn(page, "admin@e2e.invalid", "admin-password-1");
   await page.goto(`${BASE}/admin/motw`);
@@ -126,6 +132,7 @@ try {
   await select.selectOption(close);
   await page.getByRole("button", { name: "Save" }).click();
   await page.getByText("Match of the Week chosen.").waitFor();
+  check("Admin lists the week's big matches", (await page.getByText(/Oriental derby/).count()) > 0);
   await page.goto(`${BASE}/`);
   check(
     "Admin's choice replaces the automatic pick",

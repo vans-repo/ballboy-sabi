@@ -5,7 +5,8 @@ import { ProbabilityBar } from "@/components/probability-bar";
 import { RightWrong } from "@/components/right-wrong";
 import { StatusTag } from "@/components/status-tag";
 import { TeamBadge } from "@/components/team-badge";
-import type { Match, Prediction, Team } from "@/lib/data";
+import { bigMatchTags, derbyName } from "@/lib/big-match";
+import type { Match, Prediction, TableRow, Team } from "@/lib/data";
 import { hasResult, isLocked, isUpcoming, likeliest, outcomeOf } from "@/lib/football";
 import { formatDay, formatKickoffTime } from "@/lib/format";
 
@@ -22,6 +23,7 @@ export function MatchCard({
   frozen,
   now,
   pickable = false,
+  table,
 }: {
   match: Match;
   home: Team;
@@ -31,11 +33,21 @@ export function MatchCard({
   now: number;
   /** Show pick buttons while the match is open. */
   pickable?: boolean;
+  /** This season's table: adds "Top-two clash" and similar tags before kick-off. */
+  table?: TableRow[];
 }) {
   const played = hasResult(match);
   const upcoming = isUpcoming(match, now);
   const locked = isLocked(match, now);
   const outcome = outcomeOf(match);
+  // Derbies always; table tags (top-two clash and so on) only before kick-off.
+  const derby = derbyName(home, away);
+  const tags =
+    upcoming && table
+      ? bigMatchTags(home, away, table)
+      : derby
+        ? [{ kind: "derby" as const, label: derby }]
+        : [];
 
   return (
     <article className="rounded-2xl bg-surface p-4">
@@ -48,7 +60,19 @@ export function MatchCard({
             </span>
             {locked && "Kicked off, result to come"}
           </span>
-          <span className="flex items-center gap-1.5">
+          <span className="flex flex-wrap items-center justify-end gap-1.5">
+            {tags.map((t) => (
+              <span
+                key={t.label}
+                className={
+                  t.kind === "derby"
+                    ? "rounded-md bg-primary px-2 py-0.5 text-[0.7rem] font-extrabold tracking-wide text-primary-foreground uppercase"
+                    : "rounded-md border border-primary px-2 py-0.5 text-[0.7rem] font-extrabold tracking-wide text-foreground uppercase"
+                }
+              >
+                {t.label}
+              </span>
+            ))}
             {upcoming && latest?.upset_alert && (
               <span className="rounded-md bg-away px-2 py-0.5 text-[0.7rem] font-extrabold tracking-wide text-[#001F55] uppercase">
                 Upset Alert

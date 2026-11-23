@@ -158,6 +158,7 @@ async function HomeContent() {
                       frozen={frozen[m.id]}
                       now={now}
                       pickable
+                      table={table}
                     />
                   </li>
                 ))}

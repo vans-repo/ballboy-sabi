@@ -623,3 +623,11 @@ what was decided and why. Newest stage at the bottom.
      main colours look alike (redmean distance under 120), the away side
      switches to its second colour, like an away kit. Codes sit in each
      team's text colour, which passes 4.5:1 on its band.
+132. **Big match tags:** derbies come from a short list of pairings
+     confirmed by news reports (`web/src/config/rivalries.ts`, sources in
+     `docs/club-research.md`). Table tags come from the site's own table,
+     only before kick-off and once both clubs have played five games:
+     Top-two clash (1st v 2nd), Top-of-table clash (both top three), Top v
+     bottom (top three v bottom four), Relegation battle (both bottom five).
+     They show on fixture cards, and /admin → Match of the Week lists the
+     matchday's big matches for planning articles and posts.

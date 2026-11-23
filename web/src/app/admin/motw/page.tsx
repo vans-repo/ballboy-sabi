@@ -4,7 +4,8 @@ import { MotwChooser } from "@/components/admin/forms";
 import { MotwShareButtons } from "@/components/motw-card";
 import { Card, PageTitle, Section } from "@/components/section";
 import { requireAdmin } from "@/lib/admin/guard";
-import { getLatestPredictions, getSettings } from "@/lib/data";
+import { bigMatchTags } from "@/lib/big-match";
+import { getLatestPredictions, getLeagueTable, getSettings } from "@/lib/data";
 import { getContext } from "@/lib/data/context";
 import { currentMatchday, isUpcoming } from "@/lib/football";
 import { formatDay, pct } from "@/lib/format";
@@ -21,15 +22,27 @@ const KIND = {
 export default async function AdminMotwPage() {
   await requireAdmin();
   const now = renderTime();
-  const [w, ctx, latest, settings] = await Promise.all([
+  const ctx = await getContext();
+  const [w, latest, settings, table] = await Promise.all([
     currentMotw(now),
-    getContext(),
     getLatestPredictions(),
     getSettings(),
+    getLeagueTable(ctx.current.id),
   ]);
   const season = ctx.matches.filter((m) => m.seasonId === ctx.current.id);
   const md = currentMatchday(season, now);
   const open = season.filter((m) => m.matchday === md && isUpcoming(m, now) && latest[m.id]);
+  // For articles and posts: derbies, table clashes and Upset Alerts this matchday.
+  const big = open
+    .map((m) => {
+      const home = ctx.teams.get(m.homeId)!;
+      const away = ctx.teams.get(m.awayId)!;
+      const labels = bigMatchTags(home, away, table).map((t) => t.label);
+      if (latest[m.id].upset_alert) labels.push("Upset Alert");
+      const pos = (id: string) => table.find((r) => r.teamId === id)?.position;
+      return { m, home, away, labels, hp: pos(home.id), ap: pos(away.id) };
+    })
+    .filter((x) => x.labels.length);
 
   return (
     <>
@@ -64,6 +77,37 @@ export default async function AdminMotwPage() {
             </p>
           </div>
         </Card>
+      </Section>
+
+      <Section title={`Big matches, Matchday ${md ?? ""}`}>
+        {big.length ? (
+          <ul className="grid gap-2">
+            {big.map(({ m, home, away, labels, hp, ap }) => (
+              <li key={m.id} className="rounded-xl bg-surface p-4 text-sm">
+                <p className="font-medium">
+                  <Link href={`/match/${m.id}`} className="hover:underline">
+                    {home.name}
+                    {hp ? ` (${hp})` : ""} v {away.name}
+                    {ap ? ` (${ap})` : ""}
+                  </Link>
+                </p>
+                <p className="text-muted-foreground">
+                  {labels.join(" · ")} · {formatDay(m.kickoff)} · {pct(latest[m.id].p_home)} /{" "}
+                  {pct(latest[m.id].p_draw)} / {pct(latest[m.id].p_away)}
+                </p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <Card>
+            <p className="text-sm text-muted-foreground">
+              No derbies, table clashes or Upset Alerts in this matchday&apos;s open matches.
+            </p>
+          </Card>
+        )}
+        <p className="mt-2 text-xs text-muted-foreground">
+          Table positions in brackets. Derbies and club history: docs/club-research.md.
+        </p>
       </Section>
 
       {open.length > 0 && (
