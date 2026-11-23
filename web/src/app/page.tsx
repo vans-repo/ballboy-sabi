@@ -21,7 +21,9 @@ import {
   getWalkForward,
 } from "@/lib/data";
 import { getContext } from "@/lib/data/context";
+import { getLeagueNews } from "@/lib/news";
 import { getLatestPosts } from "@/lib/substack";
+import { weekNumbers } from "@/lib/week-numbers";
 import { renderTime } from "@/lib/time";
 import { currentMatchday, isUpcoming } from "@/lib/football";
 import { formatDay, formatShortDate, formatTime, pct } from "@/lib/format";
@@ -45,13 +47,15 @@ async function HomeContent() {
   const now = renderTime();
 
   const ctx = await getContext();
-  const [motw, latest, frozen, table, walk, posts] = await Promise.all([
+  const [motw, latest, frozen, table, walk, posts, news, week] = await Promise.all([
     currentMotw(now),
     getLatestPredictions(),
     getFrozenPredictions(),
     getLeagueTable(ctx.current.id),
     getWalkForward(),
     getLatestPosts(3),
+    getLeagueNews(),
+    weekNumbers(),
   ]);
   const season = ctx.matches.filter((m) => m.seasonId === ctx.current.id);
   const md = currentMatchday(season, now);
@@ -245,6 +249,86 @@ async function HomeContent() {
             )}
           </Section>
 
+          {week && (
+            <Section title={`Matchday ${week.md} in numbers`}>
+              <dl className="grid grid-cols-2 gap-2">
+                {week.ballboy && (
+                  <Stat label="The Ballboy called">
+                    <span className="figure text-3xl">
+                      {week.ballboy.right}/{week.ballboy.total}
+                    </span>
+                  </Stat>
+                )}
+                <Stat label="Goals">
+                  <span className="figure text-3xl">{week.goals}</span>{" "}
+                  <span className="text-xs text-muted-foreground">
+                    in {week.played} {week.played === 1 ? "match" : "matches"}
+                  </span>
+                </Stat>
+                {week.biggestWin && (
+                  <Stat label="Biggest win">
+                    <Link href={`/match/${week.biggestWin.match.id}`} className="hover:underline">
+                      {week.biggestWin.home.name}{" "}
+                      <span className="figure">
+                        {week.biggestWin.match.homeGoals}–{week.biggestWin.match.awayGoals}
+                      </span>{" "}
+                      {week.biggestWin.away.name}
+                    </Link>
+                  </Stat>
+                )}
+                {week.upset && (
+                  <Stat label="Biggest upset">
+                    <Link href={`/match/${week.upset.match.id}`} className="hover:underline">
+                      {week.upset.home.name}{" "}
+                      <span className="figure">
+                        {week.upset.match.homeGoals}–{week.upset.match.awayGoals}
+                      </span>{" "}
+                      {week.upset.away.name}
+                    </Link>
+                    <span className="block text-xs text-muted-foreground">
+                      The Ballboy gave it {pct(week.upset.chance)}
+                    </span>
+                  </Stat>
+                )}
+                {week.unbeaten && (
+                  <Stat label="Longest unbeaten run">
+                    <Link href={`/team/${week.unbeaten.team.slug}`} className="hover:underline">
+                      {week.unbeaten.team.name}
+                    </Link>
+                    <span className="block text-xs text-muted-foreground">
+                      {week.unbeaten.games} league games
+                    </span>
+                  </Stat>
+                )}
+              </dl>
+            </Section>
+          )}
+
+          {news.headlines.length > 0 && (
+            <Section title="NPFL news this week">
+              <ul className="grid gap-2">
+                {news.headlines.slice(0, 6).map((h) => (
+                  <li key={h.url}>
+                    <a
+                      href={h.url}
+                      target="_blank"
+                      rel="noopener"
+                      className="block rounded-xl bg-surface p-4 hover:bg-muted"
+                    >
+                      <span className="block font-medium">{h.title}</span>
+                      <span className="mt-1 block text-xs text-muted-foreground">
+                        {h.source} · {formatShortDate(h.date)} <span aria-hidden="true">↗</span>
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-2 text-xs text-muted-foreground">
+                Headlines from Nigerian news sites. Each links to the full story on their site.
+              </p>
+            </Section>
+          )}
+
           <Section title="Table" more={{ href: "/table", label: "Full table" }}>
             {table.length ? (
               <LeagueTable
@@ -296,5 +380,14 @@ async function HomeContent() {
         </div>
       </div>
     </>
+  );
+}
+
+function Stat({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-xl bg-surface p-3">
+      <dt className="text-xs text-muted-foreground">{label}</dt>
+      <dd className="mt-1 text-sm font-medium">{children}</dd>
+    </div>
   );
 }
