@@ -670,3 +670,23 @@ what was decided and why. Newest stage at the bottom.
      biggest win, biggest upset (the result the Ballboy gave the lowest
      chance, under a third) and the longest current unbeaten run (three
      games or more).
+140. **Fans play; the Ballboy's workings are for admins.** Fan pages no
+     longer explain or expose the model: no expected goals, no "Why"
+     reasons, no strength ratings, no accuracy statistics, no "how the
+     Ballboy works". Accuracy moved to /admin/accuracy. "Upset Alert"
+     becomes "One To Watch 🔥" everywhere fans see it (cards, Home, Match
+     of the Week, share images, the weekly email). Fans' "Post on X" text
+     has no numbers; the admin's "Post on X with the Ballboy's read" adds
+     the percentages and the main reason, so hints at the model only go
+     out in the owner's posts. Percentages, likely scores and points stay:
+     they are what fans play against.
+141. **Fan navigation is just the five tabs.** The fifth tab reads "Me" only
+     for someone logged in; otherwise "Log in" on phones and "Sign up / Log
+     in" on desktop, linking to /login (which links to sign-up). The phone
+     "Menu" and the sidebar's secondary links (Teams, Head-to-Head, How It
+     Works, Substack) are gone, per the owner; those pages still exist and
+     are linked from where they're relevant (team names go to team pages).
+     Home's second list of Ones To Watch is titled "Other matches".
+142. **Compact footer:** the main pages; Follow: X, Instagram, Substack, and
+     "Email me" once NEXT_PUBLIC_CONTACT_EMAIL is set; then one line of
+     small print (©, free to play, not affiliated, times in WAT).

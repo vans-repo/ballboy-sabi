@@ -120,10 +120,9 @@ export function renderPreview(plan: PreviewPlan, user: { id: string; name: strin
     ...(plan.upsets.length
       ? [
           "",
-          "Upset Alert:",
+          "One To Watch:",
           ...plan.upsets.map(
-            (u) =>
-              `- ${u.away} at ${u.home}: ${pc(u.pAway)} chance of an away win${u.reason ? `. ${u.reason}` : ""}`,
+            (u) => `- ${u.away} at ${u.home}: ${pc(u.pAway)} chance of an away win`,
           ),
         ]
       : []),
@@ -139,7 +138,6 @@ export function renderPreview(plan: PreviewPlan, user: { id: string; name: strin
       (u) => `<tr><td style="padding:12px 0;border-top:1px solid #e3e7ef">
         <div style="font-weight:600">${esc(u.away)} at ${esc(u.home)}</div>
         <div><span style="font-size:22px;font-weight:700;color:#1d63b0">${pc(u.pAway)}</span> chance of an away win</div>
-        ${u.reason ? `<div class="muted" style="color:#4b5567;font-size:14px">${esc(u.reason)}</div>` : ""}
       </td></tr>`,
     )
     .join("");
@@ -164,7 +162,7 @@ export function renderPreview(plan: PreviewPlan, user: { id: string; name: strin
     <h1 style="margin:0 0 8px;font-size:24px;line-height:1.2">Matchday ${plan.md} picks close ${esc(deadline)}</h1>
     <p class="muted" style="margin:0 0 16px;color:#4b5567">${esc(deadlineLine)}</p>
     ${lastLine ? `<p style="margin:0 0 16px">${esc(lastLine)}</p>` : ""}
-    ${plan.upsets.length ? `<h2 style="margin:16px 0 0;font-size:18px">Upset Alert</h2><table role="presentation" class="rule" width="100%" cellpadding="0" cellspacing="0">${upsetHtml}</table>` : ""}
+    ${plan.upsets.length ? `<h2 style="margin:16px 0 0;font-size:18px">One To Watch &#128293;</h2><table role="presentation" class="rule" width="100%" cellpadding="0" cellspacing="0">${upsetHtml}</table>` : ""}
     <table role="presentation" cellpadding="0" cellspacing="0" style="margin:20px 0"><tr><td style="background:#fed700;border-radius:8px">
       <a href="${esc(picksUrl)}" style="display:inline-block;padding:14px 24px;color:#001f55;font-weight:700;text-decoration:none">Make your picks</a>
     </td></tr></table>

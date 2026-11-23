@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { Card, PageTitle, Section } from "@/components/section";
 import { BRAND, CONTACT_EMAIL, FREE_TO_PLAY_LINE, SITE_NAME } from "@/config/site";
@@ -19,15 +18,11 @@ export default function AboutPage() {
           <p>
             {SITE_NAME} is a free site from {BRAND} with data-driven predictions for every Nigeria
             Premier Football League match. For each game you see the chance of a home win, a draw
-            and an away win, the expected goals and the most likely scores.
+            and an away win, and the most likely scores.
           </p>
           <p>
-            The numbers come from The Ballboy, our model. It learns from every NPFL result since
-            2021/22 and updates after each new result. See{" "}
-            <Link href="/accuracy" className="text-ink underline underline-offset-2">
-              Accuracy
-            </Link>{" "}
-            for how well it does.
+            The numbers come from The Ballboy. It reads every NPFL result and updates its chances
+            after each one. Your job: call the results better than it does.
           </p>
         </div>
       </Section>

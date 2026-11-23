@@ -71,7 +71,7 @@ export async function buildRecap(md: number, now: number): Promise<Recap | null>
     );
     posts.push(
       fit(
-        `Matchday ${md}: our model's most likely result came in ${right}/${scored.length}. Always picking home: ${home}/${scored.length}. Every prediction is scored in public: ${site}/accuracy`,
+        `Matchday ${md}: the Ballboy's most likely result came in ${right}/${scored.length}. Always picking home: ${home}/${scored.length}. Can you beat the Ballboy? ${site}`,
       ),
     );
   }

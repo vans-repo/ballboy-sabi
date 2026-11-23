@@ -11,7 +11,7 @@ export const alt = "Match prediction: Home, Draw and Away percentages";
 export const size = OG_SIZE;
 export const contentType = "image/png";
 
-/** Share image for a match: teams, the three percentages, and an Upset Alert banner when it has one. */
+/** Share image for a match: teams, the three percentages, and a One To Watch banner when it has an Upset Alert. */
 export default async function Image({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const ctx = await getContext();
@@ -57,7 +57,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
             marginBottom: 20,
           }}
         >
-          UPSET ALERT
+          ONE TO WATCH
         </div>
       )}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
