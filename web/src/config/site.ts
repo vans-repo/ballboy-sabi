@@ -36,3 +36,8 @@ export const CONTACT_EMAIL: string = process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim
 export const SUBSTACK_URL = "https://thatnaijaballboy.substack.com";
 export const X_HANDLE = "@NaijaBallboy";
 export const X_URL = "https://x.com/NaijaBallboy";
+export const INSTAGRAM_HANDLE = "@NaijaBallboy";
+export const INSTAGRAM_URL = "https://www.instagram.com/naijaballboy/";
+
+/** Shown in the footer: crests and names belong to the clubs and the league. */
+export const NOT_AFFILIATED_LINE = "Not affiliated with the NPFL or any club.";

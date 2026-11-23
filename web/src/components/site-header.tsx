@@ -1,25 +1,21 @@
 import Link from "next/link";
 
-import { TopTabs } from "@/components/site-nav";
+import { Logo } from "@/components/logo";
+import { MENU } from "@/config/nav";
 import { SITE_NAME, SUBSTACK_URL } from "@/config/site";
 
-export const MENU = [
-  { href: "/teams", label: "Teams" },
-  { href: "/h2h", label: "Head-to-Head" },
-  { href: "/accuracy", label: "Accuracy" },
-  { href: "/about", label: "How It Works" },
-] as const;
-
-/** Site name, the five tabs (desktop) and the top menu. The menu needs no JavaScript. */
+/** Phones: logo, site name and the menu (desktop has the sidebar instead). No JavaScript needed. */
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-20 border-b bg-background/95 backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-screen-lg items-center justify-between gap-2 px-4">
-        <Link href="/" className="font-heading text-xl font-extrabold tracking-tight uppercase">
-          {SITE_NAME}
+    <header className="sticky top-0 z-20 border-b bg-background/95 backdrop-blur md:hidden">
+      <div className="flex h-14 items-center justify-between gap-2 px-4">
+        <Link href="/" className="flex items-center gap-2 text-primary">
+          <Logo className="h-6 w-auto" />
+          <span className="font-heading text-xl font-extrabold tracking-tight text-foreground uppercase">
+            {SITE_NAME}
+          </span>
         </Link>
-        <nav aria-label="Site" className="flex items-center gap-1">
-          <TopTabs />
+        <nav aria-label="Site">
           <details className="group relative">
             <summary className="inline-flex h-11 cursor-pointer list-none items-center rounded-lg px-3 text-sm font-medium hover:bg-muted [&::-webkit-details-marker]:hidden">
               Menu
@@ -50,5 +46,21 @@ export function SiteHeader() {
         </nav>
       </div>
     </header>
+  );
+}
+
+/** The sidebar's last links (desktop). */
+export function SideNavFooter() {
+  return (
+    <>
+      <a
+        href={SUBSTACK_URL}
+        target="_blank"
+        rel="noopener"
+        className="flex h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium text-muted-foreground hover:bg-muted"
+      >
+        Read on Substack <span aria-hidden="true">↗</span>
+      </a>
+    </>
   );
 }

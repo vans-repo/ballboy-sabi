@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { FormDots } from "@/components/form-dots";
+import { TeamCodes } from "@/components/motw-card";
 import { MyPicks } from "@/components/picks/my-picks";
 import { PickPanel } from "@/components/picks/pick-panel";
 import { ProbabilityBar } from "@/components/probability-bar";
@@ -26,6 +27,8 @@ import {
   record,
 } from "@/lib/football";
 import { formatKickoff, formatLongDay, formatShortDate, formatTime, pct } from "@/lib/format";
+import { publicEnv } from "@/lib/env";
+import { xIntentUrl } from "@/lib/motw";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
@@ -104,7 +107,8 @@ async function MatchDetail({ id }: { id: string }) {
 
   return (
     <article>
-      {/* 1. Header */}
+      {/* 1. Header: team colours and codes, like the share poster */}
+      <TeamCodes home={home} away={away} className="-mx-4 mb-4 md:mx-0 md:rounded-2xl" />
       <header className="mb-6">
         <p className="text-sm text-muted-foreground">
           {season}
@@ -139,6 +143,21 @@ async function MatchDetail({ id }: { id: string }) {
           )}
         </p>
         {m.notes && <p className="mt-2 text-center text-sm text-muted-foreground">{m.notes}</p>}
+        {upcoming && p && (
+          <p className="mt-3 flex justify-center">
+            <a
+              href={xIntentUrl(
+                `${home.name} v ${away.name}: ${pct(p.p_home)} home, ${pct(p.p_draw)} draw, ${pct(p.p_away)} away.${p.upset_alert ? " Upset Alert." : ""} Can you beat the Ballboy?`,
+                `${publicEnv.siteUrl}/match/${m.id}`,
+              )}
+              target="_blank"
+              rel="noopener"
+              className="inline-flex h-11 items-center rounded-lg bg-muted px-4 text-sm font-semibold hover:bg-muted/70"
+            >
+              Post this match on X
+            </a>
+          </p>
+        )}
       </header>
 
       {m.status === "postponed" && (

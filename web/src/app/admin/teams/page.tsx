@@ -6,10 +6,12 @@ import {
   RemoveDeductionButton,
   SeasonForm,
   SeasonTeamsEditor,
+  ShowCrestsSwitch,
   TeamEditor,
 } from "@/components/admin/forms";
 import { Card, PageTitle, Section } from "@/components/section";
 import { requireAdmin } from "@/lib/admin/guard";
+import { getSettings } from "@/lib/data";
 import { getContext } from "@/lib/data/context";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
@@ -20,11 +22,21 @@ export default async function AdminTeamsPage({ searchParams }: PageProps<"/admin
   const ctx = await getContext();
   const s = ctx.seasons.find((x) => x.label === season) ?? ctx.current;
   const supabase = await createClient();
-  const [{ data: seasonTeams }, { data: aliases }, { data: deductions }] = await Promise.all([
+  const [
+    { data: seasonTeams },
+    { data: aliases },
+    { data: deductions },
+    { data: crests },
+    settings,
+  ] = await Promise.all([
     supabase.from("season_teams").select("team_id,status").eq("season_id", s.id),
     supabase.from("team_aliases").select("id,alias,team_id").order("alias"),
     supabase.from("point_deductions").select("id,team_id,points,reason").eq("season_id", s.id),
+    // Straight from the table: the public team list leaves crests out while they're hidden.
+    supabase.from("teams").select("id,crest_url"),
+    getSettings(),
   ]);
+  const crestOf = new Map((crests ?? []).map((c) => [c.id, c.crest_url]));
   const teams = [...ctx.teams.values()];
   const options = teams.map((t) => ({ id: t.id, name: t.name }));
 
@@ -93,6 +105,12 @@ export default async function AdminTeamsPage({ searchParams }: PageProps<"/admin
         </Card>
       </Section>
 
+      <Section title="Crests">
+        <Card>
+          <ShowCrestsSwitch show={settings.showCrests} />
+        </Card>
+      </Section>
+
       <Section title="Teams">
         <ul className="grid gap-3">
           {teams.map((t) => (
@@ -120,6 +138,7 @@ export default async function AdminTeamsPage({ searchParams }: PageProps<"/admin
                     city={t.city ?? ""}
                     primary={t.primary_colour}
                     secondary={t.secondary_colour}
+                    crestUrl={crestOf.get(t.id) ?? null}
                     aliases={(aliases ?? [])
                       .filter((a) => a.team_id === t.id)
                       .map((a) => ({ id: a.id, alias: a.alias }))}

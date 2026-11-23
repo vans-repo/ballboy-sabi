@@ -11,17 +11,22 @@ import {
   deleteAlias,
   deleteDeduction,
   previewImport,
+  removeCrest,
   runModelNow,
   saveImport,
   saveSeasonTeams,
   sendTestPreview,
   setBanned,
   setCurrentSeason,
+  setMotwOverride,
+  setShowCrests,
   updateFixture,
   updateTeam,
+  uploadCrest,
 } from "@/app/admin/actions";
 import { Button } from "@/components/ui/button";
 import { trackRun } from "@/lib/admin/run-store";
+import { suggestColours } from "@/lib/crest-colours";
 import type { PreviewRow } from "@/lib/admin/fixtures";
 
 const input = "h-11 rounded-lg border bg-background px-3 text-base";
@@ -414,6 +419,7 @@ export function TeamEditor(props: {
   city: string;
   primary: string;
   secondary: string;
+  crestUrl: string | null;
   aliases: { id: string; alias: string }[];
 }) {
   const [v, setV] = useState({
@@ -426,8 +432,84 @@ export function TeamEditor(props: {
   const { pending, result, run } = useAct();
   const set = (k: keyof typeof v) => (e: { target: { value: string } }) =>
     setV({ ...v, [k]: e.target.value });
+  const [crest, setCrest] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [suggested, setSuggested] = useState(false);
+
+  /** Read the chosen crest in the browser and suggest its colours. */
+  const chooseCrest = (file: File | null) => {
+    setCrest(file);
+    setSuggested(false);
+    if (preview) URL.revokeObjectURL(preview);
+    if (!file) return setPreview(null);
+    const url = URL.createObjectURL(file);
+    setPreview(url);
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = canvas.height = 64;
+      const g = canvas.getContext("2d");
+      if (!g) return;
+      g.drawImage(img, 0, 0, 64, 64);
+      const c = suggestColours(g.getImageData(0, 0, 64, 64).data);
+      setV((cur) => ({ ...cur, primary: c.primary, secondary: c.secondary }));
+      setSuggested(true);
+    };
+    img.src = url;
+  };
+
   return (
     <div className="grid gap-3">
+      <div className="grid gap-2 rounded-lg border p-3">
+        <p className="text-xs text-muted-foreground">
+          Crest (shown on the site only, never on share images). PNG, WebP or JPEG, up to 512 KB.
+        </p>
+        <div className="flex flex-wrap items-center gap-3">
+          {(preview ?? props.crestUrl) && (
+            // eslint-disable-next-line @next/next/no-img-element -- admin preview of an uploaded file
+            <img
+              src={preview ?? props.crestUrl!}
+              alt=""
+              className="size-14 rounded bg-white/5 object-contain"
+            />
+          )}
+          <input
+            type="file"
+            accept="image/png,image/webp,image/jpeg"
+            aria-label={`Crest image for ${props.code}`}
+            onChange={(e) => chooseCrest(e.target.files?.[0] ?? null)}
+            className="max-w-full text-sm file:mr-3 file:h-11 file:rounded-lg file:border-0 file:bg-muted file:px-3 file:text-foreground"
+          />
+          <Button
+            variant="secondary"
+            disabled={pending || !crest}
+            onClick={() =>
+              run(async () => {
+                const f = new FormData();
+                f.set("teamId", props.teamId);
+                f.set("crest", crest!);
+                return uploadCrest(f);
+              })
+            }
+          >
+            Upload crest
+          </Button>
+          {props.crestUrl && (
+            <Button
+              variant="ghost"
+              disabled={pending}
+              onClick={() => run(() => removeCrest(props.teamId))}
+            >
+              Remove crest
+            </Button>
+          )}
+        </div>
+        {suggested && (
+          <p className="text-xs">
+            Colours below are suggested from the crest. Check them against the kit, then press Save.
+          </p>
+        )}
+      </div>
       <div className="flex flex-wrap items-end gap-2">
         <label className="grid gap-1 text-xs">
           Code
@@ -646,6 +728,62 @@ export function SendTestButton() {
       >
         {pending ? "Sending…" : "Send a test to me"}
       </Button>
+      <Message result={result} />
+    </div>
+  );
+}
+
+// --- Site settings -------------------------------------------------------------
+/** The site-wide crest switch. Off hides every crest at once (a quick takedown). */
+export function ShowCrestsSwitch({ show }: { show: boolean }) {
+  const { pending, result, run } = useAct();
+  return (
+    <div className="grid gap-2">
+      <p className="text-sm">
+        Crests are <strong>{show ? "showing" : "hidden"}</strong> across the site.
+      </p>
+      <div>
+        <Button
+          variant={show ? "secondary" : "default"}
+          disabled={pending}
+          onClick={() => run(() => setShowCrests(!show))}
+        >
+          {show ? "Hide all crests" : "Show crests"}
+        </Button>
+      </div>
+      <Message result={result} />
+    </div>
+  );
+}
+
+/** Choose this week's Match of the Week, or go back to the automatic pick. */
+export function MotwChooser({
+  matches,
+  chosen,
+}: {
+  matches: { id: string; label: string }[];
+  chosen: string | null;
+}) {
+  const [id, setId] = useState(chosen ?? "");
+  const { pending, result, run } = useAct();
+  return (
+    <div className="grid gap-2">
+      <label className="grid gap-1 text-xs">
+        Match
+        <select value={id} onChange={(e) => setId(e.target.value)} className={input}>
+          <option value="">Automatic pick</option>
+          {matches.map((m) => (
+            <option key={m.id} value={m.id}>
+              {m.label}
+            </option>
+          ))}
+        </select>
+      </label>
+      <div>
+        <Button disabled={pending} onClick={() => run(() => setMotwOverride(id || null))}>
+          Save
+        </Button>
+      </div>
       <Message result={result} />
     </div>
   );

@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Barlow_Condensed, Inter } from "next/font/google";
 
 import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
-import { BottomTabs } from "@/components/site-nav";
+import { SideNavFooter, SiteHeader } from "@/components/site-header";
+import { BottomTabs, SideNav } from "@/components/site-nav";
 import { SITE_NAME } from "@/config/site";
 import { publicEnv } from "@/lib/env";
 
@@ -59,11 +59,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <a href="#main" className="sr-only focus:not-sr-only focus:p-3">
           Skip to content
         </a>
-        <SiteHeader />
-        <div id="main" className="mx-auto w-full max-w-screen-lg flex-1 px-4 py-5">
-          {children}
+        <div className="flex flex-1">
+          <SideNav footer={<SideNavFooter />} />
+          <div className="flex min-w-0 flex-1 flex-col">
+            <SiteHeader />
+            <div id="main" className="mx-auto w-full max-w-6xl flex-1 px-4 py-5 md:px-8 md:py-7">
+              {children}
+            </div>
+            <SiteFooter />
+          </div>
         </div>
-        <SiteFooter />
         <BottomTabs />
       </body>
     </html>

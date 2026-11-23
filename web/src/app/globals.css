@@ -95,9 +95,9 @@
   --background: #f3f5f9;
   --surface: #ffffff;
   --surface-raised: rgb(0 31 85 / 0.06);
-  --tnb-accent: #fed700;
-  --tnb-accent-pressed: #e0be00;
-  --on-accent: #001f55;
+  --tnb-accent: #001f55; /* navy: yellow fails contrast on light backgrounds */
+  --tnb-accent-pressed: #0b2e70;
+  --on-accent: #fed700;
   --neutral: #64748b;
   --away: #4a90d9;
   --success: #15803d;

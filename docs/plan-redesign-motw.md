@@ -1,6 +1,6 @@
 # Plan: redesign, Match of the Week, crests and logo
 
-Agreed with the owner on 23 Nov 2026. Mock-ups are on the design canvas
+Agreed with the owner on 23 Nov 2026. Built on 23 Nov 2026 (decisions 120–126). Mock-ups are on the design canvas
 (https://claude.ai/artifact/7jU5UnDB3QMgV6qeHoCYxm). Build after the owner
 approves the mock-ups.
 
@@ -25,7 +25,6 @@ approves the mock-ups.
      poster with the last matchday's record (e.g. 5 of 10 called right)
      and the top two in the table.
   4. No data at all (pre-season): a plain "Beat the Ballboy" poster.
-  It is not on the live site yet; the Upset Alert badges are.
 - Admin override: pick any match in the matchday, or clear the override.
 - Images (next/og):
   - Portrait poster 1080×1350 for "Save image" (Instagram, WhatsApp, X).
@@ -61,3 +60,17 @@ approves the mock-ups.
   decision 120).
 - SVG versions traced from the PNG: `tnb-logo.svg` (transparent) and
   `tnb-logo-navy.svg` (square, navy). Use the SVG wherever possible.
+
+## 6. Instagram
+
+- @NaijaBallboy (https://www.instagram.com/naijaballboy/), linked in the footer.
+
+## 7. Later: images (options agreed in principle, not built)
+
+- Generic football photos from free-licence libraries (Unsplash, Pexels):
+  corner flags, stands, floodlights, balls, pitches. No identifiable club
+  badges or players.
+- AI-generated generic scenes (same rule: nothing that looks like a real
+  club, player or stadium).
+- Either way, an admin "image library" with the source noted, and a navy and
+  yellow duotone so every picture matches the brand.
