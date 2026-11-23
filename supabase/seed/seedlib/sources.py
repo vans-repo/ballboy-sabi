@@ -14,7 +14,7 @@ from pathlib import Path
 
 import yaml
 
-CODE_RE = re.compile(r"^[A-Z]{3}$")
+CODE_RE = re.compile(r"^[A-Z0-9]{3}$")
 COLOUR_RE = re.compile(r"^#[0-9A-Fa-f]{6}$")
 
 
@@ -82,7 +82,7 @@ def load_team_catalogue(path: Path) -> list[TeamSpec]:
             extra_aliases=tuple(entry.get("aliases") or ()),
         )
         if not CODE_RE.match(spec.code):
-            raise ValueError(f"{spec.name}: code must be 3 capital letters, got {spec.code!r}")
+            raise ValueError(f"{spec.name}: code must be 3 capital letters or digits, got {spec.code!r}")
         for colour in (spec.primary_colour, spec.secondary_colour):
             if colour is not None and not COLOUR_RE.match(colour):
                 raise ValueError(f"{spec.name}: colour must look like #1A2B3C, got {colour!r}")

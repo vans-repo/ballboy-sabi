@@ -253,7 +253,7 @@ export async function updateTeam(input: {
 }): Promise<ActionResult> {
   const supabase = await admin();
   const code = input.code.trim().toUpperCase();
-  if (!/^[A-Z]{3}$/.test(code)) return { error: "Code must be 3 letters." };
+  if (!/^[A-Z0-9]{3}$/.test(code)) return { error: "Code must be 3 letters or digits." };
   if (![input.primary, input.secondary].every((c) => /^#[0-9a-fA-F]{6}$/.test(c)))
     return { error: "Colours look like #1A2B3C." };
   const { error } = await supabase

@@ -609,3 +609,17 @@ what was decided and why. Newest stage at the bottom.
      `web/public/crests`; sharper uploads through admin replace them. The
      kit photos are only a colour reference and never go on the site: they
      carry sponsors' logos, including betting brands.
+129. **Short names:** the first three letters of the club's name; where two
+     clubs share them, the first letter of the first word and the first two
+     of the second. Exceptions: Shooting Stars 3SC, Abia Warriors AWA, Enugu
+     Rangers RAN (so Ranchers Bees are RBE). Codes may contain digits.
+130. **Owner's colour corrections:** Inter Lagos pink with navy-blue; Ikorodu
+     City maroon and gold; Nasarawa United a pale (desaturated) yellow with
+     green; Niger Tornadoes blue; Sporting Lagos blue and white. The
+     green-and-yellow clubs (Kano Pillars, Katsina United, Plateau United,
+     Kwara United) use yellow as the main colour and green as the second,
+     like their yellow home and green away kits.
+131. **Colour clashes:** on posters and match headers, when the two clubs'
+     main colours look alike (redmean distance under 120), the away side
+     switches to its second colour, like an away kit. Codes sit in each
+     team's text colour, which passes 4.5:1 on its band.
