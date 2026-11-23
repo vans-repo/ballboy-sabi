@@ -184,7 +184,7 @@ try {
   );
   check(
     "the match page marks the prediction right",
-    (await matchPage.getByText("Model's most likely result was right").count()) === 1,
+    (await matchPage.getByText("The Ballboy's most likely result was right").count()) === 1,
   );
 
   // --- 5. Fixtures CSV: preview with errors, then save ---------------------------

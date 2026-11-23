@@ -52,6 +52,7 @@ async function Sheet({ md }: { md: number | null }) {
         code: t.code,
         bg: t.primary_colour,
         fg: t.secondary_colour,
+        crest: t.crest_url,
       });
       return {
         matchId: m.id,

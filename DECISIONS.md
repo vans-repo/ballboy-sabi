@@ -649,3 +649,24 @@ what was decided and why. Newest stage at the bottom.
      background (about 1.4:1). Two tokens: `bg-primary` (fill, yellow in
      both modes) and `text-ink` / `border-ink` / `ring` (yellow in dark
      mode, navy in light).
+136. **"The Ballboy", not "the model", on the site:** fans play against the
+     Ballboy, so every fan-facing mention says so ("Ballboy: 44% / 29% /
+     27%", "results the Ballboy thought unlikely", "How the Ballboy works").
+     The leaderboard marks the Ballboy's row "To beat". Code and admin
+     screens still say "model".
+137. **Table season picker is a dropdown** (no JavaScript): the current
+     season shows by default; earlier seasons are one tap away.
+138. **NPFL news on Home:** headlines from Nigerian outlets' public RSS feeds
+     (`web/src/config/news.ts`), the same mechanism as the Substack card:
+     headline, outlet, date and a link out, never the article text. Only
+     stories from the last seven days that mention the league or a current
+     club; duplicates dropped; six at most. Read once an hour; any feed that
+     fails is skipped, and the card hides if none work. /admin → Match of
+     the Week shows each feed's status. X and Facebook can't be read this
+     way (X's API is paid; Facebook needs a business review), so they stay
+     out.
+139. **"Matchday N in numbers" on Home:** from the site's own data for the
+     last matchday with results: how many the Ballboy called right, goals,
+     biggest win, biggest upset (the result the Ballboy gave the lowest
+     chance, under a third) and the longest current unbeaten run (three
+     games or more).

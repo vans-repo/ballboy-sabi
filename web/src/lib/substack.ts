@@ -6,7 +6,8 @@ import { SUBSTACK_URL } from "@/config/site";
 
 export type Post = { title: string; url: string; date: string; excerpt: string };
 
-function field(item: string, tag: string): string {
+/** One tag's text from an RSS <item>, without CDATA, HTML tags or common entities. */
+export function field(item: string, tag: string): string {
   const m = new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`).exec(item);
   const raw = (m?.[1] ?? "").replace(/^<!\[CDATA\[([\s\S]*)\]\]>$/, "$1").trim();
   return raw

@@ -118,6 +118,11 @@ try {
   );
 
   check(
+    "Home: this week in numbers",
+    (await page.getByRole("heading", { name: /Matchday \d+ in numbers/ }).count()) === 1 &&
+      (await page.getByText("Goals", { exact: true }).count()) === 1,
+  );
+  check(
     "Derby tag: Enyimba v Enugu Rangers is the Oriental derby",
     (await page.locator("article", { hasText: "Enyimba" }).getByText("Oriental derby").count()) > 0,
   );

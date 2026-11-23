@@ -41,7 +41,7 @@ export default function AboutPage() {
           <Card className="grid gap-2 text-sm">
             <p>
               <span className="font-medium">A correct pick</span> earns more points the less likely
-              the model thought it was: points = 1 ÷ the model&apos;s chance of that result,
+              the Ballboy thought it was: points = 1 ÷ the Ballboy&apos;s chance of that result,
               rounded, from 1 to 10.
             </p>
             <p>

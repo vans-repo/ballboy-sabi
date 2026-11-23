@@ -438,5 +438,6 @@ export async function refreshSite(): Promise<ActionResult> {
   updateTag(CACHE_TAGS.teamRatings);
   updateTag(CACHE_TAGS.picks);
   updateTag(CACHE_TAGS.settings);
+  updateTag(CACHE_TAGS.news);
   return { message: "Done. Every page now shows the latest data." };
 }

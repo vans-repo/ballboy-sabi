@@ -108,7 +108,7 @@ export function MatchCard({
         {played && frozen && outcome && (
           <p className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
             <RightWrong right={likeliest(frozen) === outcome} />
-            Model: {Math.round(Number(frozen.p_home) * 100)}% /{" "}
+            Ballboy: {Math.round(Number(frozen.p_home) * 100)}% /{" "}
             {Math.round(Number(frozen.p_draw) * 100)}% / {Math.round(Number(frozen.p_away) * 100)}%
           </p>
         )}

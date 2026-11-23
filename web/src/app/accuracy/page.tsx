@@ -88,7 +88,7 @@ export default async function AccuracyPage() {
         <Section title="Tested on past seasons">
           <Card>
             <p className="text-sm">
-              Before launch, we tested the model on {walk.matches} matches from{" "}
+              Before launch, we tested the Ballboy on {walk.matches} matches from{" "}
               {walk.seasons.join(" and ")}. Each week it learned only from games already played,
               then predicted that week&apos;s matches.
             </p>
@@ -182,7 +182,7 @@ export default async function AccuracyPage() {
         )}
       </Section>
 
-      <Section title="How the model works">
+      <Section title="How the Ballboy works">
         <Card className="grid gap-2 text-sm">
           <p>
             We average two simple models. The first is a strength rating (an Elo rating, the system
@@ -195,8 +195,8 @@ export default async function AccuracyPage() {
             match being predicted. The percentages update after every result.
           </p>
           <p>
-            We judge the model by how good its percentages are (log-loss), not by how often its most
-            likely result comes in, and we compare it with always picking the home team.
+            We judge the Ballboy by how good its percentages are (log-loss), not by how often its
+            most likely result comes in, and we compare it with always picking the home team.
           </p>
         </Card>
       </Section>

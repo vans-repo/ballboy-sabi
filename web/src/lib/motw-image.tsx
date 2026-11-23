@@ -390,7 +390,7 @@ function Poster({ w }: { w: Motw }) {
             FOR EVERY NPFL MATCH.
           </div>
           <div style={{ display: "flex", fontSize: 44, fontWeight: 600 }}>
-            Score more for the results the model thought unlikely.
+            Score more for the results the Ballboy thought unlikely.
           </div>
         </div>
       )}

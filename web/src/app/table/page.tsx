@@ -49,22 +49,36 @@ async function SeasonTable({ label }: { label: string | null }) {
       >
         Table {season.label}
       </PageTitle>
-      <nav aria-label="Seasons" className="mb-4 flex flex-wrap gap-2">
-        {[...ctx.seasons].reverse().map((s) => (
-          <Link
-            key={s.id}
-            href={s.id === ctx.current.id ? "/table" : `/table?season=${toParam(s.label)}`}
-            aria-current={s.id === season.id ? "page" : undefined}
-            className={cn(
-              "inline-flex h-11 items-center rounded-lg px-3 text-sm",
-              s.id === season.id
-                ? "bg-primary text-primary-foreground"
-                : "bg-surface hover:bg-muted",
+      {/* Season picker: a dropdown that needs no JavaScript. */}
+      <nav aria-label="Seasons" className="mb-4">
+        <details className="group relative inline-block">
+          <summary className="inline-flex h-11 cursor-pointer list-none items-center gap-2 rounded-lg bg-surface px-3 text-sm font-medium hover:bg-muted [&::-webkit-details-marker]:hidden">
+            Season: {season.label}
+            {season.id === ctx.current.id && (
+              <span className="text-xs text-muted-foreground">(current)</span>
             )}
-          >
-            {s.label}
-          </Link>
-        ))}
+            <span aria-hidden="true" className="transition-transform group-open:rotate-180">
+              ▾
+            </span>
+          </summary>
+          <ul className="absolute left-0 z-10 mt-1 w-48 rounded-xl border bg-surface p-1 shadow-lg">
+            {[...ctx.seasons].reverse().map((s) => (
+              <li key={s.id}>
+                <Link
+                  href={s.id === ctx.current.id ? "/table" : `/table?season=${toParam(s.label)}`}
+                  aria-current={s.id === season.id ? "page" : undefined}
+                  className={cn(
+                    "flex h-11 items-center rounded-lg px-3 text-sm hover:bg-muted",
+                    s.id === season.id && "font-bold",
+                  )}
+                >
+                  {s.label}
+                  {s.id === ctx.current.id ? " (current)" : ""}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </details>
       </nav>
       {rows.every((r) => r.played === 0) ? (
         <Empty>The table fills in after the first result.</Empty>

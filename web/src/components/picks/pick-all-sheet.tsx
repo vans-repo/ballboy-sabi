@@ -8,13 +8,18 @@ import { Button } from "@/components/ui/button";
 import { usePicks } from "@/lib/picks-store";
 
 export type SheetItem = PickTarget & {
-  home: { name: string; code: string; bg: string; fg: string };
-  away: { name: string; code: string; bg: string; fg: string };
+  home: { name: string; code: string; bg: string; fg: string; crest: string | null };
+  away: { name: string; code: string; bg: string; fg: string; crest: string | null };
   when: string;
   pcts: [number, number, number];
 };
 
 function Badge({ t }: { t: SheetItem["home"] }) {
+  if (t.crest)
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- small public crest image
+      <img src={t.crest} alt="" aria-hidden="true" className="size-12 object-contain" />
+    );
   return (
     <span
       aria-hidden="true"
@@ -96,7 +101,7 @@ export function PickAllSheet({ items, md }: { items: SheetItem[]; md: number }) 
         ))}
       </div>
       <p className="mt-3 text-center text-sm">
-        Model: Home <span className="figure">{m.pcts[0]}%</span> · Draw{" "}
+        Ballboy: Home <span className="figure">{m.pcts[0]}%</span> · Draw{" "}
         <span className="figure">{m.pcts[1]}%</span> · Away{" "}
         <span className="figure">{m.pcts[2]}%</span>
       </p>

@@ -224,7 +224,10 @@ try {
       ((await first.textContent()) ?? "").includes(String(points(P.draw))),
     await first.textContent(),
   );
-  check("leaderboard: The Ballboy is listed", (await page.getByText("The model").count()) === 1);
+  check(
+    "leaderboard: The Ballboy is listed",
+    (await page.getByText("To beat", { exact: true }).count()) === 1,
+  );
 } catch (e) {
   console.error(e);
   failures++;

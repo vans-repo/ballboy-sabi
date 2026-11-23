@@ -10,6 +10,7 @@ import { getContext } from "@/lib/data/context";
 import { currentMatchday, isUpcoming } from "@/lib/football";
 import { formatDay, pct } from "@/lib/format";
 import { currentMotw, motwPostText } from "@/lib/motw";
+import { getLeagueNews } from "@/lib/news";
 import { renderTime } from "@/lib/time";
 
 const KIND = {
@@ -23,11 +24,12 @@ export default async function AdminMotwPage() {
   await requireAdmin();
   const now = renderTime();
   const ctx = await getContext();
-  const [w, latest, settings, table] = await Promise.all([
+  const [w, latest, settings, table, news] = await Promise.all([
     currentMotw(now),
     getLatestPredictions(),
     getSettings(),
     getLeagueTable(ctx.current.id),
+    getLeagueNews(),
   ]);
   const season = ctx.matches.filter((m) => m.seasonId === ctx.current.id);
   const md = currentMatchday(season, now);
@@ -128,6 +130,25 @@ export default async function AdminMotwPage() {
           </Card>
         </Section>
       )}
+      <Section title="News feeds (Home: NPFL news this week)">
+        <Card>
+          <ul className="grid gap-1 text-sm">
+            {news.feeds.map((f) => (
+              <li key={f.name} className="flex justify-between gap-2">
+                <span>{f.name}</span>
+                <span className={f.ok ? "text-muted-foreground" : "text-danger"}>
+                  {f.ok
+                    ? `${f.matched} NPFL ${f.matched === 1 ? "story" : "stories"} this week (of ${f.items} in the feed)`
+                    : "Feed not reachable"}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Checked once an hour. Feeds are listed in web/src/config/news.ts.
+          </p>
+        </Card>
+      </Section>
     </>
   );
 }

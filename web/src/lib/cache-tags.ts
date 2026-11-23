@@ -5,6 +5,7 @@ export const CACHE_TAGS = {
   matches: "matches",
   picks: "picks",
   settings: "settings",
+  news: "news",
 } as const;
 
 /** Everything a model run changes. */
