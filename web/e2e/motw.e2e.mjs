@@ -82,6 +82,12 @@ try {
   }
 
   await page.goto(`${BASE}/`);
+  await page.getByRole("link", { name: "Sign up / Log in" }).waitFor();
+  check(
+    "Logged out: the fifth tab is Sign up / Log in, and no Accuracy link",
+    (await page.getByRole("link", { name: "Me", exact: true }).count()) === 0 &&
+      (await page.getByRole("link", { name: "Accuracy" }).count()) === 0,
+  );
   const motw = page.getByRole("region", { name: /Lobi Stars v Heartland/i });
   check(
     "Home: the Upset Alert with the highest away chance is Match of the Week",
@@ -130,6 +136,11 @@ try {
 
   // --- 2. The admin chooses another match ------------------------------------
   await logIn(page, "admin@e2e.invalid", "admin-password-1");
+  await page.getByRole("link", { name: "Me", exact: true }).first().waitFor();
+  check(
+    "Logged in: the fifth tab is Me",
+    (await page.getByRole("link", { name: "Sign up / Log in" }).count()) === 0,
+  );
   await page.goto(`${BASE}/admin/motw`);
   const read = await page
     .getByRole("link", { name: "Post on X with the Ballboy's read" })

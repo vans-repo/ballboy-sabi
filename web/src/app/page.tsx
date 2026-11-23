@@ -172,7 +172,7 @@ async function HomeContent() {
         </div>
 
         <div>
-          <Section title={motwId ? "More Ones To Watch 🔥" : "Ones To Watch 🔥"}>
+          <Section title={motwId ? "Other matches" : "Ones To Watch 🔥"}>
             {upsets.length ? (
               <ul className="grid gap-3">
                 {upsets.map((m) => {

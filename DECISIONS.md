@@ -680,3 +680,13 @@ what was decided and why. Newest stage at the bottom.
      the percentages and the main reason, so hints at the model only go
      out in the owner's posts. Percentages, likely scores and points stay:
      they are what fans play against.
+141. **Fan navigation is just the five tabs.** The fifth tab reads "Me" only
+     for someone logged in; otherwise "Log in" on phones and "Sign up / Log
+     in" on desktop, linking to /login (which links to sign-up). The phone
+     "Menu" and the sidebar's secondary links (Teams, Head-to-Head, How It
+     Works, Substack) are gone, per the owner; those pages still exist and
+     are linked from where they're relevant (team names go to team pages).
+     Home's second list of Ones To Watch is titled "Other matches".
+142. **Compact footer:** the main pages; Follow: X, Instagram, Substack, and
+     "Email me" once NEXT_PUBLIC_CONTACT_EMAIL is set; then one line of
+     small print (©, free to play, not affiliated, times in WAT).

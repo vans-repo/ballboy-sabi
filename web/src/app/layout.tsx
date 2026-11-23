@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Barlow_Condensed, Inter } from "next/font/google";
 
 import { SiteFooter } from "@/components/site-footer";
-import { SideNavFooter, SiteHeader } from "@/components/site-header";
+import { SiteHeader } from "@/components/site-header";
 import { BottomTabs, SideNav } from "@/components/site-nav";
 import { SITE_NAME } from "@/config/site";
 import { publicEnv } from "@/lib/env";
@@ -60,7 +60,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           Skip to content
         </a>
         <div className="flex flex-1">
-          <SideNav footer={<SideNavFooter />} />
+          <SideNav />
           <div className="flex min-w-0 flex-1 flex-col">
             <SiteHeader />
             <div id="main" className="mx-auto w-full max-w-6xl flex-1 px-4 py-5 md:px-8 md:py-7">
