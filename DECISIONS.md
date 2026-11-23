@@ -600,3 +600,12 @@ what was decided and why. Newest stage at the bottom.
 127. **Header lockup:** the logo next to the site name clashed, so the
      header and sidebar show "Ballboy Sabi" in text with "by TNB." small
      underneath (the logo mark). Share images keep the logo beside the name.
+128. **2026/27 club colours, cities and crests:** proposed from images the
+     owner supplied (this season's kits, a crest sheet, a club map), in
+     `supabase/data/2026-27-clubs.sql` for the owner to run and then check
+     in admin. Main colour is the kit's dominant colour (or the crest's
+     where the kit is white); text colour passes 4.5:1 on it. Crests are
+     cut from the owner's sheet (about 65 px, transparent) and served from
+     `web/public/crests`; sharper uploads through admin replace them. The
+     kit photos are only a colour reference and never go on the site: they
+     carry sponsors' logos, including betting brands.

@@ -122,7 +122,9 @@ long random string (32 or more characters) and keep a copy:
   the crest column, so it must exist first.
 - [ ] Paste `supabase/templates/confirm.html` and `recovery.html` into the
   Supabase auth email templates again (new colours).
-- [ ] /admin → Teams & Seasons: set each team's colours (they appear on the
+- [ ] **After it's live**, run `supabase/data/2026-27-clubs.sql` in the SQL
+  Editor: colours, cities and crests for the 20 clubs. Then check them in admin.
+- [ ] /admin → Teams & Seasons: check each team's colours (they appear on the
   Match of the Week images) and upload crests if you want them on the site.
   "Hide all crests" removes every crest at once.
 - [ ] /admin → Match of the Week: check this week's pick, or choose another match.
