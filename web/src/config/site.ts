@@ -27,3 +27,8 @@ export const TABLE_ZONES = {
 
 /** Contact details for the About page. Empty until the site owner sets them. */
 export const CONTACT_EMAIL: string = process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || "";
+
+/** Where the weekly articles live, and the short-post account. */
+export const SUBSTACK_URL = "https://thatnaijaballboy.substack.com";
+export const X_HANDLE = "@NaijaBallboy";
+export const X_URL = "https://x.com/NaijaBallboy";

@@ -227,6 +227,29 @@ try {
     (await admin.getByText(/home_goals: null → 2/).count()) >= 1,
   );
 
+  // --- 6b. Weekly recap: notes and X drafts from matchday 3 ----------------------------
+  await admin.goto(`${BASE}/admin/recap?md=3`);
+  const notes = await admin.getByLabel("Article notes").inputValue();
+  check(
+    "recap notes for matchday 3",
+    notes.startsWith("# Matchday 3 in numbers") && notes.includes("Lobi Stars"),
+    notes.slice(0, 200),
+  );
+  const drafts = await admin
+    .getByLabel(/^X post \d+$/)
+    .evaluateAll((els) => els.map((e) => e.value));
+  check(
+    "X drafts each fit in one post",
+    drafts.length >= 2 && drafts.every((d) => d.length <= 280),
+    JSON.stringify(drafts),
+  );
+  const banned = /\b(bet|bets|betting|stake|odds|tip|tips|banker|slip)\b/i;
+  check(
+    "no betting words in the recap",
+    ![notes, ...drafts].some((t) => banned.test(t)),
+    [notes, ...drafts].find((t) => banned.test(t)),
+  );
+
   // --- 7. Users: search and ban ------------------------------------------------------
   await admin.goto(`${BASE}/admin/users?q=E2E%20Guest`);
   await admin.getByRole("button", { name: "Ban" }).click();

@@ -529,3 +529,19 @@ what was decided and why. Newest stage at the bottom.
      daily until they're entered, and records nothing. It's the owner's
      backup while running the site alone. Automatic results from a licensed
      feed (option 3) wait on confirming a provider that covers the NPFL.
+116. **Substack and X.** The site is the base. "Read on Substack" sits in
+     the menu, and Substack and @NaijaBallboy links in the footer. Home
+     shows the three latest Substack articles from its public RSS feed
+     (text only, cached for an hour, hidden if the feed can't be read). The
+     Matchday Preview stays the short picks reminder, and Substack carries
+     the longer weekly articles.
+117. **Weekly recap (/admin/recap).** For any matchday with results, it
+     builds article notes and X post drafts from published data only: the
+     model's record against always picking home, the biggest upsets (the
+     results the frozen prediction gave 30% or less), Upset Alert hits, Beat
+     the Ballboy (The Ballboy's points, the average fan, how many fans beat
+     it, the top score), table movers (positions before and after,
+     deductions left out) and the next matchday's Upset Alerts. Drafts are
+     280 characters or fewer and link to match pages, so X shows their share
+     images. Posting stays manual: copy, check, post. The end-to-end test
+     checks the lengths and that no betting words appear.
