@@ -64,10 +64,10 @@ export async function remindAdmins(
         "",
         "Points and predictions update as soon as you save.",
       ].join("\n"),
-      html: `<!doctype html><html><body style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.5;color:#000e2e">
+      html: `<!doctype html><html><body style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.5;color:#001f55">
 <p>Hi ${esc(a.display_name)},</p><p>These matches have kicked off but have no result yet:</p>
 <ul>${lines.map((l) => `<li>${esc(l)}</li>`).join("")}</ul>
-<p><a href="${esc(link)}" style="display:inline-block;padding:12px 20px;background:#f5c842;color:#000e2e;font-weight:700;text-decoration:none;border-radius:8px">Enter results</a></p>
+<p><a href="${esc(link)}" style="display:inline-block;padding:12px 20px;background:#fed700;color:#001f55;font-weight:700;text-decoration:none;border-radius:8px">Enter results</a></p>
 <p style="color:#4b5567;font-size:14px">Points and predictions update as soon as you save.</p></body></html>`,
     });
     if (!failure) emailed++;

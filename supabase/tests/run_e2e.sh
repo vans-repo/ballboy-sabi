@@ -81,3 +81,5 @@ echo "== Browser test: admin (Stage 6)"
 node "$ROOT/web/e2e/admin.e2e.mjs" || { echo "--- web log"; tail -30 "$WORK/web.log"; exit 1; }
 echo "== Browser test: email and share images (Stage 7)"
 node "$ROOT/web/e2e/email.e2e.mjs" || { echo "--- web log"; tail -30 "$WORK/web.log"; exit 1; }
+echo "== Browser test: Match of the Week and crests"
+node "$ROOT/web/e2e/motw.e2e.mjs" || { echo "--- web log"; tail -30 "$WORK/web.log"; exit 1; }

@@ -556,3 +556,56 @@ what was decided and why. Newest stage at the bottom.
      edge by long team names. The team column now takes the space left and
      long names shorten with "…" (the full name is in the link's title), so
      every column fits on a phone.
+120. **Colours match the TNB logo:** the owner's logo is yellow #FED700 on
+     navy #001F55, so the site, share images and emails use those in place
+     of gold #F5C842 and navy #000E2E. Cards are #062664. The dark-mode
+     neutral (Draw bar) is lighter, #7C8AA0, to stay above 3:1 on the
+     lighter navy (4.5:1 on the page). Navy text on yellow is 11.3:1.
+     The Supabase auth email templates changed too: paste them into the
+     Supabase dashboard again.
+121. **Light mode uses navy, not yellow, as its accent:** yellow on the light
+     background is about 1.4:1, too faint for text, active tabs and bars.
+     In light mode the accent is the logo navy #001F55 (buttons are navy
+     with yellow text, 11.3:1), so the brand still reads as yellow-and-navy.
+     The Home bar is navy, Away stays light blue, Draw grey.
+122. **Match of the Week:** chosen automatically each week, in this order:
+     the Upset Alert with the highest away-win chance; else the closest
+     match (smallest home/away gap, "Closest call"); else, when the next
+     matchday is over 8 days away or has no open matches, "The Ballboy's
+     week" (last matchday's record and the top two); else, before any
+     data, "Beat the Ballboy". The admin can choose any open match of the
+     current matchday instead (site_settings.motw_override). Each week has
+     its own link (/motw/md15, /motw/recap14, /motw/start) so X fetches a
+     fresh card every week; /motw redirects to this week's.
+123. **Sharing to X without the paid API:** "Post on X" opens X's post
+     intent with the text, the link and "via @NaijaBallboy" filled in; X
+     shows the 1200×630 card from the link. "Save image" downloads the
+     1080×1350 portrait poster for Instagram, WhatsApp or a manual post.
+     Auto-posting would need the paid X API, so it's out.
+124. **Crests on the site, never on share images:** the owner chose to show
+     club crests on the site while rights are sorted. Admin uploads them
+     (PNG, WebP or JPEG, 512 KB, public "crests" bucket via the service
+     role); the browser suggests the team's colours from the crest for the
+     admin to confirm. A site-wide "Hide all crests" switch removes them at
+     once for a quick takedown, and the footer says the site is not
+     affiliated with the NPFL or any club. Share images use colours and
+     codes only, so nothing trademarked travels on X or Instagram.
+125. **No photos for now:** photos from X belong to their photographers
+     and a credit isn't permission, so the site uses graphics only (team
+     colours, codes, the Adire pattern, the logo).
+126. **Desktop sidebar:** on wide screens the five tabs and the menu live in
+     a left sidebar with the logo; phones keep the top bar and the bottom
+     tabs, which now have icons and a clearer active state (bold, a bar on
+     top) that also works in light mode.
+127. **Header lockup:** the logo next to the site name clashed, so the
+     header and sidebar show "Ballboy Sabi" in text with "by TNB." small
+     underneath (the logo mark). Share images keep the logo beside the name.
+128. **2026/27 club colours, cities and crests:** proposed from images the
+     owner supplied (this season's kits, a crest sheet, a club map), in
+     `supabase/data/2026-27-clubs.sql` for the owner to run and then check
+     in admin. Main colour is the kit's dominant colour (or the crest's
+     where the kit is white); text colour passes 4.5:1 on it. Crests are
+     cut from the owner's sheet (about 65 px, transparent) and served from
+     `web/public/crests`; sharper uploads through admin replace them. The
+     kit photos are only a colour reference and never go on the site: they
+     carry sponsors' logos, including betting brands.

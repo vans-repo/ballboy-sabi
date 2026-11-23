@@ -14,6 +14,7 @@ const ITEMS = [
   { href: "/admin/users", label: "Users" },
   { href: "/admin/emails", label: "Emails" },
   { href: "/admin/recap", label: "Weekly recap" },
+  { href: "/admin/motw", label: "Match of the Week" },
   { href: "/admin/audit", label: "Audit log" },
 ];
 

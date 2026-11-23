@@ -3,8 +3,26 @@ import Link from "next/link";
 import type { Team } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
-/** A circle in the team's colour with its 3-letter code. No club crests. */
+const SIZE = { sm: "size-7", md: "size-9", lg: "size-16" } as const;
+
+/**
+ * The club's crest when one is uploaded and crests are switched on, else a
+ * circle in the team's colour with its 3-letter code. Share images never use
+ * crests.
+ */
 export function TeamBadge({ team, size = "md" }: { team: Team; size?: "sm" | "md" | "lg" }) {
+  if (team.crest_url)
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- small public image from Supabase Storage
+      <img
+        src={team.crest_url}
+        alt=""
+        aria-hidden="true"
+        loading="lazy"
+        decoding="async"
+        className={cn("shrink-0 object-contain", SIZE[size])}
+      />
+    );
   return (
     <span
       aria-hidden="true"

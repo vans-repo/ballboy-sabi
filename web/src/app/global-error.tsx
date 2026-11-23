@@ -7,7 +7,7 @@ export default function GlobalError({ reset }: { error: Error; reset: () => void
       <body
         style={{
           margin: 0,
-          background: "#000E2E",
+          background: "#001F55",
           color: "#fff",
           fontFamily: "Arial, Helvetica, sans-serif",
         }}
@@ -25,8 +25,8 @@ export default function GlobalError({ reset }: { error: Error; reset: () => void
               padding: "0 20px",
               border: 0,
               borderRadius: 8,
-              background: "#F5C842",
-              color: "#000E2E",
+              background: "#FED700",
+              color: "#001F55",
               fontWeight: 700,
             }}
           >

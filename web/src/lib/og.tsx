@@ -8,11 +8,11 @@ import type { ReactNode } from "react";
 import { SITE_NAME } from "@/config/site";
 
 export const OG_SIZE = { width: 1200, height: 630 };
-export const NAVY = "#000E2E";
-export const SURFACE = "#00143C";
-export const GOLD = "#F5C842";
+export const NAVY = "#001F55";
+export const SURFACE = "#062664";
+export const GOLD = "#FED700";
 export const AWAY = "#4A90D9";
-export const GREY = "#64748B";
+export const GREY = "#7C8AA0";
 
 /** Barlow Condensed, bundled (OFL, see assets/fonts/OFL.txt) so images need no network. */
 export async function ogFonts() {

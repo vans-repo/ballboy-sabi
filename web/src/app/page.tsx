@@ -4,12 +4,13 @@ import { Suspense } from "react";
 
 import { Countdown } from "@/components/countdown";
 import { LeagueTable } from "@/components/league-table";
+import { AdirePattern } from "@/components/adire";
 import { MatchCard } from "@/components/match-card";
+import { MotwCard } from "@/components/motw-card";
 import { MyPicks } from "@/components/picks/my-picks";
 import { MyPoints, PickProgress } from "@/components/picks/progress";
-import { Card, Empty, Section } from "@/components/section";
+import { Empty, Section } from "@/components/section";
 import { TeamBadge } from "@/components/team-badge";
-import { Button } from "@/components/ui/button";
 import { SUBSTACK_URL } from "@/config/site";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 import {
@@ -23,7 +24,8 @@ import { getContext } from "@/lib/data/context";
 import { getLatestPosts } from "@/lib/substack";
 import { renderTime } from "@/lib/time";
 import { currentMatchday, isUpcoming } from "@/lib/football";
-import { formatShortDate, pct } from "@/lib/format";
+import { formatDay, formatShortDate, formatTime, pct } from "@/lib/format";
+import { currentMotw } from "@/lib/motw";
 
 export default function HomePage() {
   return (
@@ -39,11 +41,12 @@ export default function HomePage() {
 async function HomeContent() {
   "use cache";
   cacheLife("minutes");
-  cacheTag(CACHE_TAGS.matches, CACHE_TAGS.predictions);
+  cacheTag(CACHE_TAGS.matches, CACHE_TAGS.predictions, CACHE_TAGS.settings);
   const now = renderTime();
 
   const ctx = await getContext();
-  const [latest, frozen, table, walk, posts] = await Promise.all([
+  const [motw, latest, frozen, table, walk, posts] = await Promise.all([
+    currentMotw(now),
     getLatestPredictions(),
     getFrozenPredictions(),
     getLeagueTable(ctx.current.id),
@@ -57,8 +60,9 @@ async function HomeContent() {
     .filter((m) => isUpcoming(m, now))
     .map((m) => m.kickoff)
     .sort()[0];
+  const motwId = motw.kind === "match" ? motw.match.id : null;
   const upsets = fixtures
-    .filter((m) => isUpcoming(m, now) && latest[m.id]?.upset_alert)
+    .filter((m) => m.id !== motwId && isUpcoming(m, now) && latest[m.id]?.upset_alert)
     .sort((a, b) => Number(latest[b.id].p_away) - Number(latest[a.id].p_away))
     .slice(0, 2);
   const mini = [...table.slice(0, 5), ...table.slice(-3)];
@@ -96,24 +100,45 @@ async function HomeContent() {
 
   return (
     <>
-      {md !== null && (
-        <Card className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-2xl uppercase">Matchday {md}</h1>
-            <p className="text-sm text-muted-foreground">
+      <div className="mb-8 grid gap-4 lg:grid-cols-2">
+        {md !== null && (
+          <section
+            aria-labelledby="matchday"
+            className="relative flex flex-col justify-between gap-3 overflow-hidden rounded-2xl bg-primary p-5 text-primary-foreground"
+          >
+            <AdirePattern className="opacity-15" />
+            <p className="relative text-xs font-bold tracking-widest uppercase">
+              NPFL {ctx.current.label}
+            </p>
+            <h1
+              id="matchday"
+              className="relative font-heading text-6xl leading-[0.88] font-extrabold uppercase md:text-7xl"
+            >
+              Matchday {md}
+            </h1>
+            <p className="relative text-sm font-semibold">
               {nextKickoff ? (
-                <Countdown to={nextKickoff} prefix="Next picks lock in" />
+                <>
+                  {fixtures.length} matches · first kick-off {formatDay(nextKickoff)},{" "}
+                  {formatTime(nextKickoff)} WAT
+                  <br />
+                  <Countdown to={nextKickoff} prefix="Next picks lock in" />
+                </>
               ) : (
                 "Picks locked"
               )}
               <PickProgress matchIds={open} />
             </p>
-          </div>
-          <Button asChild size="lg">
-            <Link href={`/pick-all?md=${md}`}>Make your picks</Link>
-          </Button>
-        </Card>
-      )}
+            <Link
+              href={`/pick-all?md=${md}`}
+              className="relative inline-flex h-12 items-center self-start rounded-xl bg-primary-foreground px-6 font-bold text-primary hover:opacity-90"
+            >
+              Make your picks
+            </Link>
+          </section>
+        )}
+        <MotwCard w={motw} />
+      </div>
 
       <div className="grid gap-x-8 md:grid-cols-[3fr_2fr]">
         <div>
@@ -144,7 +169,7 @@ async function HomeContent() {
         </div>
 
         <div>
-          <Section title="Upset Alert">
+          <Section title={motwId ? "More Upset Alerts" : "Upset Alert"}>
             {upsets.length ? (
               <ul className="grid gap-3">
                 {upsets.map((m) => {
@@ -176,7 +201,9 @@ async function HomeContent() {
                 })}
               </ul>
             ) : (
-              <Empty>No Upset Alerts this matchday.</Empty>
+              <Empty>
+                {motwId ? "No other Upset Alerts this matchday." : "No Upset Alerts this matchday."}
+              </Empty>
             )}
           </Section>
 

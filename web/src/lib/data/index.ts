@@ -19,7 +19,7 @@ export type Season = Pick<
 >;
 export type Team = Pick<
   Tables<"teams">,
-  "id" | "name" | "code" | "slug" | "primary_colour" | "secondary_colour" | "city"
+  "id" | "name" | "code" | "slug" | "primary_colour" | "secondary_colour" | "city" | "crest_url"
 >;
 export type MatchStatus = Tables<"matches">["status"];
 export type Prediction = Pick<
@@ -102,16 +102,44 @@ export async function getSeasons(): Promise<Season[]> {
   return data;
 }
 
+export type SiteSettings = {
+  /** Site-wide switch: false hides every crest at once (for a quick takedown). */
+  showCrests: boolean;
+  /** The admin's Match of the Week choice, or null for the automatic pick. */
+  motwOverride: string | null;
+};
+
+export async function getSettings(): Promise<SiteSettings> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(CACHE_TAGS.settings);
+  const { data, error } = await createPublicClient()
+    .from("site_settings")
+    .select("key,value")
+    .in("key", ["show_crests", "motw_override"]);
+  if (error) throw new Error(error.message);
+  const v = new Map(data.map((r) => [r.key, r.value]));
+  const override = v.get("motw_override");
+  return {
+    showCrests: v.get("show_crests") !== false,
+    motwOverride: typeof override === "string" ? override : null,
+  };
+}
+
+/** Every team. Crests are left out while the "Show crests" switch is off. */
 export async function getTeams(): Promise<Team[]> {
   "use cache";
   cacheLife("hours");
-  cacheTag(CACHE_TAGS.matches);
-  const { data, error } = await createPublicClient()
-    .from("teams")
-    .select("id,name,code,slug,primary_colour,secondary_colour,city")
-    .order("name");
+  cacheTag(CACHE_TAGS.matches, CACHE_TAGS.settings);
+  const [{ data, error }, settings] = await Promise.all([
+    createPublicClient()
+      .from("teams")
+      .select("id,name,code,slug,primary_colour,secondary_colour,city,crest_url")
+      .order("name"),
+    getSettings(),
+  ]);
   if (error) throw new Error(error.message);
-  return data;
+  return settings.showCrests ? data : data.map((t) => ({ ...t, crest_url: null }));
 }
 
 /** Every match in every season, oldest first. About 2,100 rows. */

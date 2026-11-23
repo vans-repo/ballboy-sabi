@@ -114,5 +114,20 @@ long random string (32 or more characters) and keep a copy:
   /admin and watch the run reach *done*, send a test preview from
   /admin → Emails, and share a match on WhatsApp to see its image.
 
+### Redesign, Match of the Week and crests (November 2026)
+
+- [ ] **Before merging**, run `supabase/migrations/20261123000100_crests_and_settings.sql`
+  in Supabase → SQL Editor (paste the whole file, Run). It adds the crest
+  column, the `crests` storage bucket and two settings. The new site reads
+  the crest column, so it must exist first.
+- [ ] Paste `supabase/templates/confirm.html` and `recovery.html` into the
+  Supabase auth email templates again (new colours).
+- [ ] **After it's live**, run `supabase/data/2026-27-clubs.sql` in the SQL
+  Editor: colours, cities and crests for the 20 clubs. Then check them in admin.
+- [ ] /admin → Teams & Seasons: check each team's colours (they appear on the
+  Match of the Week images) and upload crests if you want them on the site.
+  "Hide all crests" removes every crest at once.
+- [ ] /admin → Match of the Week: check this week's pick, or choose another match.
+
 Free tiers only: Vercel Hobby (non-commercial, so ads and sponsors stay
 off), Supabase Free, GitHub Actions free minutes, Brevo Free (300 emails a day).

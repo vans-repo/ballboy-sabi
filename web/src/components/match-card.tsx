@@ -38,15 +38,24 @@ export function MatchCard({
   const outcome = outcomeOf(match);
 
   return (
-    <article className="rounded-xl bg-surface p-4">
+    <article className="rounded-2xl bg-surface p-4">
       <Link href={`/match/${match.id}`} className="block">
         <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
-          <span>
-            {formatDay(match.kickoff)}
-            {upcoming && ` · ${formatKickoffTime(match)}`}
-            {locked && " · Kicked off, result to come"}
+          <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span className="figure rounded-md bg-background px-2 py-0.5 text-sm text-foreground uppercase">
+              {formatDay(match.kickoff)}
+              {upcoming && ` · ${formatKickoffTime(match)}`}
+            </span>
+            {locked && "Kicked off, result to come"}
           </span>
-          <StatusTag status={match.status} />
+          <span className="flex items-center gap-1.5">
+            {upcoming && latest?.upset_alert && (
+              <span className="rounded-md bg-away px-2 py-0.5 text-[0.7rem] font-extrabold tracking-wide text-[#001F55] uppercase">
+                Upset Alert
+              </span>
+            )}
+            <StatusTag status={match.status} />
+          </span>
         </div>
         <div className="mt-3 grid gap-1.5">
           {[

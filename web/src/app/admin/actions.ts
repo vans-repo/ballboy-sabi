@@ -7,7 +7,8 @@ import { dispatchModelRun } from "@/lib/admin/dispatch";
 import { matchdayId, previewFixtures, type PreviewRow } from "@/lib/admin/fixtures";
 import { getViewer } from "@/lib/auth/user";
 import { CACHE_TAGS } from "@/lib/cache-tags";
-import type { TablesUpdate } from "@/lib/supabase/database.types";
+import { createAdminClient } from "@/lib/supabase/admin";
+import type { Json, TablesUpdate } from "@/lib/supabase/database.types";
 import { createClient } from "@/lib/supabase/server";
 
 export type ActionResult = { error?: string; message?: string; runId?: string };
@@ -360,4 +361,71 @@ export async function sendTestPreview(): Promise<ActionResult> {
   return failure
     ? { error: failure }
     : { message: `Sent "${message.subject}" to ${viewer.email}.` };
+}
+
+// ---------------------------------------------------------------------------
+// Site settings: Match of the Week and crests
+// ---------------------------------------------------------------------------
+async function saveSetting(key: string, value: Json): Promise<string | null> {
+  const supabase = await admin();
+  const { error } = await supabase
+    .from("site_settings")
+    .upsert({ key, value }, { onConflict: "key" });
+  if (error) return error.message;
+  updateTag(CACHE_TAGS.settings);
+  return null;
+}
+
+/** Choose this week's Match of the Week, or null to go back to the automatic pick. */
+export async function setMotwOverride(matchId: string | null): Promise<ActionResult> {
+  const error = await saveSetting("motw_override", matchId);
+  if (error) return { error };
+  return { message: matchId ? "Match of the Week chosen." : "Back to the automatic pick." };
+}
+
+/** Site-wide crest switch: off hides every crest at once. */
+export async function setShowCrests(show: boolean): Promise<ActionResult> {
+  const error = await saveSetting("show_crests", show);
+  if (error) return { error };
+  return { message: show ? "Crests are showing." : "Crests are hidden everywhere." };
+}
+
+const CREST_TYPES: Record<string, string> = {
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/jpeg": "jpg",
+};
+const CREST_MAX_BYTES = 512 * 1024;
+
+/** Upload a team's crest to the public "crests" bucket. PNG, WebP or JPEG, 512 KB at most. */
+export async function uploadCrest(form: FormData): Promise<ActionResult> {
+  const supabase = await admin();
+  const teamId = String(form.get("teamId") ?? "");
+  const file = form.get("crest");
+  if (!(file instanceof File) || file.size === 0) return { error: "Choose an image first." };
+  const ext = CREST_TYPES[file.type];
+  if (!ext) return { error: "Use a PNG, WebP or JPEG image." };
+  if (file.size > CREST_MAX_BYTES)
+    return { error: "That image is over 512 KB. Use a smaller one." };
+  const { data: team } = await supabase.from("teams").select("slug").eq("id", teamId).single();
+  if (!team) return { error: "That team wasn't found." };
+
+  // A new name each time, so browsers and the CDN never show the old crest.
+  const path = `${team.slug}-${Date.now()}.${ext}`;
+  const storage = createAdminClient().storage.from("crests");
+  const { error: upErr } = await storage.upload(path, file, { contentType: file.type });
+  if (upErr) return { error: `Upload failed: ${upErr.message}` };
+  const url = storage.getPublicUrl(path).data.publicUrl;
+  const { error } = await supabase.from("teams").update({ crest_url: url }).eq("id", teamId);
+  if (error) return { error: error.message };
+  refreshPublicPages();
+  return { message: "Crest saved." };
+}
+
+export async function removeCrest(teamId: string): Promise<ActionResult> {
+  const supabase = await admin();
+  const { error } = await supabase.from("teams").update({ crest_url: null }).eq("id", teamId);
+  if (error) return { error: error.message };
+  refreshPublicPages();
+  return { message: "Crest removed." };
 }

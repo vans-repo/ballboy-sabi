@@ -682,6 +682,7 @@ export type Database = {
       };
       teams: {
         Row: {
+          crest_url: string | null;
           city: string | null;
           code: string;
           created_at: string;
@@ -695,6 +696,7 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
+          crest_url?: string | null;
           city?: string | null;
           code: string;
           created_at?: string;
@@ -708,6 +710,7 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          crest_url?: string | null;
           city?: string | null;
           code?: string;
           created_at?: string;
