@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "Admin", robots: { index: false, foll
 export default function AdminLayout({ children }: LayoutProps<"/admin">) {
   return (
     <div>
-      <p className="mb-2 text-xs font-medium tracking-wide text-primary uppercase">Admin</p>
+      <p className="mb-2 text-xs font-medium tracking-wide text-ink uppercase">Admin</p>
       <Suspense>
         <AdminNav />
       </Suspense>

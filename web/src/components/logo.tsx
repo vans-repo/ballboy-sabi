@@ -42,7 +42,7 @@ export function Wordmark({ size = "md" }: { size?: "md" | "lg" }) {
         {SITE_NAME}
       </span>
       <span className="mt-0.5 flex items-center gap-1 text-[0.65rem] font-medium text-muted-foreground">
-        by <Logo className="h-2.5 w-auto text-primary" />
+        by <Logo className="h-2.5 w-auto text-ink" />
       </span>
     </span>
   );

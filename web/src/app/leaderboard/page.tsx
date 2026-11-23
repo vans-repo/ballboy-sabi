@@ -157,7 +157,7 @@ async function Board({
           {page > 1 ? (
             <Link
               href={href(scope, page - 1)}
-              className="inline-flex h-11 items-center px-3 text-primary"
+              className="inline-flex h-11 items-center px-3 text-ink"
             >
               ‹ Previous
             </Link>
@@ -170,7 +170,7 @@ async function Board({
           {page < pages ? (
             <Link
               href={href(scope, page + 1)}
-              className="inline-flex h-11 items-center px-3 text-primary"
+              className="inline-flex h-11 items-center px-3 text-ink"
             >
               Next ›
             </Link>
@@ -199,7 +199,7 @@ function Row({ r, pinned, mine }: { r: LeaderRow; pinned?: boolean; mine?: boole
       <td className="figure py-2 pl-3 text-base">{r.rank}</td>
       <td className="py-2">
         <span className="font-medium">{r.name}</span>
-        {r.isBallboy && <span className="ml-2 text-xs text-primary">The model</span>}
+        {r.isBallboy && <span className="ml-2 text-xs text-ink">The model</span>}
         {mine && <span className="ml-2 text-xs text-away">You</span>}
       </td>
       <td className="figure px-2 py-2 text-right text-base">{r.points}</td>

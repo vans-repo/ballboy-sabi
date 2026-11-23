@@ -175,11 +175,11 @@ async function HeadToHead({ a, b }: { a: string | null; b: string | null }) {
         </div>
       )}
       <p className="mt-4 text-sm">
-        <Link href={`/team/${ta.slug}`} className="text-primary underline underline-offset-2">
+        <Link href={`/team/${ta.slug}`} className="text-ink underline underline-offset-2">
           {ta.name}
         </Link>
         {" · "}
-        <Link href={`/team/${tb.slug}`} className="text-primary underline underline-offset-2">
+        <Link href={`/team/${tb.slug}`} className="text-ink underline underline-offset-2">
           {tb.name}
         </Link>
       </p>

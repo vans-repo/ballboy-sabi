@@ -161,7 +161,7 @@ async function MatchDetail({ id }: { id: string }) {
       </header>
 
       {m.status === "postponed" && (
-        <Card className="mb-6 border border-primary/50">
+        <Card className="mb-6 border border-ink/50">
           <p className="text-sm">
             This match was postponed. Picks carry over to the new date, {formatKickoff(m)}
             {m.timeConfirmed ? " WAT" : ""}.

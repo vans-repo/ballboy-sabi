@@ -76,9 +76,7 @@ export default async function AdminUsersPage({ searchParams }: PageProps<"/admin
                     <div>
                       <p className="font-medium">
                         {p.display_name}{" "}
-                        {p.role !== "fan" && (
-                          <span className="text-xs text-primary">({p.role})</span>
-                        )}
+                        {p.role !== "fan" && <span className="text-xs text-ink">({p.role})</span>}
                         {p.banned && <span className="ml-2 text-xs text-danger">Banned</span>}
                       </p>
                       <p className="text-xs text-muted-foreground">
@@ -90,7 +88,7 @@ export default async function AdminUsersPage({ searchParams }: PageProps<"/admin
                   </div>
                   {mine.length > 0 && (
                     <details className="mt-2">
-                      <summary className="inline-flex min-h-11 cursor-pointer items-center text-sm text-primary">
+                      <summary className="inline-flex min-h-11 cursor-pointer items-center text-sm text-ink">
                         View picks
                       </summary>
                       <ul className="grid gap-1 text-xs">

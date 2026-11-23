@@ -218,7 +218,7 @@ async function HomeContent() {
                 <dl className="grid grid-cols-4 gap-2 text-center text-xs">
                   <div>
                     <dt className="text-muted-foreground">The Ballboy</dt>
-                    <dd className="figure text-2xl text-primary">{strip.ballboy}</dd>
+                    <dd className="figure text-2xl text-ink">{strip.ballboy}</dd>
                   </div>
                   <div>
                     <dt className="text-muted-foreground">Average fan</dt>
@@ -288,7 +288,7 @@ async function HomeContent() {
               {walk.blend.brier.toFixed(2)} against{" "}
               {(2 * (1 - walk.always_home_accuracy)).toFixed(2)} for always picking home (lower is
               better).{" "}
-              <Link href="/accuracy" className="text-primary underline underline-offset-2">
+              <Link href="/accuracy" className="text-ink underline underline-offset-2">
                 See how accurate we are
               </Link>
             </p>

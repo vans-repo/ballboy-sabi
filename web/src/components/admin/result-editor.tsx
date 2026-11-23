@@ -182,7 +182,7 @@ export function ResultEditor({ match }: { match: EditableMatch }) {
         </Button>
       )}
       {step === "confirm" && (
-        <div className="mt-3 rounded-lg border border-primary/50 p-3">
+        <div className="mt-3 rounded-lg border border-ink/50 p-3">
           <p className="text-sm">Save this?</p>
           <p className="mt-1 font-medium">{summary}</p>
           <div className="mt-3 flex gap-2">
