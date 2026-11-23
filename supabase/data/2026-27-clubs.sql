@@ -14,7 +14,7 @@ update public.teams set primary_colour = '#C8102E', secondary_colour = '#FFFFFF'
 update public.teams set primary_colour = '#1B3A8C', secondary_colour = '#FFFFFF', city = 'Kano',
   crest_url = 'https://ballboy-sabi.vercel.app/crests/barau.png'
   where slug = 'barau';
-update public.teams set primary_colour = '#E4B321', secondary_colour = '#14361F', city = 'Benin City',
+update public.teams set primary_colour = '#F4C430', secondary_colour = '#14612F', city = 'Benin City',
   crest_url = 'https://ballboy-sabi.vercel.app/crests/bendel-insurance.png'
   where slug = 'bendel-insurance';
 update public.teams set primary_colour = '#2B4C9B', secondary_colour = '#FFFFFF', city = 'Gombe',

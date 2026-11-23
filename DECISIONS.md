@@ -631,3 +631,11 @@ what was decided and why. Newest stage at the bottom.
      bottom (top three v bottom four), Relegation battle (both bottom five).
      They show on fixture cards, and /admin → Match of the Week lists the
      matchday's big matches for planning articles and posts.
+133. **"Strength", not "Elo", on the site:** the Elo rating is shown as the
+     club's strength ("6th strongest of 20", "Strength since 2021/22"),
+     with one plain sentence saying it's an Elo rating worked out from
+     results. Bendel Insurance's colours corrected to yellow first, green
+     second (owner).
+134. **"Refresh the site" button** (/admin → Teams & Seasons): after data is
+     changed straight in Supabase, it marks every cached page stale so the
+     change shows at once instead of within a few hours.

@@ -49,4 +49,5 @@ update public.teams set primary_colour = '#F2D21B', secondary_colour = '#0B5A2A'
 update public.teams set primary_colour = '#F2D21B', secondary_colour = '#17602A' where slug = 'katsina-united';
 update public.teams set primary_colour = '#F3D21A', secondary_colour = '#1B5E2E' where slug = 'plateau-united';
 update public.teams set primary_colour = '#F2C21E', secondary_colour = '#1E5A2B' where slug = 'kwara-united';
+update public.teams set primary_colour = '#F4C430', secondary_colour = '#14612F' where slug = 'bendel-insurance';
 commit;

@@ -146,7 +146,10 @@ try {
   // --- 3. Crests on the site, and the switch that hides them -----------------
   const crest = "https://example.invalid/crests/lobi-stars.png";
   sql(`update public.teams set crest_url = '${crest}' where name = 'Lobi Stars'`);
-  await revalidate(["matches"]);
+  // Data changed straight in the database shows after "Refresh the site".
+  await page.goto(`${BASE}/admin/teams`);
+  await page.getByRole("button", { name: "Refresh the site" }).click();
+  await page.getByText("Done. Every page now shows the latest data.").waitFor();
   await page.goto(`${BASE}/fixtures`);
   check("Crest shows on the site", (await page.locator(`img[src="${crest}"]`).count()) > 0);
   const poster = await fetch(`${BASE}/motw/md${md}/poster`);

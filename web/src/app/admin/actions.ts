@@ -429,3 +429,14 @@ export async function removeCrest(teamId: string): Promise<ActionResult> {
   refreshPublicPages();
   return { message: "Crest removed." };
 }
+
+/** After changing data straight in Supabase (SQL Editor): show it on the site now. */
+export async function refreshSite(): Promise<ActionResult> {
+  await admin();
+  updateTag(CACHE_TAGS.matches);
+  updateTag(CACHE_TAGS.predictions);
+  updateTag(CACHE_TAGS.teamRatings);
+  updateTag(CACHE_TAGS.picks);
+  updateTag(CACHE_TAGS.settings);
+  return { message: "Done. Every page now shows the latest data." };
+}
