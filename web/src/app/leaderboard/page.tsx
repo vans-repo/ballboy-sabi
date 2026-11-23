@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 export const metadata: Metadata = {
   title: "Leaderboard",
   description:
-    "Beat the Ballboy: the fans who out-picked the model this matchday, this season and of all time.",
+    "Beat the Ballboy: the fans who out-picked the Ballboy this matchday, this season and of all time.",
 };
 
 const PAGE_SIZE = 50;
@@ -199,7 +199,7 @@ function Row({ r, pinned, mine }: { r: LeaderRow; pinned?: boolean; mine?: boole
       <td className="figure py-2 pl-3 text-base">{r.rank}</td>
       <td className="py-2">
         <span className="font-medium">{r.name}</span>
-        {r.isBallboy && <span className="ml-2 text-xs text-ink">The model</span>}
+        {r.isBallboy && <span className="ml-2 text-xs text-ink">To beat</span>}
         {mine && <span className="ml-2 text-xs text-away">You</span>}
       </td>
       <td className="figure px-2 py-2 text-right text-base">{r.points}</td>

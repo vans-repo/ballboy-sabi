@@ -131,7 +131,7 @@ export function MotwCard({ w }: { w: Motw }) {
         <p className="text-sm text-muted-foreground">
           {w.kind === "recap"
             ? `No matches this week. ${w.top.map((t) => `${t.team.name} ${t.points} pts`).join(", ")} at the top.`
-            : "Pick Home, Draw or Away for every NPFL match and score more for the results the model thought unlikely."}
+            : "Pick Home, Draw or Away for every NPFL match and score more for the results the Ballboy thought unlikely."}
         </p>
         <MotwShareButtons w={w} className="mt-3" />
       </div>

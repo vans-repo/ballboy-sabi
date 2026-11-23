@@ -67,7 +67,7 @@ export async function buildRecap(md: number, now: number): Promise<Recap | null>
     const right = scored.filter((m) => likeliest(frozen[m.id]) === outcomeOf(m)).length;
     const home = scored.filter((m) => outcomeOf(m) === "home").length;
     notes.push(
-      `- **Model:** the most likely result came in ${right} of ${scored.length} times (always picking home: ${home} of ${scored.length}).`,
+      `- **The Ballboy:** the most likely result came in ${right} of ${scored.length} times (always picking home: ${home} of ${scored.length}).`,
     );
     posts.push(
       fit(
@@ -94,7 +94,7 @@ export async function buildRecap(md: number, now: number): Promise<Recap | null>
         : `${name(m.homeId)} beat ${name(m.awayId)} ${m.homeGoals}–${m.awayGoals}`;
   for (const m of upsets)
     notes.push(
-      `- **Upset:** ${describe(m)}. The model gave that ${Math.round(chanceOf(m) * 100)}%. ${site}/match/${m.id}`,
+      `- **Upset:** ${describe(m)}. The Ballboy gave that ${Math.round(chanceOf(m) * 100)}%. ${site}/match/${m.id}`,
     );
   if (upsets[0])
     posts.push(

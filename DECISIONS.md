@@ -649,3 +649,10 @@ what was decided and why. Newest stage at the bottom.
      background (about 1.4:1). Two tokens: `bg-primary` (fill, yellow in
      both modes) and `text-ink` / `border-ink` / `ring` (yellow in dark
      mode, navy in light).
+136. **"The Ballboy", not "the model", on the site:** fans play against the
+     Ballboy, so every fan-facing mention says so ("Ballboy: 44% / 29% /
+     27%", "results the Ballboy thought unlikely", "How the Ballboy works").
+     The leaderboard marks the Ballboy's row "To beat". Code and admin
+     screens still say "model".
+137. **Table season picker is a dropdown** (no JavaScript): the current
+     season shows by default; earlier seasons are one tap away.

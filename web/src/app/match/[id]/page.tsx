@@ -185,7 +185,7 @@ async function MatchDetail({ id }: { id: string }) {
                 {played && outcome && (
                   <p className="mt-3 flex items-center justify-center gap-2 text-sm">
                     <RightWrong right={likeliest(p) === outcome} />
-                    The model rated{" "}
+                    The Ballboy rated{" "}
                     {outcome === "draw"
                       ? "a draw"
                       : outcome === "home"

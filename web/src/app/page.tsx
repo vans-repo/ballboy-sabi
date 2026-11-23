@@ -239,7 +239,7 @@ async function HomeContent() {
               </Link>
             ) : (
               <Empty>
-                Pick before kick-off and score more for the results the model thought unlikely.
+                Pick before kick-off and score more for the results the Ballboy thought unlikely.
                 Scores appear here after the first matchday with fan picks.
               </Empty>
             )}
