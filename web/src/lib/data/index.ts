@@ -363,6 +363,8 @@ export async function getNewsImages(): Promise<NewsImage[]> {
     .from("news_images")
     .select("id,category,url,source")
     .order("created_at");
-  if (error) throw new Error(error.message);
+  // Images are decoration: if they can't be read (e.g. before the migration
+  // has run), headlines just show without them.
+  if (error) return [];
   return data;
 }
