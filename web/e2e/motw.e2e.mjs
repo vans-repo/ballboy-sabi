@@ -257,6 +257,7 @@ try {
   );
 
   await page.goto(`${BASE}/admin/data-check`);
+  await page.getByRole("button", { name: "Apply" }).first().waitFor();
   check(
     "Data check page lists both",
     (await page.getByRole("button", { name: "Apply" }).count()) === 2,
