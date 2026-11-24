@@ -1,13 +1,18 @@
 import Link from "next/link";
 
 import { ProbabilityBar } from "@/components/probability-bar";
+import { ShareMenu } from "@/components/share-menu";
 import { publicEnv } from "@/lib/env";
 import { formatDay, formatKickoffTime } from "@/lib/format";
 import { type Motw, motwPostText, xIntentUrl } from "@/lib/motw";
 import { teamBands } from "@/lib/team-colours";
 import { cn } from "@/lib/utils";
 
-/** "Post on X" (one click, text and link filled in) and "Save image" (the portrait poster). */
+/**
+ * Fans: "Share…" (X, Facebook, WhatsApp, Instagram and more, with the
+ * sign-off line). Admin: "Post on X with the Ballboy's read". Both: "Save
+ * image" (the portrait poster).
+ */
 export function MotwShareButtons({
   w,
   className,
@@ -20,15 +25,25 @@ export function MotwShareButtons({
 }) {
   const link = `${publicEnv.siteUrl}/motw/${w.key}`;
   return (
-    <div className={cn("flex flex-wrap gap-2", className)}>
-      <a
-        href={xIntentUrl(motwPostText(w, withRead), link)}
-        target="_blank"
-        rel="noopener"
-        className="inline-flex h-11 items-center gap-2 rounded-lg bg-foreground px-4 text-sm font-bold text-background hover:opacity-90"
-      >
-        <XIcon /> {withRead ? "Post on X with the Ballboy's read" : "Post on X"}
-      </a>
+    <div className={cn("flex flex-wrap items-start gap-2", className)}>
+      {withRead ? (
+        <a
+          href={xIntentUrl(motwPostText(w, true), link)}
+          target="_blank"
+          rel="noopener"
+          className="inline-flex h-11 items-center gap-2 rounded-lg bg-foreground px-4 text-sm font-bold text-background hover:opacity-90"
+        >
+          <XIcon /> Post on X with the Ballboy&apos;s read
+        </a>
+      ) : (
+        <ShareMenu
+          message={motwPostText(w)}
+          path={`/motw/${w.key}`}
+          image={`/motw/${w.key}/poster`}
+          imageName={`ballboy-sabi-${w.key}.png`}
+          buttonClassName="bg-foreground font-bold text-background hover:bg-foreground hover:opacity-90"
+        />
+      )}
       <a
         href={`/motw/${w.key}/poster`}
         download={`ballboy-sabi-${w.key}.png`}

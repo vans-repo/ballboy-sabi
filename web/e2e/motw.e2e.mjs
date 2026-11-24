@@ -2,7 +2,7 @@
 // other browser tests (it reuses the admin account and their matchdays).
 //
 // /motw points at this week's link; the poster and the X card render; Home
-// has a one-click "Post on X" link to it; the admin can choose another match.
+// has a "Share…" menu (X, WhatsApp and more) for it; the admin can choose another match.
 // A crest shows on the site, and "Hide all crests" removes it everywhere.
 import { execFileSync } from "node:child_process";
 import { createRequire } from "node:module";
@@ -63,7 +63,7 @@ const admin = await browser.newContext({ viewport: { width: 1280, height: 900 } 
 const page = await admin.newPage();
 
 try {
-  // --- 1. This week's link, images and the Post on X button -------------------
+  // --- 1. This week's link, images and the Share menu -------------------------
   const r = await fetch(`${BASE}/motw`, { redirect: "manual" });
   const where = r.headers.get("location") ?? "";
   check(
@@ -93,16 +93,29 @@ try {
     "Home: the Upset Alert with the highest away chance is Match of the Week",
     (await motw.count()) === 1,
   );
-  const post = page.getByRole("link", { name: "Post on X" }).first();
-  const href = (await post.getAttribute("href")) ?? "";
+  // "Share…" opens the menu; record the app links instead of leaving the page.
+  await page.evaluate(() => {
+    window.__opened = [];
+    window.open = (u) => (window.__opened.push(String(u)), null);
+  });
+  const shareOn = async (scope, app) => {
+    await scope
+      .getByRole("button", { name: /^Share/ })
+      .first()
+      .click();
+    await scope.getByRole("menuitem", { name: app, exact: true }).click();
+    return page.evaluate(() => window.__opened.at(-1));
+  };
+  const href = await shareOn(motw, "X");
   const intent = new URL(href);
   check(
-    "Post on X (fans): X's post intent with the link, via @NaijaBallboy, no numbers",
+    "Share on X (fans): X's post intent with the link, via @NaijaBallboy, no numbers",
     intent.host === "x.com" &&
       intent.pathname === "/intent/post" &&
       intent.searchParams.get("url")?.endsWith(`/motw/md${md}`) &&
       intent.searchParams.get("via") === "NaijaBallboy" &&
       /One To Watch 🔥/.test(intent.searchParams.get("text") ?? "") &&
+      /free NPFL predictions game/.test(intent.searchParams.get("text") ?? "") &&
       !/%/.test(intent.searchParams.get("text") ?? ""),
     href,
   );
@@ -111,6 +124,23 @@ try {
     "Post text has no betting words",
     !/\b(bet|stake|odds|tip|banker|slip)s?\b/i.test(text),
     text,
+  );
+  const wa = new URL(await shareOn(motw, "WhatsApp"));
+  check(
+    "Share on WhatsApp: the message, the sign-off naming @NaijaBallboy, and the link",
+    wa.host === "wa.me" &&
+      /One To Watch 🔥[\s\S]*@NaijaBallboy[\s\S]*\/motw\/md\d+$/.test(
+        wa.searchParams.get("text") ?? "",
+      ),
+    wa.toString(),
+  );
+  const card = page.locator("article", { hasText: "Enyimba" }).first();
+  const fb = new URL(await shareOn(card, "Facebook"));
+  check(
+    "Every match card shares too (Facebook gets the match page)",
+    fb.host === "www.facebook.com" &&
+      /\/match\/[0-9a-f-]{36}$/.test(fb.searchParams.get("u") ?? ""),
+    fb.toString(),
   );
   check(
     "Save image downloads the poster",
