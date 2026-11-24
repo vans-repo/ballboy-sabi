@@ -193,6 +193,102 @@ try {
   await page.getByText("Crests are showing.").waitFor();
   await page.goto(`${BASE}/fixtures`);
   check("Show crests brings them back", (await page.locator(`img[src="${crest}"]`).count()) > 0);
+
+  // --- 4. Data check: suggested fixes wait in admin, one tap applies each ------
+  const sendCheck = (auth, body) =>
+    fetch(`${BASE}/api/data-check`, {
+      method: "POST",
+      headers: { ...(auth ? { Authorization: auth } : {}), "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+  const gombe = sql(`select m.id from public.matches m join public.teams t on t.id = m.home_team_id
+                     where t.name = 'Gombe United' and m.status = 'scheduled' limit 1`);
+  check(
+    "Data check: refused without the secret",
+    (await sendCheck(null, { check_date: "2026-11-24", items: [] })).status === 401,
+  );
+  const sent = await (
+    await sendCheck("Bearer e2e-data-check", {
+      check_date: "2026-11-24",
+      items: [
+        {
+          kind: "result",
+          match_id: gombe,
+          home_goals: 2,
+          away_goals: 1,
+          summary: "Gombe United 2-1 Akwa United",
+          source_url: "https://example.invalid/report",
+        },
+        {
+          kind: "deduction",
+          team_slug: "lobi-stars",
+          points: 3,
+          reason: "Unpaid wages (e2e)",
+          summary: "Lobi Stars docked 3 points",
+          confidence: "unconfirmed",
+        },
+        { kind: "result", match_id: "not-a-match", home_goals: 1, away_goals: 0, summary: "bad" },
+      ],
+    })
+  ).json();
+  check(
+    "Data check: two fixes queued, the bad one rejected",
+    sent.added === 2 && sent.rejected?.length === 1,
+    JSON.stringify(sent),
+  );
+  const again = await (
+    await sendCheck("Bearer e2e-data-check", {
+      check_date: "2026-11-24",
+      items: [
+        {
+          kind: "result",
+          match_id: gombe,
+          home_goals: 2,
+          away_goals: 1,
+          summary: "Gombe United 2-1 Akwa United",
+        },
+      ],
+    })
+  ).json();
+  check(
+    "Data check: the same fix isn't queued twice",
+    again.added === 0 && again.already_waiting === 1,
+    JSON.stringify(again),
+  );
+
+  await page.goto(`${BASE}/admin/data-check`);
+  await page.getByRole("button", { name: "Apply" }).first().waitFor();
+  check(
+    "Data check page lists both",
+    (await page.getByRole("button", { name: "Apply" }).count()) === 2,
+  );
+  // Tap Apply on each card in turn and wait until the database shows it applied.
+  const applied = () =>
+    Number(sql(`select count(*) from public.data_suggestions where status = 'applied'`));
+  for (let done = 1; done <= 2; done++) {
+    await page
+      .locator("button:not([disabled])", { hasText: /^Apply$/ })
+      .first()
+      .click();
+    for (let t = 0; t < 60 && applied() < done; t++) await page.waitForTimeout(500);
+    await page.reload();
+    if (done < 2) await page.getByRole("button", { name: "Apply" }).first().waitFor();
+  }
+  check(
+    "Apply: the result is saved",
+    sql(
+      `select status || ' ' || home_goals || '-' || away_goals from public.matches where id = '${gombe}'`,
+    ) === "played 2-1",
+  );
+  check(
+    "Apply: the deduction is recorded",
+    sql(`select count(*) from public.point_deductions d join public.teams t on t.id = d.team_id
+         where t.name = 'Lobi Stars' and d.points = 3`) === "1",
+  );
+  check(
+    "Both suggestions are marked applied",
+    sql(`select count(*) from public.data_suggestions where status = 'applied'`) === "2",
+  );
 } catch (e) {
   check("no unexpected errors", false, e.message);
 } finally {

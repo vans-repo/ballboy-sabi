@@ -61,6 +61,54 @@ export type Database = {
           },
         ];
       };
+      data_suggestions: {
+        Row: {
+          check_date: string;
+          confidence: string;
+          created_at: string;
+          decided_at: string | null;
+          decided_by: string | null;
+          id: string;
+          kind: string;
+          match_id: string | null;
+          payload: Json;
+          source_url: string | null;
+          status: string;
+          summary: string;
+          team_id: string | null;
+        };
+        Insert: {
+          check_date: string;
+          confidence?: string;
+          created_at?: string;
+          decided_at?: string | null;
+          decided_by?: string | null;
+          id?: string;
+          kind: string;
+          match_id?: string | null;
+          payload: Json;
+          source_url?: string | null;
+          status?: string;
+          summary: string;
+          team_id?: string | null;
+        };
+        Update: {
+          check_date?: string;
+          confidence?: string;
+          created_at?: string;
+          decided_at?: string | null;
+          decided_by?: string | null;
+          id?: string;
+          kind?: string;
+          match_id?: string | null;
+          payload?: Json;
+          source_url?: string | null;
+          status?: string;
+          summary?: string;
+          team_id?: string | null;
+        };
+        Relationships: [];
+      };
       email_sends: {
         Row: {
           created_at: string;

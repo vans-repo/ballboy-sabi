@@ -441,3 +441,87 @@ export async function refreshSite(): Promise<ActionResult> {
   updateTag(CACHE_TAGS.news);
   return { message: "Done. Every page now shows the latest data." };
 }
+
+// ---------------------------------------------------------------------------
+// Data check: fixes suggested by the scheduled check, applied one tap each
+// ---------------------------------------------------------------------------
+async function decide(id: string, status: "applied" | "dismissed"): Promise<string | null> {
+  const supabase = await admin();
+  const viewer = await getViewer();
+  const { error } = await supabase
+    .from("data_suggestions")
+    .update({ status, decided_at: new Date().toISOString(), decided_by: viewer?.id ?? null })
+    .eq("id", id)
+    .eq("status", "pending");
+  return error?.message ?? null;
+}
+
+/** Apply a suggested fix through the same action an admin would use by hand. */
+export async function applySuggestion(id: string): Promise<ActionResult> {
+  const supabase = await admin();
+  const { data: s, error } = await supabase
+    .from("data_suggestions")
+    .select("id,kind,match_id,team_id,payload,status")
+    .eq("id", id)
+    .single();
+  if (error || !s) return { error: "That suggestion wasn't found." };
+  if (s.status !== "pending") return { error: "That suggestion was already handled." };
+  const p = s.payload as Record<string, unknown>;
+  let result: ActionResult;
+
+  if (s.kind === "result") {
+    result = await saveResult({
+      matchId: s.match_id!,
+      status: "played",
+      homeGoals: Number(p.home_goals),
+      awayGoals: Number(p.away_goals),
+    });
+  } else if (s.kind === "postponed") {
+    result = await saveResult({
+      matchId: s.match_id!,
+      status: "postponed",
+      homeGoals: null,
+      awayGoals: null,
+      newDate: String(p.date),
+      newTime: String(p.time),
+    });
+  } else if (s.kind === "kickoff") {
+    const { data: m } = await supabase
+      .from("matches")
+      .select("season_id,matchdays(number)")
+      .eq("id", s.match_id!)
+      .single();
+    const md = (m?.matchdays as { number: number } | null)?.number;
+    if (!m || !md) return { error: "That match has no matchday; set its time in Fixtures." };
+    result = await updateFixture({
+      matchId: s.match_id!,
+      seasonId: m.season_id,
+      date: String(p.date),
+      time: String(p.time),
+      matchday: md,
+    });
+  } else {
+    const { data: season } = await supabase
+      .from("seasons")
+      .select("id")
+      .eq("is_current", true)
+      .single();
+    if (!season) return { error: "No current season." };
+    result = await addDeduction({
+      seasonId: season.id,
+      teamId: s.team_id!,
+      points: Number(p.points),
+      reason: String(p.reason),
+    });
+  }
+  if (result.error) return result;
+  const failed = await decide(id, "applied");
+  return failed
+    ? { error: failed }
+    : { ...result, message: `Applied. ${result.message ?? ""}`.trim() };
+}
+
+export async function dismissSuggestion(id: string): Promise<ActionResult> {
+  const failed = await decide(id, "dismissed");
+  return failed ? { error: failed } : { message: "Dismissed." };
+}

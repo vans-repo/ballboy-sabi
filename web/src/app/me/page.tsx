@@ -5,7 +5,7 @@ import { connection } from "next/server";
 import { Suspense } from "react";
 
 import { logOut } from "@/app/auth/actions";
-import { SettingsForm, ThemeToggle } from "@/components/me/settings-form";
+import { SettingsForm } from "@/components/me/settings-form";
 import { Card, Empty, PageTitle, Section } from "@/components/section";
 import { Button } from "@/components/ui/button";
 import { getViewer } from "@/lib/auth/user";
@@ -178,10 +178,6 @@ async function Me() {
           <Section title="Settings">
             <Card className="grid gap-5">
               <SettingsForm displayName={viewer.displayName} emailOptIn={viewer.emailOptIn} />
-              <div className="grid gap-2 text-sm">
-                Theme
-                <ThemeToggle />
-              </div>
             </Card>
           </Section>
           <form action={logOut}>
