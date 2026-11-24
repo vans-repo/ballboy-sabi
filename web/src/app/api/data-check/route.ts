@@ -3,6 +3,7 @@ import { timingSafeEqual } from "node:crypto";
 import { getContext } from "@/lib/data/context";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Json } from "@/lib/supabase/database.types";
+import { normaliseYoutube, VIDEO_LABEL } from "@/lib/youtube";
 
 /**
  * Where the scheduled NPFL data check (a Claude run) sends the fixes it
@@ -15,6 +16,7 @@ import type { Json } from "@/lib/supabase/database.types";
  *   { "kind": "postponed", "match_id", "date": "YYYY-MM-DD", "time": "HH:MM", ...common }
  *   { "kind": "kickoff", "match_id", "date", "time", ...common }
  *   { "kind": "deduction", "team_slug", "points", "goals"?, "reason", ...common }
+ *   { "kind": "video", "match_id", "url" (YouTube), "label": "live" | "highlights" | "replay", ...common }
  * and common is { "summary", "source_url"?, "confidence"?: "confirmed" | "unconfirmed" }.
  */
 
@@ -114,8 +116,20 @@ export async function POST(request: Request) {
         team_id: null,
         payload: { date, time },
       });
+    } else if (it.kind === "video") {
+      const url = typeof it.url === "string" ? normaliseYoutube(it.url) : null;
+      const label = typeof it.label === "string" && it.label in VIDEO_LABEL ? it.label : null;
+      if (!url) return reject("url must be a YouTube video link");
+      if (!label) return reject("label must be live, highlights or replay");
+      rows.push({
+        ...base,
+        kind: "video",
+        match_id: matchId,
+        team_id: null,
+        payload: { url, label },
+      });
     } else {
-      reject("kind must be result, postponed, kickoff or deduction");
+      reject("kind must be result, postponed, kickoff, deduction or video");
     }
   });
 

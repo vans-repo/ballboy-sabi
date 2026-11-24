@@ -12,6 +12,7 @@ const KIND = {
   postponed: "Postponed",
   kickoff: "Kick-off time",
   deduction: "Point deduction",
+  video: "YouTube video",
 } as const;
 
 /** Fixes suggested by the scheduled NPFL data check, one tap to apply each. */

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { AddFixtureForm, CsvImport, FixtureEditor } from "@/components/admin/forms";
+import { AddFixtureForm, CsvImport, FixtureEditor, VideoEditor } from "@/components/admin/forms";
 import { Card, PageTitle, Section } from "@/components/section";
 import { requireAdmin } from "@/lib/admin/guard";
 import { getContext } from "@/lib/data/context";
@@ -79,6 +79,7 @@ export default async function AdminFixturesPage({ searchParams }: PageProps<"/ad
                 time={m.timeConfirmed ? lagosTime(m.kickoff) : ""}
                 matchday={m.matchday}
               />
+              <VideoEditor matchId={m.id} url={m.videoUrl} label={m.videoLabel} />
             </li>
           ))}
         </ul>

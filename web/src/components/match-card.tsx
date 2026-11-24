@@ -9,6 +9,7 @@ import { bigMatchTags, derbyName } from "@/lib/big-match";
 import type { Match, Prediction, TableRow, Team } from "@/lib/data";
 import { hasResult, isLocked, isUpcoming, likeliest, outcomeOf } from "@/lib/football";
 import { formatDay, formatKickoffTime } from "@/lib/format";
+import { VIDEO_LABEL, youtubeSearch } from "@/lib/youtube";
 
 /**
  * A fixture card. States: upcoming (percentages), locked (kicked off, no
@@ -24,6 +25,7 @@ export function MatchCard({
   now,
   pickable = false,
   table,
+  seasonLabel,
 }: {
   match: Match;
   home: Team;
@@ -35,6 +37,8 @@ export function MatchCard({
   pickable?: boolean;
   /** This season's table: adds "Top-two clash" and similar tags before kick-off. */
   table?: TableRow[];
+  /** The match's season, e.g. "2026/27": picks the official YouTube channel to search. */
+  seasonLabel?: string;
 }) {
   const played = hasResult(match);
   const upcoming = isUpcoming(match, now);
@@ -113,6 +117,20 @@ export function MatchCard({
           </p>
         )}
       </Link>
+      {(match.videoUrl || played || locked) && (
+        <a
+          href={match.videoUrl ?? youtubeSearch(home.name, away.name, seasonLabel ?? "")}
+          target="_blank"
+          rel="noopener"
+          className="mt-3 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-ink hover:underline"
+        >
+          <svg viewBox="0 0 24 24" className="size-5" aria-hidden="true" fill="currentColor">
+            <path d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2 31 31 0 0 0 .5 12a31 31 0 0 0 .5 4.8 3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1 31 31 0 0 0 .5-4.8 31 31 0 0 0-.5-4.8zM9.8 15.1V8.9L15.2 12z" />
+          </svg>
+          {match.videoUrl && match.videoLabel ? VIDEO_LABEL[match.videoLabel] : "Find on YouTube"}
+          <span aria-hidden="true">↗</span>
+        </a>
+      )}
       {pickable && upcoming && latest && (
         <div className="mt-3">
           <PickButtons

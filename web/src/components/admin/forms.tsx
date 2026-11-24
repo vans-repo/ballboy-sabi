@@ -22,6 +22,7 @@ import {
   sendTestPreview,
   setBanned,
   setCurrentSeason,
+  setMatchVideo,
   setMotwOverride,
   setShowCrests,
   updateFixture,
@@ -905,5 +906,75 @@ export function DeleteNewsImageButton({ id }: { id: string }) {
     <Button variant="ghost" disabled={pending} onClick={() => run(() => deleteNewsImage(id))}>
       Remove
     </Button>
+  );
+}
+
+// --- Match videos -----------------------------------------------------------------
+/** The match's official YouTube link: livestream, highlights or full replay. */
+export function VideoEditor(props: {
+  matchId: string;
+  url: string | null;
+  label: "live" | "highlights" | "replay" | null;
+}) {
+  const [url, setUrl] = useState(props.url ?? "");
+  const [label, setLabel] = useState<"live" | "highlights" | "replay">(props.label ?? "highlights");
+  const { pending, result, run } = useAct();
+  return (
+    <details className="mt-2">
+      <summary className="inline-flex min-h-11 cursor-pointer items-center text-sm text-ink">
+        {props.url ? "YouTube video (set)" : "Add YouTube video"}
+      </summary>
+      <div className="mt-2 grid gap-2">
+        <p className="text-xs text-muted-foreground">
+          Official channels only: @MBI_Sport and @NigeriaPFL this season (@NPFLLive for 2025/26).
+        </p>
+        <div className="flex flex-wrap items-end gap-2">
+          <label className="grid flex-1 gap-1 text-xs">
+            YouTube link
+            <input
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://www.youtube.com/watch?v=…"
+              className={input}
+            />
+          </label>
+          <label className="grid gap-1 text-xs">
+            Shown as
+            <select
+              aria-label="Shown as"
+              value={label}
+              onChange={(e) => setLabel(e.target.value as typeof label)}
+              className={input}
+            >
+              <option value="live">Watch live</option>
+              <option value="highlights">Watch highlights</option>
+              <option value="replay">Watch the full match</option>
+            </select>
+          </label>
+          <Button
+            disabled={pending}
+            onClick={() => run(() => setMatchVideo({ matchId: props.matchId, url, label }))}
+          >
+            Save
+          </Button>
+          {props.url && (
+            <Button
+              variant="ghost"
+              disabled={pending}
+              onClick={() =>
+                run(async () => {
+                  const r = await setMatchVideo({ matchId: props.matchId, url: "", label });
+                  if (!r.error) setUrl("");
+                  return r;
+                })
+              }
+            >
+              Remove
+            </Button>
+          )}
+        </div>
+        <Message result={result} />
+      </div>
+    </details>
   );
 }

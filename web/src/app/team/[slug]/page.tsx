@@ -155,6 +155,7 @@ async function TeamProfile({ slug }: { slug: string }) {
           <Section title="Next match">
             {next ? (
               <MatchCard
+                seasonLabel={ctx.seasonLabel(next.seasonId)}
                 match={next}
                 home={ctx.teams.get(next.homeId)!}
                 away={ctx.teams.get(next.awayId)!}
@@ -194,6 +195,7 @@ async function TeamProfile({ slug }: { slug: string }) {
                   .map((m) => (
                     <li key={m.id}>
                       <MatchCard
+                        seasonLabel={ctx.seasonLabel(m.seasonId)}
                         match={m}
                         home={ctx.teams.get(m.homeId)!}
                         away={ctx.teams.get(m.awayId)!}

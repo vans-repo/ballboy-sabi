@@ -29,6 +29,7 @@ import {
 import { formatKickoff, formatLongDay, formatShortDate, formatTime, pct } from "@/lib/format";
 import { publicEnv } from "@/lib/env";
 import { xIntentUrl } from "@/lib/motw";
+import { VIDEO_LABEL, youtubeId, youtubeSearch } from "@/lib/youtube";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
@@ -159,6 +160,42 @@ async function MatchDetail({ id }: { id: string }) {
           </p>
         )}
       </header>
+
+      {/* Official YouTube video: played in place, with a link out. */}
+      {m.videoUrl && youtubeId(m.videoUrl) ? (
+        <section aria-label="Video" className="mb-6">
+          <div className="aspect-video overflow-hidden rounded-2xl bg-black">
+            <iframe
+              src={`https://www.youtube-nocookie.com/embed/${youtubeId(m.videoUrl)}`}
+              title={`${home.name} v ${away.name}: ${m.videoLabel ? VIDEO_LABEL[m.videoLabel] : "video"}`}
+              allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+              loading="lazy"
+              className="size-full"
+            />
+          </div>
+          <a
+            href={m.videoUrl}
+            target="_blank"
+            rel="noopener"
+            className="mt-2 inline-flex min-h-11 items-center text-sm font-semibold text-ink hover:underline"
+          >
+            {m.videoLabel ? VIDEO_LABEL[m.videoLabel] : "Watch"} on YouTube ↗
+          </a>
+        </section>
+      ) : (
+        (played || locked) && (
+          <p className="mb-6">
+            <a
+              href={youtubeSearch(home.name, away.name, season)}
+              target="_blank"
+              rel="noopener"
+              className="inline-flex min-h-11 items-center text-sm font-semibold text-ink hover:underline"
+            >
+              Find this match on YouTube ↗
+            </a>
+          </p>
+        )
+      )}
 
       {m.status === "postponed" && (
         <Card className="mb-6 border border-ink/50">

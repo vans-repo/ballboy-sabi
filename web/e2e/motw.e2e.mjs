@@ -316,6 +316,66 @@ try {
     "Both suggestions are marked applied",
     sql(`select count(*) from public.data_suggestions where status = 'applied'`) === "2",
   );
+
+  // --- 5. YouTube: a search link by default, the official video once set ------
+  const season = sql(`select label from public.seasons where is_current`);
+  await revalidate(["matches"]);
+  await page.goto(`${BASE}/match/${gombe}`);
+  const find = page.getByRole("link", { name: /Find this match on YouTube/ });
+  await find.waitFor();
+  const ytHref = (await find.getAttribute("href")) ?? "";
+  check(
+    "Played match without a video links to a YouTube search",
+    season === "2026/27"
+      ? ytHref.startsWith("https://www.youtube.com/@NigeriaPFL/search?query=")
+      : ytHref.startsWith("https://www.youtube.com/results?search_query="),
+    ytHref,
+  );
+  const vid = await (
+    await sendCheck("Bearer e2e-data-check", {
+      check_date: "2026-11-24",
+      items: [
+        {
+          kind: "video",
+          match_id: gombe,
+          url: "https://youtu.be/dQw4w9WgXcQ?si=abc",
+          label: "highlights",
+          summary: "Official highlights on @NigeriaPFL",
+        },
+        {
+          kind: "video",
+          match_id: gombe,
+          url: "https://example.com/v",
+          label: "live",
+          summary: "x",
+        },
+      ],
+    })
+  ).json();
+  check(
+    "Data check accepts a YouTube video and rejects other links",
+    vid.added === 1 && vid.rejected?.length === 1,
+    JSON.stringify(vid),
+  );
+  await page.goto(`${BASE}/admin/data-check`);
+  await page.getByRole("button", { name: "Apply" }).first().click();
+  for (let t = 0; t < 60 && applied() < 3; t++) await page.waitForTimeout(500);
+  check(
+    "Apply: the video is saved, as a clean link",
+    sql(`select video_url || ' ' || video_label from public.matches where id = '${gombe}'`) ===
+      "https://www.youtube.com/watch?v=dQw4w9WgXcQ highlights",
+  );
+  await page.goto(`${BASE}/match/${gombe}`);
+  await page.locator("iframe[src*='youtube-nocookie.com/embed/dQw4w9WgXcQ']").waitFor();
+  check("Match page plays the video in place", true);
+  const gombeSlug = sql(`select slug from public.teams where name = 'Gombe United'`);
+  await page.goto(`${BASE}/team/${gombeSlug}`);
+  const watch = page.getByRole("link", { name: "Watch highlights" });
+  await watch.first().waitFor();
+  check(
+    "Result card links to the highlights",
+    (await watch.first().getAttribute("href")) === "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  );
 } catch (e) {
   check("no unexpected errors", false, e.message);
 } finally {

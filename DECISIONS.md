@@ -720,3 +720,14 @@ what was decided and why. Newest stage at the bottom.
      in greyscale under a navy wash with a yellow edge so mixed sources look
      like one set. Rules: no crests, kits, faces, stadium names, sponsor
      logos or betting imagery.
+147. **YouTube links on matches:** official channels only. For 2026/27 that
+     is @NigeriaPFL and @MBI_Sport (the league's authorised streamers);
+     2025/26 games were on @NPFLLive (`web/src/config/youtube.ts`). An admin
+     pastes a video on the match in /admin → Fixtures or Results and marks it
+     "Watch live", "Watch highlights" or "Watch the full match"; the data
+     check can suggest one for one-tap Apply. The match page plays it in
+     place (youtube-nocookie embed, nothing loads until the fan presses
+     play) and the card links to it. With no video set, kicked-off and
+     played matches link to a search of the official channel instead. Links
+     are stored as plain `youtube.com/watch?v=` URLs; re-uploads are never
+     linked.
