@@ -731,3 +731,15 @@ what was decided and why. Newest stage at the bottom.
      played matches link to a search of the official channel instead. Links
      are stored as plain `youtube.com/watch?v=` URLs; re-uploads are never
      linked.
+148. **Share menu on every match:** "Post on X" became "Share…" on the
+     Match of the Week, every match card and the match page: X, Facebook,
+     WhatsApp, Instagram, Telegram, Threads, "Copy post and link", and the
+     phone's own share sheet where there is one. Every post ends with the
+     same sign-off ("Beat the Ballboy: the free NPFL predictions game by
+     That Naija Ballboy (@NaijaBallboy). No money involved, ever.") and the
+     link back (`web/src/lib/share-post.ts`); on X the handle comes from
+     "via @NaijaBallboy" instead. Facebook and Instagram can't take text from
+     a link, so the post is copied for the fan to paste; Instagram gets the
+     share image through the phone's share sheet, or saved, where that isn't
+     possible. Fans' posts carry no model numbers. The admin keeps "Post on
+     X with the Ballboy's read" for their own posts.

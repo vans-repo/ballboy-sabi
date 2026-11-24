@@ -27,8 +27,8 @@ import {
   record,
 } from "@/lib/football";
 import { formatKickoff, formatLongDay, formatShortDate, formatTime, pct } from "@/lib/format";
-import { publicEnv } from "@/lib/env";
-import { xIntentUrl } from "@/lib/motw";
+import { matchShareMessage } from "@/lib/share-post";
+import { ShareMenu } from "@/components/share-menu";
 import { VIDEO_LABEL, youtubeId, youtubeSearch } from "@/lib/youtube";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -144,21 +144,22 @@ async function MatchDetail({ id }: { id: string }) {
           )}
         </p>
         {m.notes && <p className="mt-2 text-center text-sm text-muted-foreground">{m.notes}</p>}
-        {upcoming && p && (
-          <p className="mt-3 flex justify-center">
-            <a
-              href={xIntentUrl(
-                `${home.name} v ${away.name}${p.upset_alert ? ": One To Watch 🔥" : ""}. I've made my pick. Can you beat the Ballboy?`,
-                `${publicEnv.siteUrl}/match/${m.id}`,
-              )}
-              target="_blank"
-              rel="noopener"
-              className="inline-flex h-11 items-center rounded-lg bg-muted px-4 text-sm font-semibold hover:bg-muted/70"
-            >
-              Post this match on X
-            </a>
-          </p>
-        )}
+        <div className="mt-3 flex justify-center">
+          <ShareMenu
+            message={matchShareMessage(m, home.name, away.name, {
+              played,
+              upcoming,
+              locked,
+              when: `${formatKickoff(m)}${m.timeConfirmed ? " WAT" : ""}`,
+              oneToWatch: upcoming && !!p?.upset_alert,
+            })}
+            path={`/match/${m.id}`}
+            image={`/match/${m.id}/opengraph-image`}
+            imageName={`ballboy-sabi-${home.code}-${away.code}.png`.toLowerCase()}
+            label="Share this match…"
+            className="text-center"
+          />
+        </div>
       </header>
 
       {/* Official YouTube video: played in place, with a link out. */}
