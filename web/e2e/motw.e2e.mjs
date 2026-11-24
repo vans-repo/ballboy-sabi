@@ -303,6 +303,10 @@ try {
     `${lobiBefore} -> ${lobiAfter}`,
   );
   await page.goto(`${BASE}/admin/images`);
+  await page
+    .getByRole("heading", { name: /Discipline and rulings/ })
+    .waitFor()
+    .catch(() => {});
   check(
     "Admin Images page lists the categories",
     (await page.getByRole("heading", { name: /Discipline and rulings/ }).count()) === 1 &&
