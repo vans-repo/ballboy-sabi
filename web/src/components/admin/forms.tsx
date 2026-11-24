@@ -7,9 +7,11 @@ import {
   addAlias,
   addDeduction,
   addFixture,
+  applySuggestion,
   createSeason,
   deleteAlias,
   deleteDeduction,
+  dismissSuggestion,
   previewImport,
   refreshSite,
   removeCrest,
@@ -803,6 +805,30 @@ export function RefreshSiteButton() {
       <div>
         <Button variant="secondary" disabled={pending} onClick={() => run(refreshSite)}>
           Refresh the site
+        </Button>
+      </div>
+      <Message result={result} />
+    </div>
+  );
+}
+
+// --- Data check -------------------------------------------------------------------
+/** Apply or dismiss one suggested fix. Applying uses the same action as entering it by hand. */
+export function SuggestionButtons({ id }: { id: string }) {
+  const { pending, result, run } = useAct();
+  const done = !!result?.message;
+  return (
+    <div className="grid gap-1">
+      <div className="flex flex-wrap gap-2">
+        <Button disabled={pending || done} onClick={() => run(() => applySuggestion(id))}>
+          Apply
+        </Button>
+        <Button
+          variant="secondary"
+          disabled={pending || done}
+          onClick={() => run(() => dismissSuggestion(id))}
+        >
+          Dismiss
         </Button>
       </div>
       <Message result={result} />

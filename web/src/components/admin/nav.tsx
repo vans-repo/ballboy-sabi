@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 
 const ITEMS = [
   { href: "/admin", label: "Needs results" },
+  { href: "/admin/data-check", label: "Data check" },
   { href: "/admin/fixtures", label: "Fixtures" },
   { href: "/admin/results", label: "Results history" },
   { href: "/admin/teams", label: "Teams & Seasons" },

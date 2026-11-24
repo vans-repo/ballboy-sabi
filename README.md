@@ -129,5 +129,11 @@ long random string (32 or more characters) and keep a copy:
   "Hide all crests" removes every crest at once.
 - [ ] /admin → Match of the Week: check this week's pick, or choose another match.
 
+### Data check (November 2026)
+
+- [ ] Run `supabase/migrations/20261124000100_data_suggestions.sql` in the SQL Editor.
+- [ ] Vercel → Environment Variables: `DATA_CHECK_SECRET` (Sensitive) = the same
+  value saved as the "Data check key" in the Claude environment. Redeploy.
+
 Free tiers only: Vercel Hobby (non-commercial, so ads and sponsors stay
 off), Supabase Free, GitHub Actions free minutes, Brevo Free (300 emails a day).

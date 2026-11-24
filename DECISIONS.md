@@ -690,3 +690,15 @@ what was decided and why. Newest stage at the bottom.
 142. **Compact footer:** the main pages; Follow: X, Instagram, Substack, and
      "Email me" once NEXT_PUBLIC_CONTACT_EMAIL is set; then one line of
      small print (©, free to play, not affiliated, times in WAT).
+143. **Light/dark switch for everyone:** a sun/moon button in the phone
+     header and the desktop sidebar (it was a setting on the Me page). Dark
+     stays the default; the choice is kept on the device.
+144. **Data check with one-tap fixes:** the scheduled NPFL data check (a
+     Claude run, Sunday and Wednesday nights) posts the fixes it suggests to
+     /api/data-check (Bearer DATA_CHECK_SECRET; the key lives in Vercel and
+     in the Claude environment's network secrets, never in the repo). They
+     wait in /admin → Data check with the source and what the site shows
+     now; Apply goes through the same admin action as entering it by hand
+     (result, postponement, kick-off time, point deduction), Dismiss drops
+     it. Nothing changes until an admin taps Apply. Repeats of a waiting
+     fix are skipped.

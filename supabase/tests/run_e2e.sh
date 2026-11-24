@@ -67,7 +67,7 @@ export NEXT_PUBLIC_SUPABASE_URL="$API" NEXT_PUBLIC_SUPABASE_ANON_KEY="$ANON_KEY"
   REVALIDATE_SECRET="e2e-revalidate" NEXT_PUBLIC_SITE_URL="http://127.0.0.1:$WEB_PORT" NEXT_TELEMETRY_DISABLED=1 \
   GITHUB_API_URL="$API/github" GITHUB_REPOSITORY="test/ballboy" GITHUB_DISPATCH_TOKEN="e2e-github-token" \
   BREVO_API_URL="$API/brevo" BREVO_API_KEY="e2e-brevo-key" EMAIL_FROM_ADDRESS="preview@e2e.invalid" \
-  EMAIL_DAILY_LIMIT=3 CRON_SECRET="e2e-cron" UNSUBSCRIBE_SECRET="e2e-unsubscribe"
+  EMAIL_DAILY_LIMIT=3 CRON_SECRET="e2e-cron" UNSUBSCRIBE_SECRET="e2e-unsubscribe" DATA_CHECK_SECRET="e2e-data-check"
 node node_modules/next/dist/bin/next build >"$WORK/build.log" 2>&1 || { tail -40 "$WORK/build.log"; exit 1; }
 PORT=$WEB_PORT node node_modules/next/dist/bin/next start >"$WORK/web.log" 2>&1 &
 WEB_PID=$!

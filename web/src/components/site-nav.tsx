@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
 
 import { Wordmark } from "@/components/logo";
+import { ThemeButton } from "@/components/theme-button";
 import { BRAND, SITE_NAME } from "@/config/site";
 import { useSignedIn } from "@/lib/use-signed-in";
 import { cn } from "@/lib/utils";
@@ -165,9 +166,12 @@ export function BottomTabs() {
 export function SideNav() {
   return (
     <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col gap-6 overflow-y-auto border-r px-3 py-6 md:flex">
-      <Link href="/" className="px-3" aria-label={`${SITE_NAME} by ${BRAND}, home`}>
-        <Wordmark size="lg" />
-      </Link>
+      <div className="flex items-center justify-between gap-2 pl-3">
+        <Link href="/" aria-label={`${SITE_NAME} by ${BRAND}, home`}>
+          <Wordmark size="lg" />
+        </Link>
+        <ThemeButton />
+      </div>
       <Suspense fallback={<SideNavView path={null} />}>
         <SideNavWithPath />
       </Suspense>
