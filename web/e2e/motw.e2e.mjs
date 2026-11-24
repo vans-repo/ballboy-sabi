@@ -262,13 +262,18 @@ try {
     "Data check page lists both",
     (await page.getByRole("button", { name: "Apply" }).count()) === 2,
   );
-  for (let i = 0; i < 2; i++) {
+  // An applied fix leaves the waiting list (the page refreshes), so wait for
+  // the number of Apply buttons to drop.
+  for (let left = 2; left > 0; left--) {
     await page.getByRole("button", { name: "Apply" }).first().click();
-    await page
-      .getByText(/^Applied\./)
-      .first()
-      .waitFor();
-    await page.reload();
+    await page.waitForFunction(
+      (n) =>
+        [...document.querySelectorAll("button")].filter(
+          (b) => b.textContent === "Apply" && !b.disabled,
+        ).length < n,
+      left,
+      { timeout: 30000 },
+    );
   }
   check(
     "Apply: the result is saved",
