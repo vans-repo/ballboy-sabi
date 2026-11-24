@@ -195,7 +195,7 @@ try {
   check("Show crests brings them back", (await page.locator(`img[src="${crest}"]`).count()) > 0);
 
   // --- 4. Data check: suggested fixes wait in admin, one tap applies each ------
-  const post = (auth, body) =>
+  const sendCheck = (auth, body) =>
     fetch(`${BASE}/api/data-check`, {
       method: "POST",
       headers: { ...(auth ? { Authorization: auth } : {}), "Content-Type": "application/json" },
@@ -205,10 +205,10 @@ try {
                      where t.name = 'Gombe United' and m.status = 'scheduled' limit 1`);
   check(
     "Data check: refused without the secret",
-    (await post(null, { check_date: "2026-11-24", items: [] })).status === 401,
+    (await sendCheck(null, { check_date: "2026-11-24", items: [] })).status === 401,
   );
   const sent = await (
-    await post("Bearer e2e-data-check", {
+    await sendCheck("Bearer e2e-data-check", {
       check_date: "2026-11-24",
       items: [
         {
@@ -237,7 +237,7 @@ try {
     JSON.stringify(sent),
   );
   const again = await (
-    await post("Bearer e2e-data-check", {
+    await sendCheck("Bearer e2e-data-check", {
       check_date: "2026-11-24",
       items: [
         {
