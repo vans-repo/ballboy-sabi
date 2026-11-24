@@ -402,9 +402,40 @@ export type Database = {
           },
         ];
       };
+      news_images: {
+        Row: {
+          category: string;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          source: string;
+          storage_path: string | null;
+          url: string;
+        };
+        Insert: {
+          category: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          source: string;
+          storage_path?: string | null;
+          url: string;
+        };
+        Update: {
+          category?: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          source?: string;
+          storage_path?: string | null;
+          url?: string;
+        };
+        Relationships: [];
+      };
       point_deductions: {
         Row: {
           created_at: string;
+          goals: number;
           id: string;
           points: number;
           reason: string;
@@ -414,6 +445,7 @@ export type Database = {
         };
         Insert: {
           created_at?: string;
+          goals?: number;
           id?: string;
           points: number;
           reason: string;
@@ -423,6 +455,7 @@ export type Database = {
         };
         Update: {
           created_at?: string;
+          goals?: number;
           id?: string;
           points?: number;
           reason?: string;
@@ -848,6 +881,7 @@ export type Database = {
           form: string | null;
           goal_difference: number | null;
           goals_against: number | null;
+          goals_deducted: number | null;
           goals_for: number | null;
           group_name: string | null;
           lost: number | null;

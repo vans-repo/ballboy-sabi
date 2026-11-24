@@ -70,7 +70,7 @@ export function LeagueTable({
   compact?: boolean;
   caption: string;
 }) {
-  const hasDeductions = rows.some((r) => r.pointsDeducted > 0);
+  const hasDeductions = rows.some((r) => r.pointsDeducted > 0 || r.goalsDeducted > 0);
   return (
     <div className="overflow-x-auto rounded-xl bg-surface">
       <table className="w-full text-sm">
@@ -155,8 +155,12 @@ export function LeagueTable({
                 <Td>{r.goalDifference > 0 ? `+${r.goalDifference}` : r.goalDifference}</Td>
                 {!compact && hasDeductions && (
                   <Td>
-                    {r.pointsDeducted > 0 ? (
-                      <abbr title={r.deductionNotes ?? ""}>−{r.pointsDeducted}</abbr>
+                    {r.pointsDeducted > 0 || r.goalsDeducted > 0 ? (
+                      <abbr
+                        title={`${r.goalsDeducted > 0 ? `Also ${r.goalsDeducted} goals off goal difference. ` : ""}${r.deductionNotes ?? ""}`}
+                      >
+                        −{r.pointsDeducted}
+                      </abbr>
                     ) : (
                       ""
                     )}

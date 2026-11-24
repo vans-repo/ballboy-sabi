@@ -702,3 +702,21 @@ what was decided and why. Newest stage at the bottom.
      (result, postponement, kick-off time, point deduction), Dismiss drops
      it. Nothing changes until an admin taps Apply. Repeats of a waiting
      fix are skipped.
+145. **Goal deductions:** the league often docks goals as well as points
+     ("3 points and 3 goals"). A deduction now has points, goals or both;
+     deducted goals come off goal difference in the table view
+     (`goals_deducted` column), the admin form has a Goals field, the note
+     under the table says "3 points and 3 goals deducted", and the data
+     check sends both.
+146. **News categories and image library:** NPFL headlines are sorted into
+     twelve categories by their words (Discipline, Managers, Transfers,
+     Injuries, Previews, Results, Table, Awards, Continental and cup, Super
+     Eagles, Club business, Fans and stadiums; else General), in
+     `web/src/config/news-categories.ts` with an image brief for each.
+     Admins upload 3 to 5 generic images per category in /admin → Images
+     (public "news-images" bucket, PNG/WebP/JPEG up to 1.5 MB, source noted
+     for every image). Each headline on Home shows its category and a steady
+     pick from that category's images (General if the category has none),
+     in greyscale under a navy wash with a yellow edge so mixed sources look
+     like one set. Rules: no crests, kits, faces, stadium names, sponsor
+     logos or betting imagery.

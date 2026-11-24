@@ -32,7 +32,10 @@ export default async function AdminTeamsPage({ searchParams }: PageProps<"/admin
   ] = await Promise.all([
     supabase.from("season_teams").select("team_id,status").eq("season_id", s.id),
     supabase.from("team_aliases").select("id,alias,team_id").order("alias"),
-    supabase.from("point_deductions").select("id,team_id,points,reason").eq("season_id", s.id),
+    supabase
+      .from("point_deductions")
+      .select("id,team_id,points,goals,reason")
+      .eq("season_id", s.id),
     // Straight from the table: the public team list leaves crests out while they're hidden.
     supabase.from("teams").select("id,crest_url"),
     getSettings(),
@@ -105,7 +108,8 @@ export default async function AdminTeamsPage({ searchParams }: PageProps<"/admin
               {(deductions ?? []).map((d) => (
                 <li key={d.id} className="flex flex-wrap items-center justify-between gap-2">
                   <span>
-                    {ctx.teams.get(d.team_id)?.name}: −{d.points} ({d.reason})
+                    {ctx.teams.get(d.team_id)?.name}: −{d.points} pts
+                    {d.goals ? `, −${d.goals} goals` : ""} ({d.reason})
                   </span>
                   <RemoveDeductionButton id={d.id} />
                 </li>

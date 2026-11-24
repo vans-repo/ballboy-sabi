@@ -14,7 +14,7 @@ import type { Json } from "@/lib/supabase/database.types";
  *   { "kind": "result", "match_id", "home_goals", "away_goals", ...common }
  *   { "kind": "postponed", "match_id", "date": "YYYY-MM-DD", "time": "HH:MM", ...common }
  *   { "kind": "kickoff", "match_id", "date", "time", ...common }
- *   { "kind": "deduction", "team_slug", "points", "reason", ...common }
+ *   { "kind": "deduction", "team_slug", "points", "goals"?, "reason", ...common }
  * and common is { "summary", "source_url"?, "confidence"?: "confirmed" | "unconfirmed" }.
  */
 
@@ -75,15 +75,18 @@ export async function POST(request: Request) {
       const team = typeof it.team_slug === "string" ? ctx.bySlug.get(it.team_slug) : undefined;
       const reason = text(it.reason, 200);
       if (!team) return reject("unknown team_slug");
-      if (!Number.isInteger(it.points) || (it.points as number) < 1 || (it.points as number) > 30)
-        return reject("points must be a whole number from 1 to 30");
+      const pts = it.points ?? 0;
+      const gls = it.goals ?? 0;
+      const ok = (n: unknown) => Number.isInteger(n) && (n as number) >= 0 && (n as number) <= 30;
+      if (!ok(pts) || !ok(gls) || (pts as number) + (gls as number) < 1)
+        return reject("points and goals must be whole numbers from 0 to 30, not both 0");
       if (!reason) return reject("reason is required");
       rows.push({
         ...base,
         kind: "deduction",
         match_id: null,
         team_id: team.id,
-        payload: { points: it.points as number, reason },
+        payload: { points: pts as number, goals: gls as number, reason },
       });
       return;
     }

@@ -7,6 +7,7 @@ import { dispatchModelRun } from "@/lib/admin/dispatch";
 import { matchdayId, previewFixtures, type PreviewRow } from "@/lib/admin/fixtures";
 import { getViewer } from "@/lib/auth/user";
 import { CACHE_TAGS } from "@/lib/cache-tags";
+import { ALL_CATEGORIES } from "@/config/news-categories";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Json, TablesUpdate } from "@/lib/supabase/database.types";
 import { createClient } from "@/lib/supabase/server";
@@ -293,16 +294,24 @@ export async function addDeduction(input: {
   seasonId: string;
   teamId: string;
   points: number;
+  /** Goals taken off goal difference as well (the league often docks both). */
+  goals?: number;
   reason: string;
 }): Promise<ActionResult> {
   const supabase = await admin();
-  if (!Number.isInteger(input.points) || input.points < 1)
-    return { error: "Points must be a whole number from 1." };
+  const goals = input.goals ?? 0;
+  if (
+    ![input.points, goals].every((n) => Number.isInteger(n) && n >= 0) ||
+    input.points + goals < 1
+  )
+    return { error: "Enter whole numbers: points, goals, or both." };
+  if (!input.teamId) return { error: "Choose the team." };
   if (!input.reason.trim()) return { error: "Give the reason, as it will appear under the table." };
   const { error } = await supabase.from("point_deductions").insert({
     season_id: input.seasonId,
     team_id: input.teamId,
     points: input.points,
+    goals,
     reason: input.reason.trim(),
   });
   if (error) return { error: error.message };
@@ -510,7 +519,8 @@ export async function applySuggestion(id: string): Promise<ActionResult> {
     result = await addDeduction({
       seasonId: season.id,
       teamId: s.team_id!,
-      points: Number(p.points),
+      points: Number(p.points ?? 0),
+      goals: Number(p.goals ?? 0),
       reason: String(p.reason),
     });
   }
@@ -524,4 +534,59 @@ export async function applySuggestion(id: string): Promise<ActionResult> {
 export async function dismissSuggestion(id: string): Promise<ActionResult> {
   const failed = await decide(id, "dismissed");
   return failed ? { error: failed } : { message: "Dismissed." };
+}
+
+// ---------------------------------------------------------------------------
+// News images: generic pictures per news category
+// ---------------------------------------------------------------------------
+const IMAGE_TYPES: Record<string, string> = {
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/jpeg": "jpg",
+};
+const IMAGE_MAX_BYTES = 1.5 * 1024 * 1024;
+
+export async function uploadNewsImage(form: FormData): Promise<ActionResult> {
+  const supabase = await admin();
+  const viewer = await getViewer();
+  const category = String(form.get("category") ?? "");
+  const source = String(form.get("source") ?? "").trim();
+  const file = form.get("image");
+  if (!ALL_CATEGORIES.some((c) => c.key === category)) return { error: "Choose a category." };
+  if (!source) return { error: "Say where the image came from (tool or library, and the link)." };
+  if (!(file instanceof File) || file.size === 0) return { error: "Choose an image first." };
+  const ext = IMAGE_TYPES[file.type];
+  if (!ext) return { error: "Use a PNG, WebP or JPEG image." };
+  if (file.size > IMAGE_MAX_BYTES)
+    return { error: "That image is over 1.5 MB. Use a smaller one." };
+
+  const path = `${category}/${Date.now()}.${ext}`;
+  const storage = createAdminClient().storage.from("news-images");
+  const { error: upErr } = await storage.upload(path, file, { contentType: file.type });
+  if (upErr) return { error: `Upload failed: ${upErr.message}` };
+  const { error } = await supabase.from("news_images").insert({
+    category,
+    url: storage.getPublicUrl(path).data.publicUrl,
+    storage_path: path,
+    source: source.slice(0, 300),
+    created_by: viewer?.id ?? null,
+  });
+  if (error) return { error: error.message };
+  updateTag(CACHE_TAGS.news);
+  return { message: "Image added." };
+}
+
+export async function deleteNewsImage(id: string): Promise<ActionResult> {
+  const supabase = await admin();
+  const { data: img } = await supabase
+    .from("news_images")
+    .select("storage_path")
+    .eq("id", id)
+    .single();
+  const { error } = await supabase.from("news_images").delete().eq("id", id);
+  if (error) return { error: error.message };
+  if (img?.storage_path)
+    await createAdminClient().storage.from("news-images").remove([img.storage_path]);
+  updateTag(CACHE_TAGS.news);
+  return { message: "Image removed." };
 }

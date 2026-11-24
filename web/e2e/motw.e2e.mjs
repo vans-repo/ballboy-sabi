@@ -221,10 +221,11 @@ try {
         },
         {
           kind: "deduction",
-          team_slug: "lobi-stars",
+          team_slug: "enyimba",
           points: 3,
+          goals: 3,
           reason: "Unpaid wages (e2e)",
-          summary: "Lobi Stars docked 3 points",
+          summary: "Enyimba docked 3 points and 3 goals",
           confidence: "unconfirmed",
         },
         { kind: "result", match_id: "not-a-match", home_goals: 1, away_goals: 0, summary: "bad" },
@@ -256,6 +257,11 @@ try {
     JSON.stringify(again),
   );
 
+  const lobiBefore = sql(`select points || ' ' || goal_difference from public.league_table l
+     join public.teams t on t.id = l.team_id join public.seasons s on s.id = l.season_id
+     where s.is_current and t.name = 'Enyimba'`)
+    .split(" ")
+    .map(Number);
   await page.goto(`${BASE}/admin/data-check`);
   await page.getByRole("button", { name: "Apply" }).first().waitFor();
   check(
@@ -283,7 +289,24 @@ try {
   check(
     "Apply: the deduction is recorded",
     sql(`select count(*) from public.point_deductions d join public.teams t on t.id = d.team_id
-         where t.name = 'Lobi Stars' and d.points = 3`) === "1",
+         where t.name = 'Enyimba' and d.points = 3`) === "1",
+  );
+  const lobiAfter =
+    sql(`select points || ' ' || goal_difference || ' ' || goals_deducted from public.league_table l
+     join public.teams t on t.id = l.team_id join public.seasons s on s.id = l.season_id
+     where s.is_current and t.name = 'Enyimba'`)
+      .split(" ")
+      .map(Number);
+  check(
+    "Deduction takes 3 points and 3 goals off the table",
+    lobiAfter[0] === lobiBefore[0] - 3 && lobiAfter[1] === lobiBefore[1] - 3 && lobiAfter[2] === 3,
+    `${lobiBefore} -> ${lobiAfter}`,
+  );
+  await page.goto(`${BASE}/admin/images`);
+  check(
+    "Admin Images page lists the categories",
+    (await page.getByRole("heading", { name: /Discipline and rulings/ }).count()) === 1 &&
+      (await page.getByRole("heading", { name: /^General/ }).count()) === 1,
   );
   check(
     "Both suggestions are marked applied",
