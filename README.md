@@ -135,5 +135,11 @@ long random string (32 or more characters) and keep a copy:
 - [ ] Vercel → Environment Variables: `DATA_CHECK_SECRET` (Sensitive) = the same
   value saved as the "Data check key" in the Claude environment. Redeploy.
 
+### Goal deductions and news images (November 2026)
+
+- [ ] Run `supabase/migrations/20261124000200_goal_deductions_and_news_images.sql`
+  in the SQL Editor before merging.
+- [ ] /admin → Images: add 3 to 5 generic images per category.
+
 Free tiers only: Vercel Hobby (non-commercial, so ads and sponsors stay
 off), Supabase Free, GitHub Actions free minutes, Brevo Free (300 emails a day).

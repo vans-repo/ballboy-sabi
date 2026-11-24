@@ -11,6 +11,7 @@ import {
   createSeason,
   deleteAlias,
   deleteDeduction,
+  deleteNewsImage,
   dismissSuggestion,
   previewImport,
   refreshSite,
@@ -26,6 +27,7 @@ import {
   updateFixture,
   updateTeam,
   uploadCrest,
+  uploadNewsImage,
 } from "@/app/admin/actions";
 import { Button } from "@/components/ui/button";
 import { trackRun } from "@/lib/admin/run-store";
@@ -609,7 +611,7 @@ export function TeamEditor(props: {
 }
 
 export function DeductionForm({ seasonId, teams }: { seasonId: string; teams: TeamOption[] }) {
-  const [v, setV] = useState({ teamId: "", points: "", reason: "" });
+  const [v, setV] = useState({ teamId: "", points: "", goals: "", reason: "" });
   const { pending, result, run } = useAct();
   const set = (k: keyof typeof v) => (e: { target: { value: string } }) =>
     setV({ ...v, [k]: e.target.value });
@@ -631,9 +633,19 @@ export function DeductionForm({ seasonId, teams }: { seasonId: string; teams: Te
           Points
           <input
             type="number"
-            min={1}
+            min={0}
             value={v.points}
             onChange={set("points")}
+            className={`${input} w-24`}
+          />
+        </label>
+        <label className="grid gap-1 text-sm">
+          Goals (if any)
+          <input
+            type="number"
+            min={0}
+            value={v.goals}
+            onChange={set("goals")}
             className={`${input} w-24`}
           />
         </label>
@@ -650,7 +662,8 @@ export function DeductionForm({ seasonId, teams }: { seasonId: string; teams: Te
             addDeduction({
               seasonId,
               teamId: v.teamId,
-              points: Number(v.points),
+              points: Number(v.points || 0),
+              goals: Number(v.goals || 0),
               reason: v.reason,
             }),
           )
@@ -833,5 +846,64 @@ export function SuggestionButtons({ id }: { id: string }) {
       </div>
       <Message result={result} />
     </div>
+  );
+}
+
+// --- News images ------------------------------------------------------------------
+/** Add one generic image to a news category, with where it came from. */
+export function NewsImageUpload({ category }: { category: string }) {
+  const [file, setFile] = useState<File | null>(null);
+  const [source, setSource] = useState("");
+  const { pending, result, run } = useAct();
+  return (
+    <div className="grid gap-2">
+      <div className="flex flex-wrap items-end gap-2">
+        <input
+          type="file"
+          accept="image/png,image/webp,image/jpeg"
+          aria-label={`Image for ${category}`}
+          onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          className="max-w-full text-sm file:mr-3 file:h-11 file:rounded-lg file:border-0 file:bg-muted file:px-3 file:text-foreground"
+        />
+        <label className="grid flex-1 gap-1 text-xs">
+          Source (tool or library, and link)
+          <input
+            value={source}
+            onChange={(e) => setSource(e.target.value)}
+            placeholder="e.g. Unsplash, https://unsplash.com/photos/…"
+            className={input}
+          />
+        </label>
+        <Button
+          disabled={pending || !file || !source.trim()}
+          onClick={() =>
+            run(async () => {
+              const f = new FormData();
+              f.set("category", category);
+              f.set("source", source);
+              f.set("image", file!);
+              const r = await uploadNewsImage(f);
+              if (!r.error) {
+                setFile(null);
+                setSource("");
+              }
+              return r;
+            })
+          }
+        >
+          Add image
+        </Button>
+      </div>
+      <Message result={result} />
+    </div>
+  );
+}
+
+export function DeleteNewsImageButton({ id }: { id: string }) {
+  const { pending, run } = useAct();
+  return (
+    <Button variant="ghost" disabled={pending} onClick={() => run(() => deleteNewsImage(id))}>
+      Remove
+    </Button>
   );
 }

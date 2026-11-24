@@ -100,14 +100,20 @@ async function SeasonTable({ label }: { label: string | null }) {
         })
       )}
       {!grouped && <ZoneKey />}
-      {rows.some((r) => r.pointsDeducted > 0) && (
+      {rows.some((r) => r.pointsDeducted > 0 || r.goalsDeducted > 0) && (
         <ul className="mt-4 text-sm text-muted-foreground">
           {rows
-            .filter((r) => r.pointsDeducted > 0)
+            .filter((r) => r.pointsDeducted > 0 || r.goalsDeducted > 0)
             .map((r) => (
               <li key={r.teamId}>
-                {ctx.teams.get(r.teamId)?.name}: {r.pointsDeducted} points deducted (
-                {r.deductionNotes}).
+                {ctx.teams.get(r.teamId)?.name}:{" "}
+                {[
+                  r.pointsDeducted > 0 && `${r.pointsDeducted} points`,
+                  r.goalsDeducted > 0 && `${r.goalsDeducted} goals`,
+                ]
+                  .filter(Boolean)
+                  .join(" and ")}{" "}
+                deducted ({r.deductionNotes}).
               </li>
             ))}
         </ul>

@@ -17,6 +17,8 @@ const ITEMS = [
   { href: "/admin/emails", label: "Emails" },
   { href: "/admin/recap", label: "Weekly recap" },
   { href: "/admin/motw", label: "Match of the Week" },
+  { href: "/admin/news", label: "News" },
+  { href: "/admin/images", label: "Images" },
   { href: "/admin/audit", label: "Audit log" },
 ];
 

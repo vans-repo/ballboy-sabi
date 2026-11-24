@@ -1,5 +1,7 @@
 import "server-only";
 
+import { createHash } from "node:crypto";
+
 import { cacheLife, cacheTag } from "next/cache";
 
 import { NEWS_FEEDS, NEWS_KEYWORDS } from "@/config/news";
@@ -7,7 +9,18 @@ import { CACHE_TAGS } from "@/lib/cache-tags";
 import { getContext } from "@/lib/data/context";
 import { field } from "@/lib/substack";
 
-export type Headline = { title: string; url: string; date: string; source: string };
+export type Headline = {
+  /** Short, stable id from the story's link: the share page is /news/<id>. */
+  id: string;
+  title: string;
+  url: string;
+  date: string;
+  source: string;
+};
+
+/** A short id for a story link, the same every time. */
+export const headlineId = (url: string) =>
+  createHash("sha1").update(url).digest("base64url").slice(0, 10);
 export type FeedStatus = { name: string; ok: boolean; items: number; matched: number };
 
 const WEEK_MS = 7 * 86_400_000;
@@ -57,6 +70,7 @@ export async function getLeagueNews(): Promise<{ headlines: Headline[]; feeds: F
           .map((i) => ({ ...i, time: Date.parse(i.date) }))
           .filter((i) => Number.isFinite(i.time) && i.time >= since)
           .map((i) => ({
+            id: headlineId(i.url),
             title: i.title,
             url: i.url,
             date: new Date(i.time).toISOString(),

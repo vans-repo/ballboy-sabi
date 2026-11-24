@@ -18,9 +18,12 @@ import {
   getLatestPredictions,
   getLeaderboard,
   getLeagueTable,
+  getNewsImages,
 } from "@/lib/data";
 import { getContext } from "@/lib/data/context";
+import { NewsImageFrame } from "@/components/news-image";
 import { getLeagueNews } from "@/lib/news";
+import { categorise, categoryLabel, pickFor } from "@/lib/news-category";
 import { getLatestPosts } from "@/lib/substack";
 import { weekNumbers } from "@/lib/week-numbers";
 import { renderTime } from "@/lib/time";
@@ -46,7 +49,7 @@ async function HomeContent() {
   const now = renderTime();
 
   const ctx = await getContext();
-  const [motw, latest, frozen, table, posts, news, week] = await Promise.all([
+  const [motw, latest, frozen, table, posts, news, week, newsImages] = await Promise.all([
     currentMotw(now),
     getLatestPredictions(),
     getFrozenPredictions(),
@@ -54,7 +57,15 @@ async function HomeContent() {
     getLatestPosts(3),
     getLeagueNews(),
     weekNumbers(),
+    getNewsImages(),
   ]);
+  // Each headline's category and a steady pick from that category's images.
+  const imageFor = (h: { title: string; url: string }) => {
+    const cat = categorise(h.title);
+    const own = newsImages.filter((i) => i.category === cat);
+    const pool = own.length ? own : newsImages.filter((i) => i.category === "general");
+    return { cat, img: pickFor(h.url, pool) };
+  };
   const season = ctx.matches.filter((m) => m.seasonId === ctx.current.id);
   const md = currentMatchday(season, now);
   const fixtures = season.filter((m) => m.matchday === md);
@@ -300,21 +311,35 @@ async function HomeContent() {
           {news.headlines.length > 0 && (
             <Section title="NPFL news this week">
               <ul className="grid gap-2">
-                {news.headlines.slice(0, 6).map((h) => (
-                  <li key={h.url}>
-                    <a
-                      href={h.url}
-                      target="_blank"
-                      rel="noopener"
-                      className="block rounded-xl bg-surface p-4 hover:bg-muted"
-                    >
-                      <span className="block font-medium">{h.title}</span>
-                      <span className="mt-1 block text-xs text-muted-foreground">
-                        {h.source} · {formatShortDate(h.date)} <span aria-hidden="true">↗</span>
-                      </span>
-                    </a>
-                  </li>
-                ))}
+                {news.headlines.slice(0, 6).map((h) => {
+                  const { cat, img } = imageFor(h);
+                  return (
+                    <li key={h.url}>
+                      <a
+                        href={h.url}
+                        target="_blank"
+                        rel="noopener"
+                        className="flex gap-3 rounded-xl bg-surface p-3 hover:bg-muted"
+                      >
+                        {img && (
+                          <NewsImageFrame
+                            src={img.url}
+                            className="aspect-[3/2] w-24 shrink-0 self-start rounded-lg"
+                          />
+                        )}
+                        <span className="min-w-0">
+                          <span className="block text-[0.7rem] font-bold tracking-wide text-ink uppercase">
+                            {categoryLabel(cat)}
+                          </span>
+                          <span className="block font-medium">{h.title}</span>
+                          <span className="mt-1 block text-xs text-muted-foreground">
+                            {h.source} · {formatShortDate(h.date)} <span aria-hidden="true">↗</span>
+                          </span>
+                        </span>
+                      </a>
+                    </li>
+                  );
+                })}
               </ul>
               <p className="mt-2 text-xs text-muted-foreground">
                 Headlines from Nigerian news sites. Each links to the full story on their site.

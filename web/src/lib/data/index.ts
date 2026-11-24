@@ -58,6 +58,8 @@ export type TableRow = {
   goalDifference: number;
   points: number;
   pointsDeducted: number;
+  /** Goals taken off goal difference by the league (already applied to goalDifference). */
+  goalsDeducted: number;
   deductionNotes: string | null;
   form: string;
 };
@@ -245,6 +247,7 @@ export async function getLeagueTable(seasonId: string): Promise<TableRow[]> {
     goalDifference: r.goal_difference ?? 0,
     points: r.points ?? 0,
     pointsDeducted: r.points_deducted ?? 0,
+    goalsDeducted: r.goals_deducted ?? 0,
     deductionNotes: r.deduction_notes,
     form: r.form ?? "",
   }));
@@ -347,4 +350,21 @@ export async function getFanSplit(
   const { data, error } = await createPublicClient().rpc("fan_split", { p_match_id: matchId });
   if (error) throw new Error(error.message);
   return data[0] ?? { home: 0, draw: 0, away: 0 };
+}
+
+export type NewsImage = { id: string; category: string; url: string; source: string };
+
+/** Every generic news image, by category (see config/news-categories.ts). */
+export async function getNewsImages(): Promise<NewsImage[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(CACHE_TAGS.news);
+  const { data, error } = await createPublicClient()
+    .from("news_images")
+    .select("id,category,url,source")
+    .order("created_at");
+  // Images are decoration: if they can't be read (e.g. before the migration
+  // has run), headlines just show without them.
+  if (error) return [];
+  return data;
 }
