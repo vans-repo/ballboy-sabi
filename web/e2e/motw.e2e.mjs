@@ -262,18 +262,17 @@ try {
     "Data check page lists both",
     (await page.getByRole("button", { name: "Apply" }).count()) === 2,
   );
-  // An applied fix leaves the waiting list (the page refreshes), so wait for
-  // the number of Apply buttons to drop.
-  for (let left = 2; left > 0; left--) {
-    await page.getByRole("button", { name: "Apply" }).first().click();
-    await page.waitForFunction(
-      (n) =>
-        [...document.querySelectorAll("button")].filter(
-          (b) => b.textContent === "Apply" && !b.disabled,
-        ).length < n,
-      left,
-      { timeout: 30000 },
-    );
+  // Tap Apply on each card in turn and wait until the database shows it applied.
+  const applied = () =>
+    Number(sql(`select count(*) from public.data_suggestions where status = 'applied'`));
+  for (let done = 1; done <= 2; done++) {
+    await page
+      .locator("button:not([disabled])", { hasText: /^Apply$/ })
+      .first()
+      .click();
+    for (let t = 0; t < 60 && applied() < done; t++) await page.waitForTimeout(500);
+    await page.reload();
+    if (done < 2) await page.getByRole("button", { name: "Apply" }).first().waitFor();
   }
   check(
     "Apply: the result is saved",
