@@ -141,5 +141,10 @@ long random string (32 or more characters) and keep a copy:
   in the SQL Editor before merging.
 - [ ] /admin → Images: add 3 to 5 generic images per category.
 
+### YouTube links (November 2026)
+
+- [ ] Run `supabase/migrations/20261125000100_match_videos.sql` in the SQL Editor
+  before merging.
+
 Free tiers only: Vercel Hobby (non-commercial, so ads and sponsors stay
 off), Supabase Free, GitHub Actions free minutes, Brevo Free (300 emails a day).

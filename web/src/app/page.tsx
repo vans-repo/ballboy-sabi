@@ -164,6 +164,7 @@ async function HomeContent() {
                 {fixtures.map((m) => (
                   <li key={m.id}>
                     <MatchCard
+                      seasonLabel={ctx.current.label}
                       match={m}
                       home={ctx.teams.get(m.homeId)!}
                       away={ctx.teams.get(m.awayId)!}

@@ -8,6 +8,7 @@ import { matchdayId, previewFixtures, type PreviewRow } from "@/lib/admin/fixtur
 import { getViewer } from "@/lib/auth/user";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 import { ALL_CATEGORIES } from "@/config/news-categories";
+import { normaliseYoutube, VIDEO_LABEL, type VideoLabel } from "@/lib/youtube";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Json, TablesUpdate } from "@/lib/supabase/database.types";
 import { createClient } from "@/lib/supabase/server";
@@ -494,6 +495,12 @@ export async function applySuggestion(id: string): Promise<ActionResult> {
       newDate: String(p.date),
       newTime: String(p.time),
     });
+  } else if (s.kind === "video") {
+    result = await setMatchVideo({
+      matchId: s.match_id!,
+      url: String(p.url),
+      label: String(p.label) as VideoLabel,
+    });
   } else if (s.kind === "kickoff") {
     const { data: m } = await supabase
       .from("matches")
@@ -589,4 +596,28 @@ export async function deleteNewsImage(id: string): Promise<ActionResult> {
     await createAdminClient().storage.from("news-images").remove([img.storage_path]);
   updateTag(CACHE_TAGS.news);
   return { message: "Image removed." };
+}
+
+// ---------------------------------------------------------------------------
+// Match videos: the official YouTube livestream, highlights or replay
+// ---------------------------------------------------------------------------
+export async function setMatchVideo(input: {
+  matchId: string;
+  url: string;
+  label: VideoLabel;
+}): Promise<ActionResult> {
+  const supabase = await admin();
+  const clear = !input.url.trim();
+  const url = clear ? null : normaliseYoutube(input.url);
+  if (!clear && !url)
+    return { error: "Paste a YouTube video link (youtube.com/watch?v=… or youtu.be/…)." };
+  if (!clear && !(input.label in VIDEO_LABEL))
+    return { error: "Choose live, highlights or full match." };
+  const { error } = await supabase
+    .from("matches")
+    .update({ video_url: url, video_label: clear ? null : input.label })
+    .eq("id", input.matchId);
+  if (error) return { error: error.message };
+  refreshPublicPages();
+  return { message: clear ? "Video removed." : "Video saved." };
 }

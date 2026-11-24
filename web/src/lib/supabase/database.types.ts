@@ -216,6 +216,8 @@ export type Database = {
           season_id: string;
           source_order: number | null;
           status: Database["public"]["Enums"]["match_status"];
+          video_label: string | null;
+          video_url: string | null;
           updated_at: string;
           updated_by: string | null;
         };
@@ -235,6 +237,8 @@ export type Database = {
           season_id: string;
           source_order?: number | null;
           status?: Database["public"]["Enums"]["match_status"];
+          video_label?: string | null;
+          video_url?: string | null;
           updated_at?: string;
           updated_by?: string | null;
         };
@@ -254,6 +258,8 @@ export type Database = {
           season_id?: string;
           source_order?: number | null;
           status?: Database["public"]["Enums"]["match_status"];
+          video_label?: string | null;
+          video_url?: string | null;
           updated_at?: string;
           updated_by?: string | null;
         };

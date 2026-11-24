@@ -44,6 +44,9 @@ export type Match = {
   homeGoals: number | null;
   awayGoals: number | null;
   notes: string | null;
+  /** Official YouTube video for the match (livestream, highlights or replay). */
+  videoUrl: string | null;
+  videoLabel: "live" | "highlights" | "replay" | null;
 };
 export type TableRow = {
   position: number;
@@ -156,7 +159,7 @@ export async function getAllMatches(): Promise<Match[]> {
         .from("matches")
         .select(
           "id,season_id,matchday_id,home_team_id,away_team_id,kickoff_at,kickoff_estimated," +
-            "kickoff_time_confirmed,source_order,status,home_goals,away_goals,notes",
+            "kickoff_time_confirmed,source_order,status,home_goals,away_goals,notes,video_url,video_label",
         )
         .order("kickoff_at")
         .order("source_order", { nullsFirst: false })
@@ -182,6 +185,8 @@ export async function getAllMatches(): Promise<Match[]> {
     homeGoals: m.home_goals,
     awayGoals: m.away_goals,
     notes: m.notes,
+    videoUrl: m.video_url,
+    videoLabel: m.video_label as Match["videoLabel"],
   }));
 }
 

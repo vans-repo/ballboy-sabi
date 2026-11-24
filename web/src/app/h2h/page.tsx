@@ -112,6 +112,7 @@ async function HeadToHead({ a, b }: { a: string | null; b: string | null }) {
       {upcoming && (
         <Section title="Next meeting">
           <MatchCard
+            seasonLabel={ctx.seasonLabel(upcoming.seasonId)}
             match={upcoming}
             home={ctx.teams.get(upcoming.homeId)!}
             away={ctx.teams.get(upcoming.awayId)!}
@@ -157,6 +158,7 @@ async function HeadToHead({ a, b }: { a: string | null; b: string | null }) {
               {[...meetings].reverse().map((m) => (
                 <li key={m.id}>
                   <MatchCard
+                    seasonLabel={ctx.seasonLabel(m.seasonId)}
                     match={m}
                     home={ctx.teams.get(m.homeId)!}
                     away={ctx.teams.get(m.awayId)!}

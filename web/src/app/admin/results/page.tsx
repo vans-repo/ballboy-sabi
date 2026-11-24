@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { VideoEditor } from "@/components/admin/forms";
 import { ResultEditor } from "@/components/admin/result-editor";
 import { Empty, PageTitle } from "@/components/section";
 import { requireAdmin } from "@/lib/admin/guard";
@@ -75,6 +76,7 @@ export default async function ResultsHistoryPage({ searchParams }: PageProps<"/a
           {list.map((m) => (
             <li key={m.id}>
               <ResultEditor match={editable(m, ctx)} />
+              <VideoEditor matchId={m.id} url={m.videoUrl} label={m.videoLabel} />
             </li>
           ))}
         </ul>
