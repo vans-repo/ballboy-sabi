@@ -88,6 +88,25 @@ try {
     (await page.getByRole("link", { name: "Me", exact: true }).count()) === 0 &&
       (await page.getByRole("link", { name: "Accuracy" }).count()) === 0,
   );
+  // Google sign-in: a code that lands on a page goes on to /auth/callback, and
+  // a half-finished sign-in (only the code-verifier cookie) isn't "logged in".
+  const stray = await fetch(`${BASE}/?code=abc123`, { redirect: "manual" });
+  const strayTo = new URL(stray.headers.get("location") ?? "", BASE);
+  check(
+    "A sign-in code on Home is finished at /auth/callback",
+    stray.status === 307 &&
+      strayTo.pathname === "/auth/callback" &&
+      strayTo.searchParams.get("code") === "abc123" &&
+      strayTo.searchParams.get("next") === "/",
+    `${stray.status} ${strayTo}`,
+  );
+  const half = await browser.newContext();
+  await half.addCookies([{ name: "sb-e2e-auth-token-code-verifier", value: "x", url: BASE }]);
+  const hp = await half.newPage();
+  await hp.goto(`${BASE}/`);
+  await hp.getByRole("link", { name: "Sign up / Log in" }).first().waitFor();
+  check("A half-finished Google sign-in still shows Sign up / Log in", true);
+  await half.close();
   const motw = page.getByRole("region", { name: /Lobi Stars v Heartland/i });
   check(
     "Home: the Upset Alert with the highest away chance is Match of the Week",

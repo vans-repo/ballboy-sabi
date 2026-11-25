@@ -2,12 +2,11 @@
 
 import { useEffect, useState } from "react";
 
+import { isSessionCookie } from "@/lib/auth/session-cookie";
+
 /** The same test the proxy uses: is there a Supabase session cookie? */
 const hasSessionCookie = () =>
-  document.cookie.split(";").some((c) => {
-    const name = c.trim().split("=")[0];
-    return name.startsWith("sb-") && name.includes("auth-token");
-  });
+  document.cookie.split(";").some((c) => isSessionCookie(c.trim().split("=")[0]));
 
 /**
  * Whether someone is logged in, from the session cookie (no network call).

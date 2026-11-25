@@ -743,3 +743,13 @@ what was decided and why. Newest stage at the bottom.
      share image through the phone's share sheet, or saved, where that isn't
      possible. Fans' posts carry no model numbers. The admin keeps "Post on
      X with the Ballboy's read" for their own posts.
+149. **Google sign-in on phones:** the site asks Supabase to send fans back to
+     `/auth/callback`. When Supabase doesn't accept that address it sends
+     them to its Site URL instead, with the sign-in code on the page, where
+     nothing finished the sign-in. Any page that gets a `?code=` now passes
+     it on to `/auth/callback`, then returns to that page. The "logged in"
+     test (proxy and header) now ignores Supabase's short-lived
+     `...-code-verifier` cookies, so a half-finished sign-in no longer counts.
+     Supabase → Authentication → URL Configuration must have Site URL
+     `https://ballboy-sabi.vercel.app` and Redirect URL
+     `https://ballboy-sabi.vercel.app/**` (README checklist).

@@ -141,6 +141,13 @@ long random string (32 or more characters) and keep a copy:
   in the SQL Editor before merging.
 - [ ] /admin → Images: add 3 to 5 generic images per category.
 
+### Google sign-in (November 2026)
+
+- [ ] Supabase → Authentication → URL Configuration: Site URL
+  `https://ballboy-sabi.vercel.app`; Redirect URLs include
+  `https://ballboy-sabi.vercel.app/**` (and nothing on a `*.vercel.app`
+  preview or deployment address, which asks for a Vercel login).
+
 ### YouTube links (November 2026)
 
 - [ ] Run `supabase/migrations/20261125000100_match_videos.sql` in the SQL Editor
