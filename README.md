@@ -141,6 +141,16 @@ long random string (32 or more characters) and keep a copy:
   in the SQL Editor before merging.
 - [ ] /admin → Images: add 3 to 5 generic images per category.
 
+### Google Search (November 2026)
+
+- [ ] Search Console (search.google.com/search-console): Add property →
+  "URL prefix" → `https://ballboy-sabi.vercel.app/` → verify with "HTML tag".
+  Copy only the `content="…"` value into Vercel → Environment Variables as
+  `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`, redeploy, then press Verify.
+- [ ] Search Console → Sitemaps: submit `sitemap.xml`.
+- [ ] Bing Webmaster Tools (bing.com/webmasters): "Import from Google Search
+  Console". Bing feeds ChatGPT search and Copilot.
+
 ### Google sign-in (November 2026)
 
 - [ ] Supabase → Authentication → URL Configuration: Site URL

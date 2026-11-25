@@ -16,6 +16,7 @@ import { TeamLink } from "@/components/team-badge";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 import { getFanSplit, getFrozenPredictions, getLatestPredictions } from "@/lib/data";
 import { getContext } from "@/lib/data/context";
+import { abs, JsonLd } from "@/lib/seo";
 import { renderTime } from "@/lib/time";
 import {
   form,
@@ -42,16 +43,35 @@ export async function generateMetadata({ params }: PageProps<"/match/[id]">): Pr
 async function matchTitle(id: string): Promise<Metadata | null> {
   "use cache";
   cacheLife("hours");
-  cacheTag(CACHE_TAGS.matches);
+  cacheTag(CACHE_TAGS.matches, CACHE_TAGS.predictions);
   if (!UUID.test(id)) return null;
   const ctx = await getContext();
   const m = ctx.matches.find((x) => x.id === id);
   if (!m) return null;
   const home = ctx.teams.get(m.homeId)!.name;
   const away = ctx.teams.get(m.awayId)!.name;
+  const where = [
+    `NPFL ${ctx.seasonLabel(m.seasonId)}`,
+    m.matchday ? `Matchday ${m.matchday}` : null,
+    m.kickoffEstimated ? null : formatShortDate(m.kickoff),
+  ]
+    .filter(Boolean)
+    .join(", ");
+  const canonical = `/match/${m.id}`;
+  if (hasResult(m))
+    return {
+      title: `${home} ${m.homeGoals}–${m.awayGoals} ${away}: result`,
+      description: `${home} ${m.homeGoals}–${m.awayGoals} ${away} (${where}). The result, the Ballboy's prediction before kick-off, and every past meeting.`,
+      alternates: { canonical },
+    };
+  const p = (await getLatestPredictions())[m.id];
+  const chances = p
+    ? ` The Ballboy gives ${home} ${pct(p.p_home)}, a draw ${pct(p.p_draw)} and ${away} ${pct(p.p_away)}.`
+    : "";
   return {
-    title: `${home} v ${away}`,
-    description: `${home} v ${away}, ${ctx.seasonLabel(m.seasonId)}: Home, Draw and Away percentages and likely scores. Pick a result and try to beat the Ballboy.`,
+    title: `${home} vs ${away} prediction`,
+    description: `${home} vs ${away} prediction (${where}).${chances} Likely scores, form and head-to-head. Free to play: beat the Ballboy.`,
+    alternates: { canonical },
   };
 }
 
@@ -110,7 +130,31 @@ async function MatchDetail({ id }: { id: string }) {
     <article>
       {/* 1. Header: team colours and codes, like the share poster */}
       <TeamCodes home={home} away={away} className="-mx-4 mb-4 md:mx-0 md:rounded-2xl" />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "SportsEvent",
+          name: `${home.name} vs ${away.name}`,
+          url: abs(`/match/${m.id}`),
+          sport: "Soccer",
+          ...(m.kickoffEstimated ? {} : { startDate: m.kickoff }),
+          eventStatus: `https://schema.org/${
+            m.status === "postponed"
+              ? "EventPostponed"
+              : m.status === "cancelled" || m.status === "abandoned"
+                ? "EventCancelled"
+                : "EventScheduled"
+          }`,
+          homeTeam: { "@type": "SportsTeam", name: home.name, url: abs(`/team/${home.slug}`) },
+          awayTeam: { "@type": "SportsTeam", name: away.name, url: abs(`/team/${away.slug}`) },
+        }}
+      />
       <header className="mb-6">
+        <h1 className="sr-only">
+          {played
+            ? `${home.name} ${m.homeGoals}–${m.awayGoals} ${away.name}`
+            : `${home.name} vs ${away.name} prediction`}
+        </h1>
         <p className="text-sm text-muted-foreground">
           {season}
           {m.matchday && ` · Matchday ${m.matchday}`}

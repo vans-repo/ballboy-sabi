@@ -183,6 +183,36 @@ try {
     (await page.locator("article", { hasText: "Enyimba" }).getByText("Oriental derby").count()) > 0,
   );
 
+  // --- SEO and answer engines: titles, canonical links, structured data, llms.txt
+  const lobi = sql(`select m.id from public.matches m join public.teams t on t.id = m.home_team_id
+                    where t.name = 'Lobi Stars' and m.matchday_id = (select id from public.matchdays where number = ${md})`);
+  const matchHtml = await (await fetch(`${BASE}/match/${lobi}`)).text();
+  const ld = [...matchHtml.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map(
+    (x) => JSON.parse(x[1]),
+  );
+  check(
+    "Match page: 'vs … prediction' title with the chances, a canonical link, an h1",
+    /<title>Lobi Stars vs Heartland prediction/.test(matchHtml) &&
+      /The Ballboy gives Lobi Stars 44%/.test(matchHtml) &&
+      matchHtml.includes(`rel="canonical" href="${BASE}/match/${lobi}"`) &&
+      /<h1[^>]*>Lobi Stars vs Heartland prediction<\/h1>/.test(matchHtml),
+    matchHtml.match(/<title>.*?<\/title>/)?.[0],
+  );
+  check(
+    "Match page: SportsEvent and the site's WebSite/Organization data",
+    ld.some((d) => d["@type"] === "SportsEvent" && d.homeTeam?.name === "Lobi Stars") &&
+      ld.some((d) => d["@graph"]?.some((g) => g["@type"] === "WebSite")),
+    JSON.stringify(ld).slice(0, 300),
+  );
+  const about = await (await fetch(`${BASE}/about`)).text();
+  check("About: questions as FAQPage data", about.includes('"@type":"FAQPage"'));
+  const llms = await fetch(`${BASE}/llms.txt`);
+  const llmsText = await llms.text();
+  check(
+    "llms.txt describes the site",
+    llms.status === 200 && llmsText.startsWith("# ") && llmsText.includes("/fixtures"),
+  );
+
   // --- 2. The admin chooses another match ------------------------------------
   await logIn(page, "admin@e2e.invalid", "admin-password-1");
   await page.getByRole("link", { name: "Me", exact: true }).first().waitFor();

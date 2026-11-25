@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/site-header";
 import { BottomTabs, SideNav } from "@/components/site-nav";
 import { SITE_NAME } from "@/config/site";
 import { publicEnv } from "@/lib/env";
+import { JsonLd, siteJsonLd } from "@/lib/seo";
 
 import "./globals.css";
 
@@ -25,9 +26,17 @@ const barlowCondensed = Barlow_Condensed({
 export const metadata: Metadata = {
   // Absolute URLs for share images (WhatsApp and X need them).
   metadataBase: new URL(publicEnv.siteUrl),
-  title: { default: SITE_NAME, template: `%s · ${SITE_NAME}` },
+  title: {
+    default: `${SITE_NAME}: NPFL predictions, fixtures, table and a free prediction game`,
+    template: `%s · ${SITE_NAME}`,
+  },
   description:
-    "Data-driven NPFL match predictions with Home, Draw and Away percentages, and Beat the Ballboy, a free prediction game.",
+    "NPFL predictions for every Nigeria Premier Football League match: Home, Draw and Away percentages, likely scores, fixtures, results and the table. Play Beat the Ballboy free.",
+  alternates: { canonical: "/" },
+  // Google Search Console: the content of the "HTML tag" verification method.
+  verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
+    : undefined,
   applicationName: SITE_NAME,
   openGraph: { siteName: SITE_NAME, type: "website", locale: "en_NG" },
   twitter: { card: "summary_large_image" },
@@ -54,6 +63,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               "try{if(localStorage.getItem('theme')==='light'){document.documentElement.classList.replace('dark','light')}}catch(e){}",
           }}
         />
+        <JsonLd data={siteJsonLd()} />
       </head>
       <body className="flex min-h-full flex-col pb-[calc(3.5rem+env(safe-area-inset-bottom))] md:pb-0">
         <a href="#main" className="sr-only focus:not-sr-only focus:p-3">

@@ -11,6 +11,7 @@ import { TeamBadge } from "@/components/team-badge";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 import { getFrozenPredictions, getLatestPredictions, getLeagueTable, type Match } from "@/lib/data";
 import { getContext } from "@/lib/data/context";
+import { abs, JsonLd, LEAGUE } from "@/lib/seo";
 import { renderTime } from "@/lib/time";
 import {
   form,
@@ -35,8 +36,9 @@ async function teamMeta(slug: string): Promise<Metadata> {
   const team = (await getContext()).bySlug.get(slug);
   return team
     ? {
-        title: team.name,
-        description: `${team.name}: rating, form, results and records in the NPFL since 2021/22.`,
+        title: `${team.name}: NPFL results, form and fixtures`,
+        description: `${team.name} in the NPFL: this season's results, form, position in the table, next match and records since 2021/22.`,
+        alternates: { canonical: `/team/${team.slug}` },
       }
     : { title: "Team" };
 }
@@ -98,6 +100,17 @@ async function TeamProfile({ slug }: { slug: string }) {
 
   return (
     <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "SportsTeam",
+          name: team.name,
+          sport: "Soccer",
+          url: abs(`/team/${team.slug}`),
+          ...(team.city ? { location: { "@type": "Place", name: team.city } } : {}),
+          memberOf: LEAGUE,
+        }}
+      />
       <header className="mb-6 flex items-center gap-4">
         <TeamBadge team={team} size="lg" />
         <div>

@@ -195,6 +195,6 @@ export function motwPostText(w: Motw, withRead = false): string {
 
 /** One click: X opens with the text and link filled in, and shows the link card. */
 export function xIntentUrl(text: string, url: string): string {
-  const q = new URLSearchParams({ text, url, via: X_HANDLE.replace(/^@/, "") });
+  const q = new URLSearchParams({ text, url, via: X_HANDLE.replace(/^@/, ""), hashtags: "NPFL" });
   return `https://x.com/intent/post?${q}`;
 }

@@ -127,7 +127,7 @@ async function HomeContent() {
               id="matchday"
               className="relative font-heading text-6xl leading-[0.88] font-extrabold uppercase md:text-7xl"
             >
-              Matchday {md}
+              <span className="sr-only">NPFL predictions, </span>Matchday {md}
             </h1>
             <p className="relative text-sm font-semibold">
               {nextKickoff ? (

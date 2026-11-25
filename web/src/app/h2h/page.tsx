@@ -14,9 +14,10 @@ import { renderTime } from "@/lib/time";
 import { hasResult, isUpcoming, record } from "@/lib/football";
 
 export const metadata: Metadata = {
-  title: "Head-to-Head",
+  title: "NPFL Head-to-Head",
   description:
     "Pick two NPFL teams to see every meeting since 2021/22, home and away records and average goals.",
+  alternates: { canonical: "/h2h" },
 };
 
 type Search = { a?: string; b?: string };

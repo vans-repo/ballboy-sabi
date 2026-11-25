@@ -753,3 +753,19 @@ what was decided and why. Newest stage at the bottom.
      Supabase → Authentication → URL Configuration must have Site URL
      `https://ballboy-sabi.vercel.app` and Redirect URL
      `https://ballboy-sabi.vercel.app/**` (README checklist).
+150. **SEO and AEO:**
+     - **Titles and descriptions.** Every public page has a keyword-first title,
+       a plain description and a canonical link. Match pages are titled
+       "<Home> vs <Away> prediction" (or the score once played), and their
+       description gives the Ballboy's percentages.
+     - **Structured data.** Built in `web/src/lib/seo.tsx`:
+       - Every page: WebSite and Organization.
+       - Match pages: SportsEvent.
+       - Team pages: SportsTeam.
+       - About: FAQPage, behind a new visible Questions section.
+     - **Answer engines.** `/llms.txt` summarises the site.
+     - **Search Console.** Verification uses `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`.
+     - **Share posts.** They carry `#NPFL`.
+     - **Writing rules.** `docs/seo-aeo.md` governs site copy, articles and
+       posts. The weekly brief now includes an article pack (titles,
+       subtitle, slug, question headings, links, alt text).

@@ -14,9 +14,10 @@ import { currentMatchday } from "@/lib/football";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Fixtures & Results",
+  title: "NPFL Fixtures and Results",
   description:
     "Every NPFL fixture and result this season, one matchday at a time, with Home, Draw and Away percentages.",
+  alternates: { canonical: "/fixtures" },
 };
 
 type Search = { md?: string; team?: string };
