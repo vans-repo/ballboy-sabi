@@ -122,9 +122,28 @@ try {
       .getByRole("button", { name: /^Share/ })
       .first()
       .click();
-    await scope.getByRole("menuitem", { name: app, exact: true }).click();
+    await page.getByRole("menuitem", { name: app, exact: true }).click();
     return page.evaluate(() => window.__opened.at(-1));
   };
+  // The menu floats over the page: it must not be clipped by the card.
+  await motw
+    .getByRole("button", { name: /^Share/ })
+    .first()
+    .click();
+  const shareMenu = page.getByRole("menu", { name: "Share on" });
+  const menuBox = await shareMenu.boundingBox();
+  const inView = await page.evaluate(
+    ([y, h]) => y >= 0 && y + h <= window.innerHeight,
+    [menuBox?.y ?? -1, menuBox?.height ?? 0],
+  );
+  const onTop = await page.evaluate(() => {
+    const m = document.querySelector('[role="menu"]');
+    const r = m.getBoundingClientRect();
+    const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    return m.contains(hit);
+  });
+  check("Share menu shows in full, over the Match of the Week card", inView && onTop);
+  await page.keyboard.press("Escape");
   const href = await shareOn(motw, "X");
   const intent = new URL(href);
   check(
