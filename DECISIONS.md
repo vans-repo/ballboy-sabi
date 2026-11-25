@@ -783,3 +783,8 @@ what was decided and why. Newest stage at the bottom.
      - **Dropped:** share sign-offs, X posts and llms.txt. The owner found it
        preachy when repeated everywhere.
      - This supersedes the sign-off wording in 148.
+153. **The Share menu floats over the page:** it renders in a portal with a
+     fixed position, below the button or above it when there isn't room
+     (allowing for the phone tab bar), so cards with hidden overflow, like
+     the Match of the Week, can't clip it. It closes on scroll, resize,
+     Escape or a tap elsewhere.

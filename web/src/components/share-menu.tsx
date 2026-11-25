@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { type CSSProperties, useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 import { SHARE_SIGNOFF, shareLinks, shareText } from "@/lib/share-post";
 import { cn } from "@/lib/utils";
@@ -38,6 +39,11 @@ export function ShareMenu({
   // The phone's own share sheet, where there is one (checked after load).
   const [canShare, setCanShare] = useState(false);
   const box = useRef<HTMLDivElement>(null);
+  const menu = useRef<HTMLDivElement>(null);
+  // The menu floats over the page (a portal with a fixed position), so a card
+  // with hidden overflow can't clip it. It opens below the button, or above
+  // when there isn't room below.
+  const [place, setPlace] = useState<CSSProperties>({});
   const menuId = useId();
 
   useEffect(() => {
@@ -47,14 +53,20 @@ export function ShareMenu({
   useEffect(() => {
     if (!open) return;
     const away = (e: Event) => {
-      if (box.current && !box.current.contains(e.target as Node)) setOpen(false);
+      const t = e.target as Node;
+      if (!box.current?.contains(t) && !menu.current?.contains(t)) setOpen(false);
     };
     const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    const close = () => setOpen(false);
     document.addEventListener("pointerdown", away);
     document.addEventListener("keydown", esc);
+    window.addEventListener("scroll", close, { passive: true });
+    window.addEventListener("resize", close);
     return () => {
       document.removeEventListener("pointerdown", away);
       document.removeEventListener("keydown", esc);
+      window.removeEventListener("scroll", close);
+      window.removeEventListener("resize", close);
     };
   }, [open]);
 
@@ -116,8 +128,21 @@ export function ShareMenu({
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={menuId}
-        onClick={() => {
+        onClick={(e) => {
           setNote("");
+          if (!open) {
+            const b = e.currentTarget.getBoundingClientRect();
+            const width = 240;
+            const height = 9 * 44 + 8;
+            const left = Math.max(8, Math.min(b.left, window.innerWidth - width - 8));
+            // On phones the bottom tab bar (3.5rem plus the safe area) covers the last 64px.
+            const below = window.innerHeight - (window.innerWidth < 768 ? 64 : 0) - b.bottom;
+            setPlace(
+              below >= height + 8 || below >= b.top
+                ? { left, top: b.bottom + 8, maxHeight: below - 16 }
+                : { left, bottom: window.innerHeight - b.top + 8, maxHeight: b.top - 16 },
+            );
+          }
           setOpen((o) => !o);
         }}
         className={cn(
@@ -127,57 +152,61 @@ export function ShareMenu({
       >
         <ShareIcon /> {label}
       </button>
-      {open && (
-        <div
-          id={menuId}
-          role="menu"
-          aria-label="Share on"
-          className="absolute top-full left-0 z-30 mt-2 w-60 overflow-hidden rounded-xl border bg-surface py-1 shadow-lg"
-        >
-          <button type="button" role="menuitem" className={item} onClick={go("x")}>
-            <Icon d={X} /> X
-          </button>
-          <button
-            type="button"
-            role="menuitem"
-            className={item}
-            onClick={() => {
-              void copy("Post copied. Paste it into your Facebook post.");
-              go("facebook")();
-            }}
+      {open &&
+        createPortal(
+          <div
+            ref={menu}
+            id={menuId}
+            role="menu"
+            aria-label="Share on"
+            style={place}
+            className="fixed z-50 w-60 overflow-y-auto rounded-xl border bg-surface py-1 shadow-lg"
           >
-            <Icon d={FACEBOOK} /> Facebook
-          </button>
-          <button type="button" role="menuitem" className={item} onClick={go("whatsapp")}>
-            <Icon d={WHATSAPP} /> WhatsApp
-          </button>
-          <button type="button" role="menuitem" className={item} onClick={instagram}>
-            <Icon d={INSTAGRAM} /> Instagram
-          </button>
-          <button type="button" role="menuitem" className={item} onClick={go("telegram")}>
-            <Icon d={TELEGRAM} /> Telegram
-          </button>
-          <button type="button" role="menuitem" className={item} onClick={go("threads")}>
-            <Icon d={THREADS} /> Threads
-          </button>
-          <button
-            type="button"
-            role="menuitem"
-            className={cn(item, "border-t")}
-            onClick={() => {
-              setOpen(false);
-              void copy("Post and link copied.");
-            }}
-          >
-            <Icon d={LINK} /> Copy post and link
-          </button>
-          {canShare && (
-            <button type="button" role="menuitem" className={item} onClick={more}>
-              <ShareIcon /> More apps…
+            <button type="button" role="menuitem" className={item} onClick={go("x")}>
+              <Icon d={X} /> X
             </button>
-          )}
-        </div>
-      )}
+            <button
+              type="button"
+              role="menuitem"
+              className={item}
+              onClick={() => {
+                void copy("Post copied. Paste it into your Facebook post.");
+                go("facebook")();
+              }}
+            >
+              <Icon d={FACEBOOK} /> Facebook
+            </button>
+            <button type="button" role="menuitem" className={item} onClick={go("whatsapp")}>
+              <Icon d={WHATSAPP} /> WhatsApp
+            </button>
+            <button type="button" role="menuitem" className={item} onClick={instagram}>
+              <Icon d={INSTAGRAM} /> Instagram
+            </button>
+            <button type="button" role="menuitem" className={item} onClick={go("telegram")}>
+              <Icon d={TELEGRAM} /> Telegram
+            </button>
+            <button type="button" role="menuitem" className={item} onClick={go("threads")}>
+              <Icon d={THREADS} /> Threads
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              className={cn(item, "border-t")}
+              onClick={() => {
+                setOpen(false);
+                void copy("Post and link copied.");
+              }}
+            >
+              <Icon d={LINK} /> Copy post and link
+            </button>
+            {canShare && (
+              <button type="button" role="menuitem" className={item} onClick={more}>
+                <ShareIcon /> More apps…
+              </button>
+            )}
+          </div>,
+          document.body,
+        )}
       <p role="status" className="mt-1 text-xs text-muted-foreground empty:hidden">
         {note}
       </p>
