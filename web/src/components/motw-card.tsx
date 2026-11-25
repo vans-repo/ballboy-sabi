@@ -41,7 +41,7 @@ export function MotwShareButtons({
           path={`/motw/${w.key}`}
           image={`/motw/${w.key}/poster`}
           imageName={`ballboy-sabi-${w.key}.png`}
-          buttonClassName="bg-foreground font-bold text-background hover:bg-foreground hover:opacity-90"
+          buttonClassName="bg-primary font-bold text-primary-foreground hover:bg-primary-pressed"
         />
       )}
       <a

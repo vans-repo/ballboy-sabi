@@ -769,3 +769,9 @@ what was decided and why. Newest stage at the bottom.
      - **Writing rules.** `docs/seo-aeo.md` governs site copy, articles and
        posts. The weekly brief now includes an article pack (titles,
        subtitle, slug, question headings, links, alt text).
+151. **Calmer dark mode:** dark mode's background moves from the logo navy
+     #001F55 (fully saturated, it glowed on screens) to deep navy #0A1730, and
+     cards from #062664 to #12223F: the same blue hue with less saturation.
+     The logo navy stays wherever the brand mark is: text on yellow, light
+     mode, share images, emails. The Match of the Week "Share…" button is now
+     yellow with navy text instead of white.
