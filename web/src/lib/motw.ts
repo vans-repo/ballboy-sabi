@@ -190,7 +190,7 @@ export function motwPostText(w: Motw, withRead = false): string {
   }
   if (w.kind === "recap")
     return `The Ballboy's week: ${w.right} of ${w.total} Matchday ${w.md} results called right. Can you do better?`;
-  return `Beat the Ballboy: free NPFL predictions game on ${SITE_NAME}. No money involved, ever.`;
+  return `Beat the Ballboy: the free NPFL predictions game on ${SITE_NAME}.`;
 }
 
 /** One click: X opens with the text and link filled in, and shows the link card. */

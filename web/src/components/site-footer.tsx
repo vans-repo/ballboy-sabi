@@ -4,7 +4,7 @@ import { Logo } from "@/components/logo";
 import {
   BRAND,
   CONTACT_EMAIL,
-  FREE_TO_PLAY_LINE,
+  FREE_SHORT,
   INSTAGRAM_URL,
   NOT_AFFILIATED_LINE,
   SUBSTACK_URL,
@@ -66,7 +66,7 @@ export function SiteFooter() {
         <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
           <Logo className="h-3 w-auto text-ink" title={BRAND} />
           <span>© {BRAND}.</span>
-          <span>{FREE_TO_PLAY_LINE}</span>
+          <span>{FREE_SHORT}.</span>
           <span>{NOT_AFFILIATED_LINE} Club names and crests belong to their clubs.</span>
           <span>Times are WAT.</span>
         </p>

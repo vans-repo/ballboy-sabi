@@ -5,10 +5,10 @@ import { X_HANDLE } from "@/config/site";
  * and the Ballboy. Plain English, no betting words.
  */
 export const SHARE_SIGNOFF =
-  "Beat the Ballboy: the free NPFL predictions game by That Naija Ballboy (@NaijaBallboy). No money involved, ever. #NPFL";
+  "Beat the Ballboy: the free NPFL predictions game by That Naija Ballboy (@NaijaBallboy). #NPFL";
 
 /** On X the "via @NaijaBallboy" credit is added by X, so the handle isn't repeated. */
-const X_SIGNOFF = "Beat the Ballboy, the free NPFL predictions game. No money involved, ever.";
+const X_SIGNOFF = "Beat the Ballboy, the free NPFL predictions game.";
 
 /** The full post for apps that take text: message, sign-off, link. */
 export function shareText(message: string, url: string): string {

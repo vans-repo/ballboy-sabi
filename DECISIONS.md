@@ -775,3 +775,11 @@ what was decided and why. Newest stage at the bottom.
      The logo navy stays wherever the brand mark is: text on yellow, light
      mode, share images, emails. The Match of the Week "Share…" button is now
      yellow with navy text instead of white.
+152. **"No money involved, ever." only where it reassures:**
+     - **Full line** (`FREE_TO_PLAY_LINE`): the sign-up and log-in pages, and
+       About's "Is it free?" answer.
+     - **"Free to play"** (`FREE_SHORT`): the footer, share images, the Match
+       of the Week poster and emails.
+     - **Dropped:** share sign-offs, X posts and llms.txt. The owner found it
+       preachy when repeated everywhere.
+     - This supersedes the sign-off wording in 148.

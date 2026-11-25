@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-import { FREE_TO_PLAY_LINE } from "@/config/site";
+import { FREE_SHORT } from "@/config/site";
 import { getFrozenPredictions, getLatestPredictions } from "@/lib/data";
 import { getContext } from "@/lib/data/context";
 import { hasResult } from "@/lib/football";
@@ -17,8 +17,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   const ctx = await getContext();
   const m = ctx.matches.find((x) => x.id === id);
   const fonts = await ogFonts();
-  if (!m)
-    return new ImageResponse(<OgFrame footer={FREE_TO_PLAY_LINE}> </OgFrame>, { ...size, fonts });
+  if (!m) return new ImageResponse(<OgFrame footer={FREE_SHORT}> </OgFrame>, { ...size, fonts });
 
   const [latest, frozen] = await Promise.all([getLatestPredictions(), getFrozenPredictions()]);
   const p = latest[m.id] ?? frozen[m.id];
@@ -40,9 +39,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
     : [];
 
   return new ImageResponse(
-    <OgFrame
-      footer={`${m.matchday ? `Matchday ${m.matchday} · ` : ""}${when} · ${FREE_TO_PLAY_LINE}`}
-    >
+    <OgFrame footer={`${m.matchday ? `Matchday ${m.matchday} · ` : ""}${when} · ${FREE_SHORT}`}>
       {upset && (
         <div
           style={{

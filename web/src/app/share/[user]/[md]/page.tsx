@@ -6,7 +6,7 @@ import { Suspense } from "react";
 
 import { Card, PageTitle } from "@/components/section";
 import { Button } from "@/components/ui/button";
-import { FREE_TO_PLAY_LINE, SITE_NAME } from "@/config/site";
+import { FREE_SHORT, SITE_NAME } from "@/config/site";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 import { ordinal } from "@/lib/format";
 import { matchdayCard } from "@/lib/share";
@@ -65,7 +65,7 @@ async function Share({ params }: { params: Promise<Params> }) {
         Think you can beat The Ballboy? Pick NPFL results before kick-off and score more for the
         surprises.
       </p>
-      <p className="mt-1 text-sm text-muted-foreground">{FREE_TO_PLAY_LINE}</p>
+      <p className="mt-1 text-sm text-muted-foreground">{FREE_SHORT}</p>
       <Button asChild size="lg" className="mt-4">
         <Link href="/pick-all">Play Beat the Ballboy</Link>
       </Button>
