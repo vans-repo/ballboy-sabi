@@ -1,6 +1,6 @@
 import "server-only";
 
-import { BRAND, FREE_TO_PLAY_LINE, SITE_NAME } from "@/config/site";
+import { BRAND, FREE_SHORT, SITE_NAME } from "@/config/site";
 import { getLatestPredictions, getLeaderboard, type LeaderRow } from "@/lib/data";
 import { getContext } from "@/lib/data/context";
 import { publicEnv } from "@/lib/env";
@@ -129,7 +129,7 @@ export function renderPreview(plan: PreviewPlan, user: { id: string; name: strin
     "",
     `Make your picks: ${picksUrl}`,
     "",
-    `${FREE_TO_PLAY_LINE}`,
+    `${FREE_SHORT}.`,
     `Stop these emails: ${unsub}`,
   ].join("\n");
 
@@ -166,7 +166,7 @@ export function renderPreview(plan: PreviewPlan, user: { id: string; name: strin
     <table role="presentation" cellpadding="0" cellspacing="0" style="margin:20px 0"><tr><td style="background:#fed700;border-radius:8px">
       <a href="${esc(picksUrl)}" style="display:inline-block;padding:14px 24px;color:#001f55;font-weight:700;text-decoration:none">Make your picks</a>
     </td></tr></table>
-    <p class="muted" style="margin:0;color:#4b5567;font-size:14px">${esc(FREE_TO_PLAY_LINE)} ${esc(SITE_NAME)} by ${esc(BRAND)}.</p>
+    <p class="muted" style="margin:0;color:#4b5567;font-size:14px">${esc(FREE_SHORT)}. ${esc(SITE_NAME)} by ${esc(BRAND)}.</p>
     <p class="muted" style="margin:8px 0 0;color:#4b5567;font-size:14px">You get this because you asked for the weekly preview. <a href="${esc(unsub)}" style="color:#1d63b0">Unsubscribe</a> with one click.</p>
   </td></tr>
 </table></td></tr></table></body></html>`;

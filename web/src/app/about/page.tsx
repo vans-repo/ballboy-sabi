@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { Card, PageTitle, Section } from "@/components/section";
-import { BRAND, CONTACT_EMAIL, FREE_TO_PLAY_LINE, SITE_NAME } from "@/config/site";
+import { BRAND, CONTACT_EMAIL, FREE_SHORT, FREE_TO_PLAY_LINE, SITE_NAME } from "@/config/site";
 import { JsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = {
@@ -84,7 +84,7 @@ export default function AboutPage() {
       </Section>
 
       <Section title="Free">
-        <p className="font-medium">{FREE_TO_PLAY_LINE}</p>
+        <p className="font-medium">{FREE_SHORT}.</p>
         <p className="mt-2 text-sm text-muted-foreground">
           {SITE_NAME} shows percentages only. There are no prizes and nothing to pay.
         </p>

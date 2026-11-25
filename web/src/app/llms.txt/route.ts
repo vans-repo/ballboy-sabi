@@ -1,11 +1,4 @@
-import {
-  BRAND,
-  FREE_TO_PLAY_LINE,
-  INSTAGRAM_URL,
-  SITE_NAME,
-  SUBSTACK_URL,
-  X_URL,
-} from "@/config/site";
+import { BRAND, INSTAGRAM_URL, SITE_NAME, SUBSTACK_URL, X_URL } from "@/config/site";
 import { publicEnv } from "@/lib/env";
 
 /**
@@ -16,7 +9,7 @@ export function GET() {
   const u = publicEnv.siteUrl;
   const body = `# ${SITE_NAME}
 
-> ${SITE_NAME} is a free site from ${BRAND} with predictions for every Nigeria Premier Football League (NPFL) match: the chance of a home win, a draw and an away win, and the most likely scores, from a model called the Ballboy. Fans play Beat the Ballboy, a free prediction game. ${FREE_TO_PLAY_LINE}
+> ${SITE_NAME} is a free site from ${BRAND} with predictions for every Nigeria Premier Football League (NPFL) match: the chance of a home win, a draw and an away win, and the most likely scores, from a model called the Ballboy. Fans play Beat the Ballboy, a free prediction game.
 
 Percentages update after every NPFL result. Results, fixtures and the table are checked against published reports.
 

@@ -12,8 +12,12 @@ export const BRAND = "That Naija Ballboy";
 /** All times are stored in UTC and shown in West Africa Time. */
 export const DISPLAY_TIME_ZONE = "Africa/Lagos";
 
-/** Shown in the footer and on the About page. */
+/**
+ * The full reassurance: only where it reassures (sign-up, log-in, About).
+ * Everywhere else, FREE_SHORT; repeated on every post it reads as preachy.
+ */
 export const FREE_TO_PLAY_LINE = "Free to play. No money involved, ever.";
+export const FREE_SHORT = "Free to play";
 
 /**
  * League table zones (confirmed by the site owner). Counted from the top and

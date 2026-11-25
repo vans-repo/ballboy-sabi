@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-import { FREE_TO_PLAY_LINE } from "@/config/site";
+import { FREE_SHORT } from "@/config/site";
 import { ordinal } from "@/lib/format";
 import { GOLD, OG_SIZE, OgFrame, ogFonts, SURFACE } from "@/lib/og";
 import { matchdayCard } from "@/lib/share";
@@ -14,11 +14,10 @@ export default async function Image({ params }: { params: Promise<{ user: string
   const { user, md } = await params;
   const card = await matchdayCard(user, Number(md));
   const fonts = await ogFonts();
-  if (!card)
-    return new ImageResponse(<OgFrame footer={FREE_TO_PLAY_LINE}> </OgFrame>, { ...size, fonts });
+  if (!card) return new ImageResponse(<OgFrame footer={FREE_SHORT}> </OgFrame>, { ...size, fonts });
   const beat = card.ballboy ? card.me.points - card.ballboy.points : null;
   return new ImageResponse(
-    <OgFrame footer={`Beat the Ballboy · ${card.season} · ${FREE_TO_PLAY_LINE}`}>
+    <OgFrame footer={`Beat the Ballboy · ${card.season} · ${FREE_SHORT}`}>
       <div
         style={{ display: "flex", fontSize: 56, fontWeight: 800 }}
       >{`${card.name}'s Matchday ${card.md}`}</div>

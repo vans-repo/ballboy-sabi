@@ -3,7 +3,7 @@ import "server-only";
 import { ImageResponse } from "next/og";
 
 import { LOGO_PATH, LOGO_VIEWBOX } from "@/components/logo";
-import { FREE_TO_PLAY_LINE, SITE_NAME, X_HANDLE } from "@/config/site";
+import { FREE_SHORT, SITE_NAME, X_HANDLE } from "@/config/site";
 import { publicEnv } from "@/lib/env";
 import { formatDay, formatKickoffTime } from "@/lib/format";
 import type { Team } from "@/lib/data";
@@ -408,7 +408,7 @@ function Poster({ w }: { w: Motw }) {
           color: "rgba(255,255,255,0.75)",
         }}
       >
-        <div style={{ display: "flex" }}>{FREE_TO_PLAY_LINE}</div>
+        <div style={{ display: "flex" }}>{FREE_SHORT}</div>
         <div style={{ display: "flex", color: GOLD }}>{`${siteHost()} · ${X_HANDLE}`}</div>
       </div>
     </div>
@@ -519,7 +519,7 @@ function Card({ w }: { w: Motw }) {
           <div style={{ display: "flex" }} />
         )}
         <div style={{ display: "flex", fontSize: 22, color: "rgba(255,255,255,0.75)" }}>
-          {`${FREE_TO_PLAY_LINE} · ${X_HANDLE}`}
+          {`${FREE_SHORT} · ${X_HANDLE}`}
         </div>
       </div>
     </div>

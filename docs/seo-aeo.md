@@ -7,7 +7,9 @@ weekly Substack articles, X, Instagram and Facebook posts, and the share text.
 
 The house rules still come first: plain English, short sentences, percentages
 only, no betting words ("bet", "stake", "odds", "tip", "banker", "slip"), and
-no invented facts.
+no invented facts. Say "free" or "free to play" where it helps. Keep "No
+money involved, ever." for where it reassures: sign-up, log-in and the About
+page. Repeated on every post, it reads as preachy.
 
 ## What people search for
 
