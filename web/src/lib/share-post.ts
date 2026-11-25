@@ -5,7 +5,7 @@ import { X_HANDLE } from "@/config/site";
  * and the Ballboy. Plain English, no betting words.
  */
 export const SHARE_SIGNOFF =
-  "Beat the Ballboy: the free NPFL predictions game by That Naija Ballboy (@NaijaBallboy). No money involved, ever.";
+  "Beat the Ballboy: the free NPFL predictions game by That Naija Ballboy (@NaijaBallboy). No money involved, ever. #NPFL";
 
 /** On X the "via @NaijaBallboy" credit is added by X, so the handle isn't repeated. */
 const X_SIGNOFF = "Beat the Ballboy, the free NPFL predictions game. No money involved, ever.";
@@ -23,6 +23,7 @@ export function shareLinks(message: string, url: string) {
       text: `${message} ${X_SIGNOFF}`,
       url,
       via: X_HANDLE.replace(/^@/, ""),
+      hashtags: "NPFL",
     })}`,
     // Facebook takes only the link; the text is copied for the fan to paste.
     facebook: `https://www.facebook.com/sharer/sharer.php?${new URLSearchParams({ u: url })}`,

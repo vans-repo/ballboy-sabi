@@ -88,6 +88,25 @@ try {
     (await page.getByRole("link", { name: "Me", exact: true }).count()) === 0 &&
       (await page.getByRole("link", { name: "Accuracy" }).count()) === 0,
   );
+  // Google sign-in: a code that lands on a page goes on to /auth/callback, and
+  // a half-finished sign-in (only the code-verifier cookie) isn't "logged in".
+  const stray = await fetch(`${BASE}/?code=abc123`, { redirect: "manual" });
+  const strayTo = new URL(stray.headers.get("location") ?? "", BASE);
+  check(
+    "A sign-in code on Home is finished at /auth/callback",
+    stray.status === 307 &&
+      strayTo.pathname === "/auth/callback" &&
+      strayTo.searchParams.get("code") === "abc123" &&
+      strayTo.searchParams.get("next") === "/",
+    `${stray.status} ${strayTo}`,
+  );
+  const half = await browser.newContext();
+  await half.addCookies([{ name: "sb-e2e-auth-token-code-verifier", value: "x", url: BASE }]);
+  const hp = await half.newPage();
+  await hp.goto(`${BASE}/`);
+  await hp.getByRole("link", { name: "Sign up / Log in" }).first().waitFor();
+  check("A half-finished Google sign-in still shows Sign up / Log in", true);
+  await half.close();
   const motw = page.getByRole("region", { name: /Lobi Stars v Heartland/i });
   check(
     "Home: the Upset Alert with the highest away chance is Match of the Week",
@@ -162,6 +181,36 @@ try {
   check(
     "Derby tag: Enyimba v Enugu Rangers is the Oriental derby",
     (await page.locator("article", { hasText: "Enyimba" }).getByText("Oriental derby").count()) > 0,
+  );
+
+  // --- SEO and answer engines: titles, canonical links, structured data, llms.txt
+  const lobi = sql(`select m.id from public.matches m join public.teams t on t.id = m.home_team_id
+                    where t.name = 'Lobi Stars' and m.matchday_id = (select id from public.matchdays where number = ${md})`);
+  const matchHtml = await (await fetch(`${BASE}/match/${lobi}`)).text();
+  const ld = [...matchHtml.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map(
+    (x) => JSON.parse(x[1]),
+  );
+  check(
+    "Match page: 'vs … prediction' title with the chances, a canonical link, an h1",
+    /<title>Lobi Stars vs Heartland prediction/.test(matchHtml) &&
+      /The Ballboy gives Lobi Stars 44%/.test(matchHtml) &&
+      matchHtml.includes(`rel="canonical" href="${BASE}/match/${lobi}"`) &&
+      /<h1[^>]*>Lobi Stars vs Heartland prediction<\/h1>/.test(matchHtml),
+    matchHtml.match(/<title>.*?<\/title>/)?.[0],
+  );
+  check(
+    "Match page: SportsEvent and the site's WebSite/Organization data",
+    ld.some((d) => d["@type"] === "SportsEvent" && d.homeTeam?.name === "Lobi Stars") &&
+      ld.some((d) => d["@graph"]?.some((g) => g["@type"] === "WebSite")),
+    JSON.stringify(ld).slice(0, 300),
+  );
+  const about = await (await fetch(`${BASE}/about`)).text();
+  check("About: questions as FAQPage data", about.includes('"@type":"FAQPage"'));
+  const llms = await fetch(`${BASE}/llms.txt`);
+  const llmsText = await llms.text();
+  check(
+    "llms.txt describes the site",
+    llms.status === 200 && llmsText.startsWith("# ") && llmsText.includes("/fixtures"),
   );
 
   // --- 2. The admin chooses another match ------------------------------------

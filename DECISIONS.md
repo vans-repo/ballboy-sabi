@@ -743,3 +743,35 @@ what was decided and why. Newest stage at the bottom.
      share image through the phone's share sheet, or saved, where that isn't
      possible. Fans' posts carry no model numbers. The admin keeps "Post on
      X with the Ballboy's read" for their own posts.
+149. **Google sign-in on phones:** the site asks Supabase to send fans back to
+     `/auth/callback`. When Supabase doesn't accept that address it sends
+     them to its Site URL instead, with the sign-in code on the page, where
+     nothing finished the sign-in. Any page that gets a `?code=` now passes
+     it on to `/auth/callback`, then returns to that page. The "logged in"
+     test (proxy and header) now ignores Supabase's short-lived
+     `...-code-verifier` cookies, so a half-finished sign-in no longer counts.
+     Supabase → Authentication → URL Configuration must have Site URL
+     `https://ballboy-sabi.vercel.app` and Redirect URL
+     `https://ballboy-sabi.vercel.app/**` (README checklist).
+150. **SEO and AEO:**
+     - **Titles and descriptions.** Every public page has a keyword-first title,
+       a plain description and a canonical link. Match pages are titled
+       "<Home> vs <Away> prediction" (or the score once played), and their
+       description gives the Ballboy's percentages.
+     - **Structured data.** Built in `web/src/lib/seo.tsx`:
+       - Every page: WebSite and Organization.
+       - Match pages: SportsEvent.
+       - Team pages: SportsTeam.
+       - About: FAQPage, behind a new visible Questions section.
+     - **Answer engines.** `/llms.txt` summarises the site.
+     - **Search Console.** Verification uses `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`.
+     - **Share posts.** They carry `#NPFL`.
+     - **Writing rules.** `docs/seo-aeo.md` governs site copy, articles and
+       posts. The weekly brief now includes an article pack (titles,
+       subtitle, slug, question headings, links, alt text).
+151. **Calmer dark mode:** dark mode's background moves from the logo navy
+     #001F55 (fully saturated, it glowed on screens) to deep navy #0A1730, and
+     cards from #062664 to #12223F: the same blue hue with less saturation.
+     The logo navy stays wherever the brand mark is: text on yellow, light
+     mode, share images, emails. The Match of the Week "Share…" button is now
+     yellow with navy text instead of white.

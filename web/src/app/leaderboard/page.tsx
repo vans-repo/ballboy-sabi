@@ -16,6 +16,7 @@ export const metadata: Metadata = {
   title: "Leaderboard",
   description:
     "Beat the Ballboy: the fans who out-picked the Ballboy this matchday, this season and of all time.",
+  alternates: { canonical: "/leaderboard" },
 };
 
 const PAGE_SIZE = 50;

@@ -76,8 +76,8 @@
 :root,
 .dark {
   color-scheme: dark;
-  --background: #001f55;
-  --surface: #062664;
+  --background: #0a1730; /* deep navy: the brand hue, calmer than the logo navy */
+  --surface: #12223f;
   --surface-raised: rgb(255 255 255 / 0.08);
   --tnb-accent: #fed700;
   --tnb-accent-pressed: #e0be00;

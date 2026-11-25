@@ -7,8 +7,9 @@ import { CACHE_TAGS } from "@/lib/cache-tags";
 import { getContext } from "@/lib/data/context";
 
 export const metadata: Metadata = {
-  title: "Teams",
+  title: "NPFL Teams",
   description: "Every NPFL team since 2021/22, with ratings, form and records.",
+  alternates: { canonical: "/teams" },
 };
 
 export default async function TeamsPage() {

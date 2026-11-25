@@ -7,7 +7,7 @@ export default function GlobalError({ reset }: { error: Error; reset: () => void
       <body
         style={{
           margin: 0,
-          background: "#001F55",
+          background: "#0A1730",
           color: "#fff",
           fontFamily: "Arial, Helvetica, sans-serif",
         }}

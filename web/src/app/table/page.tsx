@@ -11,9 +11,10 @@ import { getContext } from "@/lib/data/context";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Table",
+  title: "NPFL Table",
   description:
     "The NPFL table: played, won, drawn, lost, goals, points and form, for every season since 2021/22.",
+  alternates: { canonical: "/table" },
 };
 
 export default function TablePage({ searchParams }: PageProps<"/table">) {
