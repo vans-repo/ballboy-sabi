@@ -786,5 +786,5 @@ what was decided and why. Newest stage at the bottom.
 153. **The Share menu floats over the page:** it renders in a portal with a
      fixed position, below the button or above it when there isn't room
      (allowing for the phone tab bar), so cards with hidden overflow, like
-     the Match of the Week, can't clip it. It closes on scroll, resize,
-     Escape or a tap elsewhere.
+     the Match of the Week, can't clip it. It follows its button when the
+     page scrolls or resizes, and closes on Escape or a tap elsewhere.

@@ -44,6 +44,22 @@ export function ShareMenu({
   // with hidden overflow can't clip it. It opens below the button, or above
   // when there isn't room below.
   const [place, setPlace] = useState<CSSProperties>({});
+  const button = useRef<HTMLButtonElement>(null);
+  // Below the button, or above it when there isn't room. On phones the bottom
+  // tab bar (3.5rem plus the safe area) covers the last 64px.
+  const measure = () => {
+    const b = button.current?.getBoundingClientRect();
+    if (!b) return;
+    const width = 240;
+    const height = 9 * 44 + 8;
+    const left = Math.max(8, Math.min(b.left, window.innerWidth - width - 8));
+    const below = window.innerHeight - (window.innerWidth < 768 ? 64 : 0) - b.bottom;
+    setPlace(
+      below >= height + 8 || below >= b.top
+        ? { left, top: b.bottom + 8, maxHeight: Math.max(below - 16, 160) }
+        : { left, bottom: window.innerHeight - b.top + 8, maxHeight: Math.max(b.top - 16, 160) },
+    );
+  };
   const menuId = useId();
 
   useEffect(() => {
@@ -57,16 +73,16 @@ export function ShareMenu({
       if (!box.current?.contains(t) && !menu.current?.contains(t)) setOpen(false);
     };
     const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
-    const close = () => setOpen(false);
+    // The menu stays with its button when the page scrolls or resizes.
     document.addEventListener("pointerdown", away);
     document.addEventListener("keydown", esc);
-    window.addEventListener("scroll", close, { passive: true });
-    window.addEventListener("resize", close);
+    window.addEventListener("scroll", measure, { passive: true, capture: true });
+    window.addEventListener("resize", measure);
     return () => {
       document.removeEventListener("pointerdown", away);
       document.removeEventListener("keydown", esc);
-      window.removeEventListener("scroll", close);
-      window.removeEventListener("resize", close);
+      window.removeEventListener("scroll", measure, { capture: true });
+      window.removeEventListener("resize", measure);
     };
   }, [open]);
 
@@ -128,21 +144,10 @@ export function ShareMenu({
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={menuId}
-        onClick={(e) => {
+        ref={button}
+        onClick={() => {
           setNote("");
-          if (!open) {
-            const b = e.currentTarget.getBoundingClientRect();
-            const width = 240;
-            const height = 9 * 44 + 8;
-            const left = Math.max(8, Math.min(b.left, window.innerWidth - width - 8));
-            // On phones the bottom tab bar (3.5rem plus the safe area) covers the last 64px.
-            const below = window.innerHeight - (window.innerWidth < 768 ? 64 : 0) - b.bottom;
-            setPlace(
-              below >= height + 8 || below >= b.top
-                ? { left, top: b.bottom + 8, maxHeight: below - 16 }
-                : { left, bottom: window.innerHeight - b.top + 8, maxHeight: b.top - 16 },
-            );
-          }
+          if (!open) measure();
           setOpen((o) => !o);
         }}
         className={cn(
